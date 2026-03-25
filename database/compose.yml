@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  halamond-db:
+    image: postgres:alpine
+    container_name: halamond-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Silneheslo1
+      POSTGRES_DB: halamond
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=trust"
+    ports:
+      - "5434:5432"
+    volumes:
+      - halamond-db-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  halamond-db-data:
