@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ListingState {
+  draft
+  active
+  sold
+  deleted
+  blocked
+
+  @@map("listing_state")
+}
+
+enum TicketState {
+  open
+  closed
+
+  @@map("ticket_state")
+}
+
+enum UserRole {
+  admin
+  user
+
+  @@map("user_role")
+}
+
+enum UserState {
+  active
+  blocked
+
+  @@map("user_state")
+}
+
+model User {
+  UserID    Int       @id @default(autoincrement())
+  Createdat DateTime  @default(now())
+  Email     String    @unique @db.VarChar(255)
+  Password  String    @db.VarChar(255)
+  Role      UserRole  @default(user)
+  State     UserState @default(active)
+  Username  String    @unique @db.VarChar(50)
+
+  listings      Listing[]      @relation("createdListings")
+  comments      Comment[]      @relation("commentAuthor")
+  givenRatings  Rating[]       @relation("givenRatings")
+  receivedRatings Rating[]     @relation("receivedRatings")
+  submittedReports Report[]    @relation("submittedReports")
+  reportedUser  Report[]       @relation("reportedUser")
+  tickets       Ticket[]       @relation("buyer")
+  sentMessages  Message[]      @relation("sentMessages")
+  notifications Notification[] @relation("notifications")
+
+  @@map("User")
+}
+
+model Category {
+  CategoryID     Int        @id @default(autoincrement())
+  Name           String     @db.VarChar(100)
+  parentCategory Int?
+
+  parent       Category?  @relation("subcategories", fields: [parentCategory], references: [CategoryID], onDelete: SetNull)
+  subcategories Category[] @relation("subcategories")
+  listings     Listing[]  @relation("containsListings")
+
+  @@map("Category")
+}
+
+model Listing {
+  ListingID   Int          @id @default(autoincrement())
+  Createdat   DateTime     @default(now())
+  Description String?
+  Price       Decimal      @default(0.00)
+  State       ListingState @default(active)
+  Title       String       @db.VarChar(255)
+  Updatedat   DateTime?    @default(now()) @updatedAt
+  belongsTo   Int?
+  author      Int?
+
+  category  Category? @relation("containsListings", fields: [belongsTo], references: [CategoryID], onDelete: Restrict)
+  user      User?     @relation("createdListings", fields: [author], references: [UserID], onDelete: Cascade)
+  pictures  Picture[] @relation("pictures")
+  tickets   Ticket[]  @relation("conversations")
+  comments  Comment[] @relation("listingComments")
+  reports   Report[]  @relation("reportedListing")
+
+  @@map("Listing")
+}
+
+model Ticket {
+  TicketID       Int         @id @default(autoincrement())
+  Createdat      DateTime    @default(now())
+  State          TicketState @default(open)
+  Updatedat      DateTime    @default(now()) @updatedAt
+  subjectListing Int?
+  buyer          Int?
+
+  listing       Listing?       @relation("conversations", fields: [subjectListing], references: [ListingID], onDelete: Cascade)
+  buyerUser     User?          @relation("buyer", fields: [buyer], references: [UserID], onDelete: NoAction)
+  messages      Message[]      @relation("messages")
+  notifications Notification[] @relation("ticketNotification")
+
+  @@map("Ticket")
+}
+
+model Message {
+  MessageID Int      @id @default(autoincrement())
+  Createdat DateTime @default(now())
+  Text      String?
+  sender    Int?
+  ticket    Int?
+
+  senderUser User?   @relation("sentMessages", fields: [sender], references: [UserID], onDelete: NoAction)
+  ticketRel  Ticket? @relation("messages", fields: [ticket], references: [TicketID], onDelete: Cascade)
+
+  @@map("Message")
+}
+
+model Comment {
+  CommentID     Int      @id @default(autoincrement())
+  Createdat     DateTime @default(now())
+  Text          String
+  Updatedat     DateTime @default(now()) @updatedAt
+  author        Int?
+  parentComment Int?
+  listing       Int?
+
+  authorUser    User?     @relation("commentAuthor", fields: [author], references: [UserID], onDelete: NoAction)
+  parent        Comment?  @relation("replies", fields: [parentComment], references: [CommentID], onDelete: SetNull)
+  replies       Comment[] @relation("replies")
+  listingRel    Listing?  @relation("listingComments", fields: [listing], references: [ListingID], onDelete: Cascade)
+
+  @@map("Comment")
+}
+
+model Rating {
+  RatingID  Int      @id @default(autoincrement())
+  Createdat DateTime @default(now())
+  Rating    Int
+  reviewed  Int?
+  reviewer  Int?
+
+  reviewedUser  User? @relation("receivedRatings", fields: [reviewed], references: [UserID], onDelete: Cascade)
+  reviewerUser  User? @relation("givenRatings", fields: [reviewer], references: [UserID], onDelete: NoAction)
+
+  @@map("Rating")
+}
+
+model Report {
+  ReportID        Int      @id @default(autoincrement())
+  Createdat       DateTime @default(now())
+  Text            String
+  reportedListing Int?
+  reporter        Int?
+  reportedUser    Int?
+
+  reporterUser     User?    @relation("submittedReports", fields: [reporter], references: [UserID], onDelete: Cascade)
+  reportedUserRel  User?    @relation("reportedUser", fields: [reportedUser], references: [UserID], onDelete: NoAction)
+  reportedListingRel Listing? @relation("reportedListing", fields: [reportedListing], references: [ListingID], onDelete: NoAction)
+
+  @@map("Report")
+}
+
+model Picture {
+  PictureID Int    @id @default(autoincrement())
+  Path      String @db.VarChar(255)
+  listing   Int?
+
+  listingRel Listing? @relation("pictures", fields: [listing], references: [ListingID], onDelete: Cascade)
+
+  @@map("Picture")
+}
+
+model Notification {
+  NotificationID Int      @id @default(autoincrement())
+  Createdat      DateTime @default(now())
+  Link           String?  @db.VarChar(255)
+  Read           Boolean  @default(false)
+  Text           String   @db.VarChar(255)
+  recipient      Int?
+  ticket         Int?
+
+  recipientUser User?   @relation("notifications", fields: [recipient], references: [UserID], onDelete: Cascade)
+  ticketRel     Ticket? @relation("ticketNotification", fields: [ticket], references: [TicketID], onDelete: NoAction)
+
+  @@map("Notification")
+}
