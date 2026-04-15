@@ -1,0 +1,8 @@
+export const LOGIN = "LOGIN_VIEW";
+export const PROFILE = "USER_PROFILE";
+
+export const LISTING_LIST = "LISTING_LIST";
+export const LISTING_DETAIL = "LISTING_DETAIL";
+
+export const TICKET_LIST = "TICKET_LIST";
+export const TICKET_DETAIL = "TICKET_DETAIL";
