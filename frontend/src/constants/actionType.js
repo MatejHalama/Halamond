@@ -1,6 +1,16 @@
-export const INIT = 'APP_INIT';
-export const ENTER_LOGIN = 'ENTER_LOGIN';
-export const SUBMIT_LOGIN = 'SUBMIT_LOGIN';
-export const LOGOUT = 'LOGOUT';
+export const INIT = "APP_INIT";
+export const ENTER_LOGIN = "ENTER_LOGIN";
+export const SUBMIT_LOGIN = "SUBMIT_LOGIN";
+export const LOGOUT = "LOGOUT";
 
-export const ENTER_PROFILE = 'ENTER_USER_PROFILE';
+export const ENTER_PROFILE = "ENTER_USER_PROFILE";
+
+export const ENTER_LISTING_LIST = "ENTER_LISTING_LIST";
+export const ENTER_LISTING_DETAIL = "ENTER_LISTING_DETAIL";
+
+export const ENTER_TICKET_LIST = "ENTER_TICKET_LIST";
+export const ENTER_TICKET_DETAIL = "ENTER_TICKET_DETAIL";
+
+export const CONTACT_SELLER = "CONTACT_SELLER";
+export const SEND_MESSAGE = "SEND_MESSAGE";
+export const CLOSE_TICKET = "CLOSE_TICKET";
