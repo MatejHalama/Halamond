@@ -65,6 +65,191 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id))
+        return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+    try {
+        const listing = await prisma.listing.findUnique({
+            where: { ListingID: id },
+        });
+
+        return res.json({ status: "SUCCESS", listing });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+});
+
+router.post("/", requireAuth, async (req, res) => {
+    const { title, price, categoryId, description = "" } = req.body;
+    const userId = req.user.userId;
+
+    if (!title || !price) {
+        return res
+            .status(400)
+            .json({ status: "ERROR", reason: "Chybí název nebo cena inzerátu" });
+    }
+
+    try {
+        // TODO: check user status
+        const listing = await prisma.listing.create({
+            data: {
+                Title: title,
+                Price: parseInt(price),
+                Description: description,
+                CategoryId: categoryId ? parseInt(categoryId) : null,
+                author: userId,
+                State: "draft",
+            },
+        });
+        return res.status(201).json({ status: "SUCCESS", listing });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+});
+
+router.patch("/:id", requireAuth, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id))
+        return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+    const { title, price, description = "", categoryId } = req.body;
+    const userId = req.user.userId;
+
+    try {
+        const listing = await prisma.listing.findUnique({
+            where: { ListingID: id },
+        });
+
+        if (!listing)
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+
+        if (listing.author !== userId) {
+            return res
+                .status(403)
+                .json({ status: "ERROR", reason: "Přístup odepřen" });
+        }
+
+        const updated = await prisma.listing.update({
+            where: { ListingID: id },
+            data: {
+                ...(title && { Title: title }),
+                ...(price && { Price: parseInt(price) }),
+                ...(description && { Description: description }),
+                ...(categoryId && { CategoryId: parseInt(price) }),
+            },
+        });
+
+        return res.json({ status: "SUCCESS", updated });
+    } catch (err) {
+        if (err.code === "P2025")
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        console.error(err);
+        return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+});
+
+router.patch("/:id/activate", requireAuth, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id))
+        return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+    const userId = req.user.userId;
+
+    try {
+        const listing = await prisma.listing.findUnique({
+            where: { ListingID: id },
+        });
+
+        if (!listing)
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+
+        if (listing.author !== userId) {
+            return res
+                .status(403)
+                .json({ status: "ERROR", reason: "Přístup odepřen" });
+        }
+
+        if (listing.State !== "draft" || listing.State !== "sold") {
+            return res
+                .status(403)
+                .json({ status: "ERROR", reason: "Inzerát nelze označit jako aktivní" });
+        }
+
+        const updated = await prisma.listing.update({
+            where: { ListingID: id },
+            data: {
+                State: "active",
+            },
+        });
+
+        return res.json({ status: "SUCCESS", updated });
+    } catch (err) {
+        if (err.code === "P2025")
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        console.error(err);
+        return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+});
+
+router.patch("/:id/sell", requireAuth, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id))
+        return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+    const userId = req.user.userId;
+
+    try {
+        const listing = await prisma.listing.findUnique({
+            where: { ListingID: id },
+        });
+
+        if (!listing)
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+
+        if (listing.author !== userId) {
+            return res
+                .status(403)
+                .json({ status: "ERROR", reason: "Přístup odepřen" });
+        }
+
+        if (listing.State !== "active") {
+            return res
+                .status(403)
+                .json({ status: "ERROR", reason: "Inzerát nelze označit jako prodaný" });
+        }
+
+        const updated = await prisma.listing.update({
+            where: { ListingID: id },
+            data: {
+                State: "sold",
+            },
+        });
+
+        return res.json({ status: "SUCCESS", updated });
+    } catch (err) {
+        if (err.code === "P2025")
+            return res
+                .status(404)
+                .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        console.error(err);
+        return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+});
 
 
 module.exports = router;
