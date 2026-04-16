@@ -27,11 +27,19 @@ export function parseUrl(path) {
     const parts = path.split('/').filter(Boolean);
 
     if (parts.length === 0) {
-        return { context: UI_MODE.LOGIN };
+        return { context: UI_MODE.LISTING_LIST };
     }
 
     if (parts.length === 1 && parts[0] === URLS.LOGIN) {
         return { context: UI_MODE.LOGIN };
+    }
+
+    if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
+        return { context: UI_MODE.LISTING_LIST };
+    }
+
+    if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
+        return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
     }
 
     if (parts.length === 1 && parts[0] === URLS.PROFILE) {
@@ -49,6 +57,10 @@ export function routeToAction(route) {
             return { type: ACTION_TYPE.ENTER_LOGIN };
         case UI_MODE.PROFILE:
             return { type: ACTION_TYPE.ENTER_PROFILE };
+        case UI_MODE.LISTING_LIST:
+            return { type: ACTION_TYPE.ENTER_LISTING_LIST };
+        case UI_MODE.LISTING_DETAIL:
+            return { type: ACTION_TYPE.ENTER_LISTING_DETAIL, payload: {listingId: route.listingId} };
         // TODO: more ui modes
         case UNKNOWN:
             return { type: ACTION_TYPE.ENTER_PROFILE };
@@ -61,13 +73,17 @@ export function urlToAction(url) {
 }
 
 export function stateToPath(state) {
-    const { mode } = state.ui ?? {};
+    const { mode, selectedListing } = state.ui ?? {};
 
     switch (mode) {
         case UI_MODE.LOGIN:
             return `/${URLS.LOGIN}`;
         case UI_MODE.PROFILE:
             return `/${URLS.PROFILE}`;
+        case UI_MODE.LISTING_LIST:
+            return `/${URLS.LISTING_LIST}`;
+        case UI_MODE.LISTING_DETAIL:
+            return selectedListing ? `/${URLS.LISTING_DETAIL}/${selectedListing.ListingID}` : `/${URLS.LISTING_DETAIL}`;
         // TODO: more ui modes
         default:
             return `/${URLS.PROFILE}`;

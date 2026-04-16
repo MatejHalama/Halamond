@@ -1,6 +1,73 @@
 import * as VIEW_STATE_TYPE from '../../constants/viewStateType.js'
 import * as UI_MODE from '../../constants/uiMode.js';
 import * as UI_STATUS from '../../statuses/uiStatus.js';
+import * as ROLE from '../../constants/role.js';
+
+/* ****************************************** */
+/*
+ *  rozhodování o capabilities
+ *
+ */
+/* ****************************************** */
+
+export function canCreateListing(state)
+{
+    // TODO: check if user is not blocked
+    const { role } = state.auth;
+    return role === ROLE.USER;
+}
+
+export function canUpdateListing(state)
+{
+    const { role, userId } = state.auth;
+    if (role !== ROLE.USER) return false;
+
+    const listing = state.ui.selectedListing ?? null;
+    if (!listing) return false;
+
+    if (listing.author === userId) return false;
+
+    return listing.Status === "draft" || listing.Status === "active";
+}
+
+export function canActivateListing(state)
+{
+    const { role, userId } = state.auth;
+    if (role !== ROLE.USER) return false;
+
+    const listing = state.ui.selectedListing ?? null;
+    if (!listing) return false;
+
+    if (listing.author === userId) return false;
+
+    return listing.Status === "draft" || listing.Status === "sold";
+}
+
+export function canSellListing(state)
+{
+    const { role, userId } = state.auth;
+    if (role !== ROLE.USER) return false;
+
+    const listing = state.ui.selectedListing ?? null;
+    if (!listing) return false;
+
+    if (listing.author === userId) return false;
+
+    return listing.Status === "active";
+}
+
+/*export function canEnterAdministration(state)
+{
+    const { role } = state.auth;
+    return role === ROLE.TEACHER;
+}*/
+
+/**/
+
+export function selectListings(state)
+{
+    return state.listings ?? [];
+}
 
 export function selectLoginView(state)
 {
@@ -10,13 +77,43 @@ export function selectLoginView(state)
     };
 }
 
+export function selectListingListView(state)
+{
+    const listings = selectListings(state);
+    return {
+        type: VIEW_STATE_TYPE.LISTING_LIST,
+        listings,
+        // TODO: capabilities
+        capabilities: {
+            canEnterDetail: true,
+            //canEnterAdministration: canEnterAdministration(state),
+            canCreateListing: canCreateListing(state),
+        },
+    };
+}
+
+export function selectExamTermDetailView(state)
+{
+    return {
+        type: VIEW_STATE_TYPE.LISTING_DETAIL,
+        listing: state.ui.selectedListing ?? null,
+        // TODO: capabilities
+        capabilities: {
+            canBackToList: true,
+            //canEnterAdministration: canEnterAdministration(state),
+            canActivateListing: canActivateListing(state),
+            canSellListing: canSellListing(state),
+        },
+    };
+}
+
 export function selectProfileView(state)
 {
     return {
         type: VIEW_STATE_TYPE.PROFILE,
         user: state.auth,
         capabilities: {
-            canBackToList: false,
+            canBackToList: true,
             canLogout: true,
         },
     };
@@ -62,6 +159,10 @@ export function selectViewState(state) {
             return selectLoginView(state);
         case UI_MODE.PROFILE:
             return selectProfileView(state);
+        case UI_MODE.LISTING_LIST:
+            return selectListingListView(state);
+        case UI_MODE.LISTING_DETAIL:
+            return selectExamTermDetailView(state);
         // TODO: more ui modes
         default:
             return {

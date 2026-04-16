@@ -5,7 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/auth");
-// const listingsRoutes = require("./routes/listings");
+const listingsRoutes = require("./routes/listings");
 const ticketsRoutes = require("./routes/tickets");
 // const usersRoutes = require("./routes/users");
 // const categoriesRoutes = require("./routes/categories");
@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
-// app.use("/api/listings", listingsRoutes);
+app.use("/api/listings", listingsRoutes);
 app.use("/api/tickets", ticketsRoutes);
 // app.use("/api/users", usersRoutes);
 // app.use("/api/categories", categoriesRoutes);

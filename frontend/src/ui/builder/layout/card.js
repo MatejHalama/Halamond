@@ -3,6 +3,7 @@ import { createText } from "../components/text.js";
 import { createDiv } from "../components/div.js";
 import { createArticle } from "../components/article.js";
 
+// TODO: accommodate card to listing
 export function createCard({ title, date, state, signed, button})
 {
     const titleElement = createTitle(2, title);

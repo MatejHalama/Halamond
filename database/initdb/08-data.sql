@@ -5,3 +5,8 @@ VALUES
     ('user@example.com', '$2a$10$LB5umNd9uNHFG28ueEtXaeAJgRYeQbTPkjhtZU/6sI4JvSeWhIeri', 'user', 'Petr'),
     ('admin@example.com', '$2a$10$LB5umNd9uNHFG28ueEtXaeAJgRYeQbTPkjhtZU/6sI4JvSeWhIeri', 'admin', 'Pavel')
 ;
+
+INSERT INTO "Listing" ("author", "Title", "Description", "Price")
+VALUES
+    (1, 'Kancelářská židle', 'Pohodlná kancelářská židle v krásném stavu.', 950)
+;

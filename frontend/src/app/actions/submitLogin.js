@@ -52,18 +52,14 @@ export async function submitLogin({ store, api, payload })
         name: loginResult.user.username,
     };
 
-    // TODO: get data
-
     store.setState(
         (state) => (
             {
                 ...state,
                 auth,
-                //exams: dataResult.exams,
-                //registrations: dataResult.registrations,
                 ui: {
                     ...state.ui,
-                    mode: UI_MODE.PROFILE,
+                    mode: UI_MODE.LISTING_LIST,
                     selectedExamId: null,
                     status: UI_STATUS.RDY,
                     notification: {
