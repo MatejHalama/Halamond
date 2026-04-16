@@ -27,11 +27,15 @@ export function parseUrl(path) {
     const parts = path.split('/').filter(Boolean);
 
     if (parts.length === 0) {
-        return { context: UI_MODE.LOGIN };
+        return { context: UI_MODE.LISTING_LIST };
     }
 
     if (parts.length === 1 && parts[0] === URLS.LOGIN) {
         return { context: UI_MODE.LOGIN };
+    }
+
+    if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
+        return { context: UI_MODE.LISTING_LIST };
     }
 
     if (parts.length === 1 && parts[0] === URLS.PROFILE) {
@@ -49,6 +53,8 @@ export function routeToAction(route) {
             return { type: ACTION_TYPE.ENTER_LOGIN };
         case UI_MODE.PROFILE:
             return { type: ACTION_TYPE.ENTER_PROFILE };
+        case UI_MODE.LISTING_LIST:
+            return { type: ACTION_TYPE.ENTER_LISTING_LIST };
         // TODO: more ui modes
         case UNKNOWN:
             return { type: ACTION_TYPE.ENTER_PROFILE };
@@ -68,6 +74,8 @@ export function stateToPath(state) {
             return `/${URLS.LOGIN}`;
         case UI_MODE.PROFILE:
             return `/${URLS.PROFILE}`;
+        case UI_MODE.LISTING_LIST:
+            return `/${URLS.LISTING_LIST}`;
         // TODO: more ui modes
         default:
             return `/${URLS.PROFILE}`;

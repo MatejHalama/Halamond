@@ -8,6 +8,7 @@ import { enterUserProfile } from './actions/enterUserProfile.js';
 
 import * as ACTION_TYPE from '../constants/actionType.js';
 import { syncUrlWithState } from '../infra/router/router.js';
+import {enterListingList} from "./actions/enterListingList.js";
 
 
 function isAuthenticated(state) {
@@ -15,7 +16,12 @@ function isAuthenticated(state) {
 }
 
 function isPublicAction(type) {
-    return [ACTION_TYPE.ENTER_LOGIN, ACTION_TYPE.SUBMIT_LOGIN, ACTION_TYPE.INIT].includes(type);
+    return [
+        ACTION_TYPE.ENTER_LOGIN,
+        ACTION_TYPE.SUBMIT_LOGIN,
+        ACTION_TYPE.ENTER_LISTING_LIST,
+        ACTION_TYPE.INIT
+    ].includes(type);
 }
 
 /**
@@ -62,6 +68,10 @@ export function createDispatcher(store, api) {
 
             case ACTION_TYPE.LOGOUT:
                 result = await logout({ store, api });
+                break;
+
+            case ACTION_TYPE.ENTER_LISTING_LIST:
+                result = await enterListingList({ store, api });
                 break;
 
             case ACTION_TYPE.ENTER_PROFILE:

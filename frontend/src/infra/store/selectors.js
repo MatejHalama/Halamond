@@ -2,11 +2,31 @@ import * as VIEW_STATE_TYPE from '../../constants/viewStateType.js'
 import * as UI_MODE from '../../constants/uiMode.js';
 import * as UI_STATUS from '../../statuses/uiStatus.js';
 
+export function selectListings(state)
+{
+    return state.listings ?? [];
+}
+
 export function selectLoginView(state)
 {
     return {
         type: VIEW_STATE_TYPE.LOGIN,
         capabilities: {},
+    };
+}
+
+export function selectListingListView(state)
+{
+    const listings = selectListings(state);
+    return {
+        type: VIEW_STATE_TYPE.LISTING_LIST,
+        listings,
+        // TODO: capabilities
+        capabilities: {
+            /*canEnterDetail: true,
+            canEnterAdministration: canEnterAdministration(state),
+            canCreateExam: canCreateExam(state),*/
+        },
     };
 }
 
@@ -16,7 +36,7 @@ export function selectProfileView(state)
         type: VIEW_STATE_TYPE.PROFILE,
         user: state.auth,
         capabilities: {
-            canBackToList: false,
+            canBackToList: true,
             canLogout: true,
         },
     };
@@ -62,6 +82,8 @@ export function selectViewState(state) {
             return selectLoginView(state);
         case UI_MODE.PROFILE:
             return selectProfileView(state);
+        case UI_MODE.LISTING_LIST:
+            return selectListingListView(state);
         // TODO: more ui modes
         default:
             return {

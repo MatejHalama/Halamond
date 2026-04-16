@@ -43,13 +43,9 @@ export async function appInit({ store, api, dispatch })
         name: whoResult.user.Username,
     };
 
-    // TODO: get data
-
     store.setState((state) => ({
         ...state,
         auth,
-        //exams,
-        //registrations,
         ui: {
             ...state.ui,
             status: UI_STATUS.RDY,

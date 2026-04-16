@@ -32,6 +32,9 @@ export function createHandlers(dispatch, viewState)
         case VIEW_STATE_TYPE.LOGIN:
             handlers = loginHandlers(dispatch);
             break;
+        case VIEW_STATE_TYPE.LISTING_LIST:
+            handlers = listingListHandlers(dispatch, viewState);
+            break;
         case VIEW_STATE_TYPE.PROFILE:
             handlers = userProfileHandlers(dispatch, viewState);
             break;
@@ -59,9 +62,44 @@ export function loginHandlers(dispatch)
     };
 }
 
+export function listingListHandlers(dispatch, viewState) {
+    const { capabilities } = viewState;
+    const { canEnterDetail, canEnterAdministration, canCreateExam } = capabilities;
+
+    const handlers = {};
+
+    if (canEnterDetail) {
+        handlers.onEnterDetail = (examId) =>
+            dispatch({
+                type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+                payload: { examId },
+            });
+    }
+
+    // TODO
+    /*if (canEnterAdministration) {
+        handlers.onEnterAdministration = (examId) =>
+            dispatch({
+                type: CONST.ENTER_ADMIN,
+                payload: { examId },
+            });
+    }*/
+
+    // TODO
+    /*if (canCreateExam) {
+        handlers.onCreateExamTerm = (data) =>
+            dispatch({
+                type: CONST.ENTER_CREATE,
+                payload: data,
+            });
+    }*/
+
+    return handlers;
+}
+
 export function userProfileHandlers(dispatch) {
     return {
-        //onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LIST }),
+        onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
         onLogout: () => dispatch({ type: ACTION_TYPE.LOGOUT }),
     };
 }

@@ -9,7 +9,7 @@ export function UserProfileView({ viewState, handlers })
     const { onBackToList, onLogout } = handlers;
 
     const container = createSection();
-    //container.appendChild(canGoBack(canBackToList, onBackToList));
+    container.appendChild(canGoBack(canBackToList, onBackToList));
 
     if (canLogout && onLogout)
     {
