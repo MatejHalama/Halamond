@@ -9,6 +9,9 @@ import { enterUserProfile } from './actions/enterUserProfile.js';
 import * as ACTION_TYPE from '../constants/actionType.js';
 import { syncUrlWithState } from '../infra/router/router.js';
 import {enterListingList} from "./actions/enterListingList.js";
+import {enterListingDetail} from "./actions/enterListingDetail.js";
+import {createListing} from "./actions/createListing.js";
+import {activateListing} from "./actions/activateListing.js";
 
 
 function isAuthenticated(state) {
@@ -72,6 +75,18 @@ export function createDispatcher(store, api) {
 
             case ACTION_TYPE.ENTER_LISTING_LIST:
                 result = await enterListingList({ store, api });
+                break;
+
+            case ACTION_TYPE.ENTER_LISTING_DETAIL:
+                result = await enterListingDetail({ store, api, payload });
+                break;
+
+            case ACTION_TYPE.CREATE_LISTING:
+                result = await createListing({ store, api, payload });
+                break;
+
+            case ACTION_TYPE.ACTIVATE_LISTING:
+                result = await activateListing({ store, api, payload });
                 break;
 
             case ACTION_TYPE.ENTER_PROFILE:

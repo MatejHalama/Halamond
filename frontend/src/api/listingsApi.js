@@ -38,5 +38,46 @@ export function createListingsApi() {
         return { status: "ERROR", reason: "Chyba spojení se serverem" };
       }
     },
+
+    async createListing(payload) {
+      const { title, price, categoryId, description = "" } = payload;
+
+      try {
+        const response = await fetch(`${BASE}/api/listings/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            tittle: title,
+            price: price,
+            categoryId: categoryId,
+            description: description,
+          })
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async activateListing(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/activate`, {
+          method: "PATCH",
+          credentials: "include",
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
   };
 }

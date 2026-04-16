@@ -19,8 +19,8 @@ export function ListingListView({ viewState, handlers })
         /*date: exam.date,
         state: `State: ${exam.status}`,*/
         button: [
-          /*addButton( canEnterDetail, onEnterDetail, () => onEnterDetail(exam.id), 'Detail', 'button--primary'),
-          addButton( canEnterAdministration, onEnterAdministration, () => onEnterAdministration(exam.id), 'Administration', 'button--success')*/
+          addButton( canEnterDetail, onEnterDetail, () => onEnterDetail(listing.ListingID), 'Detail', 'button--primary'),
+          /*addButton( canEnterAdministration, onEnterAdministration, () => onEnterAdministration(exam.id), 'Administration', 'button--success')*/
         ]
       });
       cards.appendChild(card);

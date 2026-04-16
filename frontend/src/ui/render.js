@@ -16,6 +16,7 @@ import { createSection } from './builder/components/section.js';
 import * as VIEW_STATE_TYPE from '../constants/viewStateType.js';
 import * as NOTIFICATION_TYPE from '../statuses/notificationType.js';
 import {ListingListView} from "./views/ListingListView.js";
+import {ListingDetailView} from "./views/ListingDetailView.js";
 
 /*
  ** viewState má tvar
@@ -66,6 +67,10 @@ export function render(root, state, dispatch)
 
         case VIEW_STATE_TYPE.LISTING_LIST:
             view = ListingListView({ viewState, handlers });
+            break;
+
+        case VIEW_STATE_TYPE.LISTING_DETAIL:
+            view = ListingDetailView({ viewState, handlers });
             break;
 
         case VIEW_STATE_TYPE.PROFILE:
