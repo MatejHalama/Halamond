@@ -1,7 +1,7 @@
-import * as VIEW_STATE_TYPE from '../../constants/viewStateType.js'
-import * as UI_MODE from '../../constants/uiMode.js';
-import * as UI_STATUS from '../../statuses/uiStatus.js';
-import * as ROLE from '../../constants/role.js';
+import * as VIEW_STATE_TYPE from "../../constants/viewStateType.js";
+import * as UI_MODE from "../../constants/uiMode.js";
+import * as UI_STATUS from "../../statuses/uiStatus.js";
+import * as ROLE from "../../constants/role.js";
 
 /* ****************************************** */
 /*
@@ -10,50 +10,46 @@ import * as ROLE from '../../constants/role.js';
  */
 /* ****************************************** */
 
-export function canCreateListing(state)
-{
-    // TODO: check if user is not blocked
-    const { role } = state.auth;
-    return role === ROLE.USER;
+export function canCreateListing(state) {
+  // TODO: check if user is not blocked
+  const { role } = state.auth;
+  return role === ROLE.USER;
 }
 
-export function canUpdateListing(state)
-{
-    const { role, userId } = state.auth;
-    if (role !== ROLE.USER) return false;
+export function canUpdateListing(state) {
+  const { role, userId } = state.auth;
+  if (role !== ROLE.USER) return false;
 
-    const listing = state.ui.selectedListing ?? null;
-    if (!listing) return false;
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
 
-    if (listing.author === userId) return false;
+  if (listing.author === userId) return false;
 
-    return listing.Status === "draft" || listing.Status === "active";
+  return listing.Status === "draft" || listing.Status === "active";
 }
 
-export function canActivateListing(state)
-{
-    const { role, userId } = state.auth;
-    if (role !== ROLE.USER) return false;
+export function canActivateListing(state) {
+  const { role, userId } = state.auth;
+  if (role !== ROLE.USER) return false;
 
-    const listing = state.ui.selectedListing ?? null;
-    if (!listing) return false;
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
 
-    if (listing.author === userId) return false;
+  if (listing.author === userId) return false;
 
-    return listing.Status === "draft" || listing.Status === "sold";
+  return listing.Status === "draft" || listing.Status === "sold";
 }
 
-export function canSellListing(state)
-{
-    const { role, userId } = state.auth;
-    if (role !== ROLE.USER) return false;
+export function canSellListing(state) {
+  const { role, userId } = state.auth;
+  if (role !== ROLE.USER) return false;
 
-    const listing = state.ui.selectedListing ?? null;
-    if (!listing) return false;
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
 
-    if (listing.author === userId) return false;
+  if (listing.author === userId) return false;
 
-    return listing.Status === "active";
+  return listing.Status === "active";
 }
 
 /*export function canEnterAdministration(state)
@@ -64,59 +60,122 @@ export function canSellListing(state)
 
 /**/
 
-export function selectListings(state)
-{
-    return state.listings ?? [];
+export function canContactSeller(state) {
+  const { role, userId } = state.auth;
+  if (role === ROLE.ANON) return false;
+
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
+  if (listing.State !== "active") return false;
+  if (listing.author === userId) return false;
+
+  return true;
 }
 
-export function selectLoginView(state)
-{
-    return {
-        type: VIEW_STATE_TYPE.LOGIN,
-        capabilities: {},
-    };
+export function canSendMessage(state) {
+  const ticket = state.ui.selectedTicket ?? null;
+  if (!ticket) return false;
+  if (ticket.State !== "open") return false;
+
+  const { userId } = state.auth;
+  return ticket.buyer === userId || ticket.listing?.author === userId;
 }
 
-export function selectListingListView(state)
-{
-    const listings = selectListings(state);
-    return {
-        type: VIEW_STATE_TYPE.LISTING_LIST,
-        listings,
-        // TODO: capabilities
-        capabilities: {
-            canEnterDetail: true,
-            //canEnterAdministration: canEnterAdministration(state),
-            canCreateListing: canCreateListing(state),
-        },
-    };
+export function canCloseTicket(state) {
+  const ticket = state.ui.selectedTicket ?? null;
+  if (!ticket) return false;
+  if (ticket.State !== "open") return false;
+
+  const { userId } = state.auth;
+  return ticket.buyer === userId || ticket.listing?.author === userId;
 }
 
-export function selectExamTermDetailView(state)
-{
-    return {
-        type: VIEW_STATE_TYPE.LISTING_DETAIL,
-        listing: state.ui.selectedListing ?? null,
-        // TODO: capabilities
-        capabilities: {
-            canBackToList: true,
-            //canEnterAdministration: canEnterAdministration(state),
-            canActivateListing: canActivateListing(state),
-            canSellListing: canSellListing(state),
-        },
-    };
+export function selectUnreadCount(state) {
+  const { userId } = state.auth;
+  if (!userId) return 0;
+
+  return (state.tickets ?? []).filter((t) => {
+    if (t.State !== "open") return false;
+    const lastMessage = t.messages?.[0];
+    if (!lastMessage) return false;
+    return lastMessage.sender !== userId;
+  }).length;
 }
 
-export function selectProfileView(state)
-{
-    return {
-        type: VIEW_STATE_TYPE.PROFILE,
-        user: state.auth,
-        capabilities: {
-            canBackToList: true,
-            canLogout: true,
-        },
-    };
+export function selectListings(state) {
+  return state.listings ?? [];
+}
+
+export function selectLoginView(state) {
+  return {
+    type: VIEW_STATE_TYPE.LOGIN,
+    capabilities: {},
+  };
+}
+
+export function selectListingListView(state) {
+  const listings = selectListings(state);
+  return {
+    type: VIEW_STATE_TYPE.LISTING_LIST,
+    listings,
+    categories: state.categories ?? [],
+    filters: state.ui.filters,
+    auth: state.auth,
+    unreadCount: selectUnreadCount(state),
+    capabilities: {
+      canEnterDetail: true,
+      canCreateListing: canCreateListing(state),
+    },
+  };
+}
+
+export function selectExamTermDetailView(state) {
+  return {
+    type: VIEW_STATE_TYPE.LISTING_DETAIL,
+    listing: state.ui.selectedListing ?? null,
+    auth: state.auth,
+    capabilities: {
+      canBackToList: true,
+      canContactSeller: canContactSeller(state),
+      canActivateListing: canActivateListing(state),
+      canSellListing: canSellListing(state),
+    },
+  };
+}
+
+export function selectTicketListView(state) {
+  return {
+    type: VIEW_STATE_TYPE.TICKET_LIST,
+    tickets: state.tickets ?? [],
+    auth: state.auth,
+    unreadCount: selectUnreadCount(state),
+    capabilities: {
+      canEnterDetail: true,
+    },
+  };
+}
+
+export function selectTicketDetailView(state) {
+  return {
+    type: VIEW_STATE_TYPE.TICKET_DETAIL,
+    ticket: state.ui.selectedTicket ?? null,
+    auth: state.auth,
+    capabilities: {
+      canSendMessage: canSendMessage(state),
+      canCloseTicket: canCloseTicket(state),
+    },
+  };
+}
+
+export function selectProfileView(state) {
+  return {
+    type: VIEW_STATE_TYPE.PROFILE,
+    user: state.auth,
+    capabilities: {
+      canBackToList: true,
+      canLogout: true,
+    },
+  };
 }
 
 /*
@@ -143,30 +202,34 @@ export function selectProfileView(state)
  ** }
  */
 export function selectViewState(state) {
-    if (state.ui.status === UI_STATUS.LOAD) {
-        return { type: VIEW_STATE_TYPE.LOADING };
-    }
+  if (state.ui.status === UI_STATUS.LOAD) {
+    return { type: VIEW_STATE_TYPE.LOADING };
+  }
 
-    if (state.ui.status === UI_STATUS.ERR) {
-        return {
-            type: VIEW_STATE_TYPE.ERROR,
-            message:
-                state.ui.errorMessage ?? 'error.' };
-    }
+  if (state.ui.status === UI_STATUS.ERR) {
+    return {
+      type: VIEW_STATE_TYPE.ERROR,
+      message: state.ui.errorMessage ?? "error.",
+    };
+  }
 
-    switch (state.ui.mode) {
-        case UI_MODE.LOGIN:
-            return selectLoginView(state);
-        case UI_MODE.PROFILE:
-            return selectProfileView(state);
-        case UI_MODE.LISTING_LIST:
-            return selectListingListView(state);
-        case UI_MODE.LISTING_DETAIL:
-            return selectExamTermDetailView(state);
-        // TODO: more ui modes
-        default:
-            return {
-                type: VIEW_STATE_TYPE.ERROR,
-                message: 'not known view.' };
-    }
+  switch (state.ui.mode) {
+    case UI_MODE.LOGIN:
+      return selectLoginView(state);
+    case UI_MODE.PROFILE:
+      return selectProfileView(state);
+    case UI_MODE.LISTING_LIST:
+      return selectListingListView(state);
+    case UI_MODE.LISTING_DETAIL:
+      return selectExamTermDetailView(state);
+    case UI_MODE.TICKET_LIST:
+      return selectTicketListView(state);
+    case UI_MODE.TICKET_DETAIL:
+      return selectTicketDetailView(state);
+    default:
+      return {
+        type: VIEW_STATE_TYPE.ERROR,
+        message: "not known view.",
+      };
+  }
 }
