@@ -5,4 +5,4 @@ export const LISTING_LIST = "listings";
 export const LISTING_DETAIL = "listings";
 
 export const TICKET_LIST = "tickets";
-export const TICKET_DETAIL = "tickets/:id";
+export const TICKET_DETAIL = "tickets";

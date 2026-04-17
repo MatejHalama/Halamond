@@ -8,7 +8,7 @@ const authRoutes = require("./routes/auth");
 const listingsRoutes = require("./routes/listings");
 const ticketsRoutes = require("./routes/tickets");
 // const usersRoutes = require("./routes/users");
-// const categoriesRoutes = require("./routes/categories");
+const categoriesRoutes = require("./routes/categories");
 // const ratingsRoutes = require("./routes/ratings");
 // const reportsRoutes = require("./routes/reports");
 
@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5500",
+    origin: ["http://localhost:5500", "http://127.0.0.1:5500"],
     credentials: true,
   }),
 );
@@ -28,7 +28,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingsRoutes);
 app.use("/api/tickets", ticketsRoutes);
 // app.use("/api/users", usersRoutes);
-// app.use("/api/categories", categoriesRoutes);
+app.use("/api/categories", categoriesRoutes);
 // app.use("/api/ratings", ratingsRoutes);
 // app.use("/api/reports", reportsRoutes);
 
