@@ -100,7 +100,7 @@ router.post("/", requireAuth, async (req, res) => {
                 Title: title,
                 Price: parseInt(price),
                 Description: description,
-                CategoryId: categoryId ? parseInt(categoryId) : null,
+                belongsTo: categoryId ? parseInt(categoryId) : null,
                 author: userId,
                 State: "draft",
             },
@@ -142,7 +142,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 ...(title && { Title: title }),
                 ...(price && { Price: parseInt(price) }),
                 ...(description && { Description: description }),
-                ...(categoryId && { CategoryId: parseInt(price) }),
+                ...(categoryId && { belongsTo: parseInt(categoryId) }),
             },
         });
 
@@ -180,7 +180,7 @@ router.patch("/:id/activate", requireAuth, async (req, res) => {
                 .json({ status: "ERROR", reason: "Přístup odepřen" });
         }
 
-        if (listing.State !== "draft" || listing.State !== "sold") {
+        if (listing.State !== "draft" && listing.State !== "sold") {
             return res
                 .status(403)
                 .json({ status: "ERROR", reason: "Inzerát nelze označit jako aktivní" });
