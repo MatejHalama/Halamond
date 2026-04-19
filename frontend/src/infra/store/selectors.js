@@ -23,9 +23,9 @@ export function canUpdateListing(state) {
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
 
-  if (listing.author === userId) return false;
+  if (listing.author !== userId) return false;
 
-  return listing.Status === "draft" || listing.Status === "active";
+  return listing.State === "draft" || listing.State === "active";
 }
 
 export function canActivateListing(state) {
@@ -35,9 +35,9 @@ export function canActivateListing(state) {
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
 
-  if (listing.author === userId) return false;
+  if (listing.author !== userId) return false;
 
-  return listing.Status === "draft" || listing.Status === "sold";
+  return listing.State === "draft" || listing.State === "sold";
 }
 
 export function canSellListing(state) {
@@ -47,9 +47,9 @@ export function canSellListing(state) {
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
 
-  if (listing.author === userId) return false;
+  if (listing.author !== userId) return false;
 
-  return listing.Status === "active";
+  return listing.State === "active";
 }
 
 /*export function canEnterAdministration(state)
