@@ -1,0 +1,35 @@
+import * as API_STATUS from "../../statuses/apiStatus.js";
+import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js";
+
+export async function sendMessage({ store, api, payload }) {
+  const { ticketId, message } = payload;
+
+  const result = await api.tickets.sendMessage(ticketId, message);
+
+  if (result.status !== API_STATUS.OK) {
+    store.setState((state) => ({
+      ...state,
+      ui: {
+        ...state.ui,
+        notification: { type: NOTIFICATION_TYPE.ERR, message: result.reason },
+      },
+    }));
+    return;
+  }
+
+  store.setState((state) => ({
+    ...state,
+    ui: {
+      ...state.ui,
+      selectedTicket: state.ui.selectedTicket
+        ? {
+            ...state.ui.selectedTicket,
+            messages: [
+              ...(state.ui.selectedTicket.messages ?? []),
+              result.message,
+            ],
+          }
+        : state.ui.selectedTicket,
+    },
+  }));
+}

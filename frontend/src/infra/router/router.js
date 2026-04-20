@@ -1,8 +1,8 @@
-import * as UI_MODE from '../../constants/uiMode.js'
-import * as ACTION_TYPE from '../../constants/actionType.js';
-import * as URLS from '../../constants/urls.js';
+import * as UI_MODE from "../../constants/uiMode.js";
+import * as ACTION_TYPE from "../../constants/actionType.js";
+import * as URLS from "../../constants/urls.js";
 
-const UNKNOWN = 'UNKNOWN';
+const UNKNOWN = "UNKNOWN";
 
 // --------------------------------------------------
 // Navigační kontexty jsou:
@@ -18,90 +18,115 @@ const UNKNOWN = 'UNKNOWN';
 
 // URL -> route
 export function urlToRoute(url) {
-    const hashIndex = url.indexOf('#');
-    const path = hashIndex >= 0 ? url.slice(hashIndex + 1) : '';
-    return parseUrl(path);
+  const hashIndex = url.indexOf("#");
+  const path = hashIndex >= 0 ? url.slice(hashIndex + 1) : "";
+  return parseUrl(path);
 }
 
 export function parseUrl(path) {
-    const parts = path.split('/').filter(Boolean);
+  const parts = path.split("/").filter(Boolean);
 
-    if (parts.length === 0) {
-        return { context: UI_MODE.LISTING_LIST };
-    }
+  if (parts.length === 0) {
+    return { context: UI_MODE.LISTING_LIST };
+  }
 
-    if (parts.length === 1 && parts[0] === URLS.LOGIN) {
-        return { context: UI_MODE.LOGIN };
-    }
+  if (parts.length === 1 && parts[0] === URLS.LOGIN) {
+    return { context: UI_MODE.LOGIN };
+  }
 
-    if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
-        return { context: UI_MODE.LISTING_LIST };
-    }
+  if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
+    return { context: UI_MODE.LISTING_LIST };
+  }
 
-    if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
-        return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
-    }
+  if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
+    return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
+  }
 
-    if (parts.length === 1 && parts[0] === URLS.PROFILE) {
-        return { context: UI_MODE.PROFILE };
-    }
+  if (parts.length === 1 && parts[0] === URLS.PROFILE) {
+    return { context: UI_MODE.PROFILE };
+  }
 
-    // TODO: more urls
+  if (parts.length === 1 && parts[0] === URLS.TICKET_LIST) {
+    return { context: UI_MODE.TICKET_LIST };
+  }
 
-    return { context: UNKNOWN };
+  if (parts.length === 2 && parts[0] === URLS.TICKET_LIST) {
+    return { context: UI_MODE.TICKET_DETAIL, ticketId: Number(parts[1]) };
+  }
+
+  return { context: UNKNOWN };
 }
 
 export function routeToAction(route) {
-    switch (route.context) {
-        case UI_MODE.LOGIN:
-            return { type: ACTION_TYPE.ENTER_LOGIN };
-        case UI_MODE.PROFILE:
-            return { type: ACTION_TYPE.ENTER_PROFILE };
-        case UI_MODE.LISTING_LIST:
-            return { type: ACTION_TYPE.ENTER_LISTING_LIST };
-        case UI_MODE.LISTING_DETAIL:
-            return { type: ACTION_TYPE.ENTER_LISTING_DETAIL, payload: {listingId: route.listingId} };
-        // TODO: more ui modes
-        case UNKNOWN:
-            return { type: ACTION_TYPE.ENTER_PROFILE };
-    }
+  switch (route.context) {
+    case UI_MODE.LOGIN:
+      return { type: ACTION_TYPE.ENTER_LOGIN };
+    case UI_MODE.PROFILE:
+      return { type: ACTION_TYPE.ENTER_PROFILE };
+    case UI_MODE.LISTING_LIST:
+      return { type: ACTION_TYPE.ENTER_LISTING_LIST };
+    case UI_MODE.LISTING_DETAIL:
+      return {
+        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId: route.listingId },
+      };
+    case UI_MODE.TICKET_LIST:
+      return { type: ACTION_TYPE.ENTER_TICKET_LIST };
+    case UI_MODE.TICKET_DETAIL:
+      return {
+        type: ACTION_TYPE.ENTER_TICKET_DETAIL,
+        payload: { ticketId: route.ticketId },
+      };
+    case UNKNOWN:
+    default:
+      return { type: ACTION_TYPE.ENTER_LISTING_LIST };
+  }
 }
 
 export function urlToAction(url) {
-    const route = urlToRoute(url);
-    return routeToAction(route);
+  const route = urlToRoute(url);
+  return routeToAction(route);
 }
 
 export function stateToPath(state) {
-    const { mode, selectedListing } = state.ui ?? {};
+  const { mode, selectedListing } = state.ui ?? {};
 
-    switch (mode) {
-        case UI_MODE.LOGIN:
-            return `/${URLS.LOGIN}`;
-        case UI_MODE.PROFILE:
-            return `/${URLS.PROFILE}`;
-        case UI_MODE.LISTING_LIST:
-            return `/${URLS.LISTING_LIST}`;
-        case UI_MODE.LISTING_DETAIL:
-            return selectedListing ? `/${URLS.LISTING_DETAIL}/${selectedListing.ListingID}` : `/${URLS.LISTING_DETAIL}`;
-        // TODO: more ui modes
-        default:
-            return `/${URLS.PROFILE}`;
+  switch (mode) {
+    case UI_MODE.LOGIN:
+      return `/${URLS.LOGIN}`;
+    case UI_MODE.PROFILE:
+      return `/${URLS.PROFILE}`;
+    case UI_MODE.LISTING_LIST:
+      return `/${URLS.LISTING_LIST}`;
+    case UI_MODE.LISTING_DETAIL:
+      return selectedListing
+        ? `/${URLS.LISTING_DETAIL}/${selectedListing.ListingID}`
+        : `/${URLS.LISTING_LIST}`;
+    case UI_MODE.TICKET_LIST:
+      return `/${URLS.TICKET_LIST}`;
+    case UI_MODE.TICKET_DETAIL: {
+      const { selectedTicket } = state.ui ?? {};
+      return selectedTicket
+        ? `/${URLS.TICKET_LIST}/${selectedTicket.TicketID}`
+        : `/${URLS.TICKET_LIST}`;
     }
+    default:
+      return `/${URLS.LISTING_LIST}`;
+  }
 }
 
 export function stateToUrl(state) {
-    return `#${stateToPath(state)}`;
+  return `#${stateToPath(state)}`;
 }
 
 export function syncUrlWithState(state, { replace = false } = {}) {
-    const nextUrl = stateToUrl(state);
-    const currentUrl = window.location.hash || '#';
+  const nextUrl = stateToUrl(state);
+  const currentUrl = window.location.hash || "#";
 
-    if (currentUrl === nextUrl) {
-        return;
-    }
+  if (currentUrl === nextUrl) {
+    return;
+  }
 
-    const method = replace ? 'replaceState' : 'pushState';
-    window.history[method]({ path: nextUrl }, '', nextUrl);
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({ path: nextUrl }, "", nextUrl);
 }

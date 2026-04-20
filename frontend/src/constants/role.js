@@ -1,3 +1,3 @@
-export const ADMIN = 'ADMIN';
-export const USER = 'USER';
-export const ANON = 'ANONYMOUS';
+export const ADMIN = "admin";
+export const USER = "user";
+export const ANON = "anonymous";
