@@ -72,7 +72,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_LOGIN:
-        result = await enterLogin({ store, payload });
+        result = await enterLogin({ store, api, payload });
         break;
 
       case ACTION_TYPE.SUBMIT_LOGIN:
@@ -80,7 +80,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_REGISTER:
-        result = await enterRegister({ store, payload });
+        result = await enterRegister({ store, api, payload });
         break;
 
       case ACTION_TYPE.SUBMIT_REGISTER:
