@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -190,4 +191,40 @@ model Notification {
   ticketRel     Ticket? @relation("ticketNotification", fields: [ticket], references: [TicketID], onDelete: NoAction)
 
   @@map("Notification")
+}
+
+view ActiveListing {
+  ListingID   Int          @unique
+  Createdat   DateTime
+  Description String?
+  Price       Decimal
+  State       ListingState
+  Title       String
+  Updatedat   DateTime?
+  belongsTo   Int?
+  author      Int?
+
+  category  Json?
+  pictures  Json
+
+  @@map("ActiveListing")
+}
+
+view ListingDetail {
+  ListingID   Int          @unique
+  Createdat   DateTime
+  Description String?
+  Price       Decimal
+  State       ListingState
+  Title       String
+  Updatedat   DateTime?
+  belongsTo   Int?
+  author      Int?
+
+  category  Json?
+  user      Json?
+  pictures  Json
+  comments  Json
+
+  @@map("ListingDetail")
 }
