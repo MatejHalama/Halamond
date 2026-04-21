@@ -1,5 +1,6 @@
 import * as UI_MODE from "../../constants/uiMode.js"
 import * as API_STATUS from "../../statuses/apiStatus.js"
+import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js"
 
 export async function createListing({ store, api, payload }) {
     const dataResult = await api.listings.createListing(payload);
@@ -11,7 +12,7 @@ export async function createListing({ store, api, payload }) {
                 ui: {
                     ...state.ui,
                     notification: {
-                        type: "WARNING",
+                        type: NOTIFICATION_TYPE.WAR,
                         message: dataResult.reason,
                     }
                 },
@@ -25,7 +26,11 @@ export async function createListing({ store, api, payload }) {
             ui: {
                 ...state.ui,
                 mode: UI_MODE.LISTING_DETAIL,
-                selectedListing: dataResult.listings,
+                selectedListing: dataResult.listing,
+                notification: {
+                    type: NOTIFICATION_TYPE.OK,
+                    message: "Inzerát vytvořen",
+                }
             },
         };
     });

@@ -34,12 +34,20 @@ export function parseUrl(path) {
     return { context: UI_MODE.LOGIN };
   }
 
+  if (parts.length === 1 && parts[0] === URLS.REGISTER) {
+    return { context: UI_MODE.REGISTER };
+  }
+
   if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
     return { context: UI_MODE.LISTING_LIST };
   }
 
   if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
     return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
+  }
+
+  if (parts.length === 2 && parts[0] === URLS.LISTING_ADMINISTRATION) {
+    return { context: UI_MODE.LISTING_ADMINISTRATION, listingId: parts[1] };
   }
 
   if (parts.length === 1 && parts[0] === URLS.PROFILE) {
@@ -61,6 +69,8 @@ export function routeToAction(route) {
   switch (route.context) {
     case UI_MODE.LOGIN:
       return { type: ACTION_TYPE.ENTER_LOGIN };
+    case UI_MODE.REGISTER:
+      return { type: ACTION_TYPE.ENTER_REGISTER };
     case UI_MODE.PROFILE:
       return { type: ACTION_TYPE.ENTER_PROFILE };
     case UI_MODE.LISTING_LIST:
@@ -68,6 +78,11 @@ export function routeToAction(route) {
     case UI_MODE.LISTING_DETAIL:
       return {
         type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId: route.listingId },
+      };
+    case UI_MODE.LISTING_ADMINISTRATION:
+      return {
+        type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId: route.listingId },
       };
     case UI_MODE.TICKET_LIST:
@@ -94,6 +109,8 @@ export function stateToPath(state) {
   switch (mode) {
     case UI_MODE.LOGIN:
       return `/${URLS.LOGIN}`;
+    case UI_MODE.REGISTER:
+      return `/${URLS.REGISTER}`;
     case UI_MODE.PROFILE:
       return `/${URLS.PROFILE}`;
     case UI_MODE.LISTING_LIST:
@@ -102,6 +119,10 @@ export function stateToPath(state) {
       return selectedListing
         ? `/${URLS.LISTING_DETAIL}/${selectedListing.ListingID}`
         : `/${URLS.LISTING_LIST}`;
+    case UI_MODE.LISTING_ADMINISTRATION:
+      return selectedListing
+          ? `/${URLS.LISTING_ADMINISTRATION}/${selectedListing.ListingID}`
+          : `/${URLS.LISTING_LIST}`;
     case UI_MODE.TICKET_LIST:
       return `/${URLS.TICKET_LIST}`;
     case UI_MODE.TICKET_DETAIL: {

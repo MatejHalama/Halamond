@@ -7,13 +7,13 @@ import { createDiv } from '../builder/components/div.js';
 
 export function LoginView({ viewState, handlers })
 {
-  const { onSubmitLogin } = handlers;
+  const { onSubmitLogin, onEnterRegister } = handlers;
 
   const root = createSection('login-view');
   const card = createDiv('text-center w-25');
 
   card.appendChild(createTitle(1, 'Login'));
-  card.appendChild(createText('Zadejte uživatelské jméno. Heslo se v této variantě neřeší.'));
+  //card.appendChild(createText('Zadejte uživatelské jméno. Heslo se v této variantě neřeší.'));
 
   const email = createInput('',
       {
@@ -36,6 +36,8 @@ export function LoginView({ viewState, handlers })
   card.appendChild(submitButton('Login', () => onSubmitLogin(
       document.getElementById('loginEmailInput').value,
       document.getElementById('loginPasswordInput').value)));
+
+  card.appendChild(submitButton('Register instead', () => onEnterRegister()));
 
   root.appendChild(card);
   return root;

@@ -2,8 +2,8 @@ import * as UI_MODE from "../../constants/uiMode.js"
 import * as API_STATUS from "../../statuses/apiStatus.js"
 import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js"
 
-export async function activateListing({ store, api, payload }) {
-    const dataResult = await api.listings.activateListing(payload.listingId);
+export async function deleteListing({ store, api, payload }) {
+    const dataResult = await api.listings.deleteListing(payload.listingId);
 
     if (dataResult.status !== API_STATUS.OK) {
         store.setState((state) => {
@@ -29,7 +29,7 @@ export async function activateListing({ store, api, payload }) {
                 selectedListing: dataResult.listing,
                 notification: {
                     type: NOTIFICATION_TYPE.OK,
-                    message: "Stav změněn na AKTIVNÍ",
+                    message: "Stav změněn na SMAZÁNO",
                 }
             },
         };

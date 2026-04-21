@@ -4,10 +4,11 @@ import * as UI_STATUS from '../../statuses/uiStatus.js';
 import * as API_STATUS from '../../statuses/apiStatus.js';
 import * as NOTIFICATION_TYPE from '../../statuses/notificationType.js';
 
-export async function submitLogin({ store, api, payload })
+export async function submitRegister({ store, api, payload })
 {
     const email = payload.email?.trim() ?? '';
     const password = payload.password?.trim() ?? '';
+    const username = payload.username?.trim() ?? '';
 
     store.setState(
         (state) => (
@@ -22,22 +23,21 @@ export async function submitLogin({ store, api, payload })
         )
     );
 
-    const loginResult = await api.auth.login(email, password);
+    const registerResult = await api.auth.register(email, password, username);
 
-    if (loginResult.status !== API_STATUS.OK)
+    if (registerResult.status !== API_STATUS.OK)
     {
         store.setState(
             (state) => (
                 {
                     ...state,
-                    auth: { role: ROLE.ANON, userId: null, name: null },
                     ui: {
                         ...state.ui,
-                        mode: UI_MODE.LOGIN,
+                        mode: UI_MODE.REGISTER,
                         status: UI_STATUS.RDY,
                         notification: {
                             type: NOTIFICATION_TYPE.ERR,
-                            message: loginResult.reason
+                            message: registerResult.reason
                         },
                     },
                 }
@@ -46,51 +46,17 @@ export async function submitLogin({ store, api, payload })
         return;
     }
 
-    const auth = {
-        role: loginResult.user.role,
-        userId: loginResult.user.userId,
-        name: loginResult.user.username,
-    };
-
-    store.setState(
-        (state) => (
-            {
-                ...state,
-                auth,
-            }
-        )
-    );
-
-    const dataResult = await api.listings.getListings({});
-
-    if (dataResult.status !== API_STATUS.OK)
-    {
-        store.setState((state) => ({
-            ...state,
-            ui: {
-                ...state.ui,
-                status: UI_STATUS.ERR,
-                errorMessage: 'No data loaded'
-            },
-        }));
-        return;
-    }
-
-    const { listings } = dataResult;
-
     store.setState((state) =>
         {
             return {
                 ...state,
-                listings,
                 ui: {
                     ...state.ui,
-                    mode: UI_MODE.LISTING_LIST,
-                    selectedExamId: null,
+                    mode: UI_MODE.LOGIN,
                     status: UI_STATUS.RDY,
                     notification: {
                         type: NOTIFICATION_TYPE.OK,
-                        message: `Přihlášen jako ${auth.name}` },
+                        message: `Úspěšně zaregistrován. Nyní se můžete přihlásit!` },
                 },
             }
         }

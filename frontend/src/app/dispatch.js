@@ -17,6 +17,12 @@ import { enterTicketDetail } from "./actions/enterTicketDetail.js";
 import { contactSeller } from "./actions/contactSeller.js";
 import { sendMessage } from "./actions/sendMessage.js";
 import { closeTicket } from "./actions/closeTicket.js";
+import { sellListing } from "./actions/sellListing.js";
+import { deleteListing } from "./actions/deleteListing.js";
+import { enterListingAdministration } from "./actions/enterListingAdministration.js";
+import { updateListing } from "./actions/updateListing.js";
+import { enterRegister } from "./actions/enterRegister.js";
+import { submitRegister } from "./actions/submitRegister.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -27,6 +33,7 @@ function isPublicAction(type) {
     ACTION_TYPE.ENTER_LOGIN,
     ACTION_TYPE.SUBMIT_LOGIN,
     ACTION_TYPE.ENTER_LISTING_LIST,
+    ACTION_TYPE.ENTER_LISTING_DETAIL,
     ACTION_TYPE.INIT,
   ].includes(type);
 }
@@ -65,11 +72,19 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_LOGIN:
-        result = await enterLogin({ store, payload });
+        result = await enterLogin({ store, api, payload });
         break;
 
       case ACTION_TYPE.SUBMIT_LOGIN:
         result = await submitLogin({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.ENTER_REGISTER:
+        result = await enterRegister({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_REGISTER:
+        result = await submitRegister({ store, api, payload });
         break;
 
       case ACTION_TYPE.LOGOUT:
@@ -84,12 +99,28 @@ export function createDispatcher(store, api) {
         result = await enterListingDetail({ store, api, payload });
         break;
 
+      case ACTION_TYPE.ENTER_LISTING_ADMINISTRATION:
+        result = await enterListingAdministration({ store, api, payload });
+        break;
+
       case ACTION_TYPE.CREATE_LISTING:
         result = await createListing({ store, api, payload });
         break;
 
+      case ACTION_TYPE.UPDATE_LISTING:
+        result = await updateListing({ store, api, payload });
+        break;
+
       case ACTION_TYPE.ACTIVATE_LISTING:
         result = await activateListing({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SELL_LISTING:
+        result = await sellListing({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.DELETE_LISTING:
+        result = await deleteListing({ store, api, payload });
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:

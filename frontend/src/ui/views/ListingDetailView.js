@@ -16,9 +16,11 @@ export function ListingDetailView({ viewState, handlers }) {
     canBackToList,
     canActivateListing,
     canSellListing,
+    canDeleteListing,
+    canEnterAdministration,
     canContactSeller,
   } = capabilities;
-  const { onBackToList, onActivate, onSell, onContactSeller } = handlers;
+  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller } = handlers;
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
@@ -47,6 +49,15 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(addActionButton(onSell, "Sold", "button--danger"));
   }
 
+  if (canDeleteListing && onDelete) {
+    container.appendChild(addActionButton(onDelete, "Delete", "button--danger"));
+  }
+
+  if (canEnterAdministration && onEnterAdministration)
+  {
+    container.appendChild(addActionButton(onEnterAdministration, 'Administration', 'button--success'));
+  }
+
   if (canContactSeller && onContactSeller) {
     const section = createSection("contact-seller");
     section.appendChild(createTitle(3, "Kontaktovat prodejce"));
@@ -70,8 +81,9 @@ export function ListingDetailView({ viewState, handlers }) {
   }
 
   /**
-   * Teacher - stavové přechody
+   * Admin - stavové přechody
    */
+  // TODO
   /*if (canUnpublish && onUnpublish)
   {
     container.appendChild(addActionButton(onUnpublish, 'Make not public', 'button--danger'));
@@ -90,11 +102,6 @@ export function ListingDetailView({ viewState, handlers }) {
   if (canDelete && onDelete)
   {
     container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
-  }
-
-  if (canEnterAdministration && onEnterAdministration)
-  {
-    container.appendChild(addActionButton(onEnterAdministration, 'Administration', 'button--success'));
   }*/
 
   return container;

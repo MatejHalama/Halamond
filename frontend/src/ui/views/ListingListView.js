@@ -7,10 +7,13 @@ import { createCard } from "../builder/layout/card.js";
 export function ListingListView({ viewState, handlers })
 {
   const { listings, capabilities } = viewState;
-  const { canEnterDetail, canEnterAdministration, canCreateExam } = capabilities;
-  const { onEnterDetail, onEnterAdministration, onCreateExamTerm } = handlers;
+  const { canEnterDetail, canEnterAdministration, canCreateListing } = capabilities;
+  const { onEnterDetail, onEnterAdministration, onCreateListing } = handlers;
 
   const cards = createSection( 'cards');
+
+  console.log(capabilities);
+  console.log(handlers);
 
   listings.forEach((listing) =>
     {
@@ -20,7 +23,7 @@ export function ListingListView({ viewState, handlers })
         state: `State: ${exam.status}`,*/
         button: [
           addButton( canEnterDetail, onEnterDetail, () => onEnterDetail(listing.ListingID), 'Detail', 'button--primary'),
-          /*addButton( canEnterAdministration, onEnterAdministration, () => onEnterAdministration(exam.id), 'Administration', 'button--success')*/
+          addButton( canEnterAdministration, onEnterAdministration, () => onEnterAdministration(listing.ListingID), 'Administration', 'button--success')
         ]
       });
       cards.appendChild(card);
@@ -30,22 +33,21 @@ export function ListingListView({ viewState, handlers })
   return createSection('', [
         createTitle(1, 'Listings'),
         cards,
-        //newEntry(canCreateExam, onCreateExamTerm)
+        newEntry(canCreateListing, onCreateListing)
       ]
   );
 }
 
-function newEntry(canCreateExam, onCreateExamTerm)
+function newEntry(canCreateListing, onCreateListing)
 {
-  if (canCreateExam && onCreateExamTerm)
+  if (canCreateListing && onCreateListing)
   {
-    const btn = createButton('button--primary mt-15', 'Create new entry');
+    const btn = createButton('button--primary mt-15', 'Create new listing');
     btn.addEventListener('click', () =>
-      onCreateExamTerm(
+      onCreateListing(
         {
-          name: 'Nový zkouškový termín',
-          date: '2026-01-01T10:00',
-          capacity: 10,
+          title: 'Nový inzerát',
+          price: '100',
         }
       ),
     );
