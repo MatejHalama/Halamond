@@ -34,6 +34,10 @@ export function parseUrl(path) {
     return { context: UI_MODE.LOGIN };
   }
 
+  if (parts.length === 1 && parts[0] === URLS.REGISTER) {
+    return { context: UI_MODE.REGISTER };
+  }
+
   if (parts.length === 1 && parts[0] === URLS.LISTING_LIST) {
     return { context: UI_MODE.LISTING_LIST };
   }
@@ -65,6 +69,8 @@ export function routeToAction(route) {
   switch (route.context) {
     case UI_MODE.LOGIN:
       return { type: ACTION_TYPE.ENTER_LOGIN };
+    case UI_MODE.REGISTER:
+      return { type: ACTION_TYPE.ENTER_REGISTER };
     case UI_MODE.PROFILE:
       return { type: ACTION_TYPE.ENTER_PROFILE };
     case UI_MODE.LISTING_LIST:
@@ -103,6 +109,8 @@ export function stateToPath(state) {
   switch (mode) {
     case UI_MODE.LOGIN:
       return `/${URLS.LOGIN}`;
+    case UI_MODE.REGISTER:
+      return `/${URLS.REGISTER}`;
     case UI_MODE.PROFILE:
       return `/${URLS.PROFILE}`;
     case UI_MODE.LISTING_LIST:

@@ -1,4 +1,5 @@
 export const LOGIN = "LOGIN_VIEW";
+export const REGISTER = "REGISTER_VIEW";
 export const PROFILE = "USER_PROFILE";
 
 export const LISTING_LIST = "LISTING_LIST";

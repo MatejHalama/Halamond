@@ -31,6 +31,9 @@ export function createHandlers(dispatch, viewState) {
     case VIEW_STATE_TYPE.LOGIN:
       handlers = loginHandlers(dispatch);
       break;
+    case VIEW_STATE_TYPE.REGISTER:
+      handlers = registerHandlers(dispatch);
+      break;
     case VIEW_STATE_TYPE.LISTING_LIST:
       handlers = listingListHandlers(dispatch, viewState);
       break;
@@ -55,7 +58,7 @@ export function createHandlers(dispatch, viewState) {
     // TODO: more handlers
   }
 
-  if (viewState.type !== VIEW_STATE_TYPE.LOGIN) {
+  if (viewState.type !== VIEW_STATE_TYPE.LOGIN && viewState.type !== VIEW_STATE_TYPE.REGISTER) {
     handlers.onEnterProfile = () =>
       dispatch({ type: ACTION_TYPE.ENTER_PROFILE });
   }
@@ -69,6 +72,24 @@ export function loginHandlers(dispatch) {
         type: ACTION_TYPE.SUBMIT_LOGIN,
         payload: { email, password },
       }),
+    onEnterRegister: () =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_REGISTER,
+      }),
+  };
+}
+
+export function registerHandlers(dispatch) {
+  return {
+    onSubmitRegister: (email, password, username) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_REGISTER,
+        payload: { email, password, username },
+      }),
+    onEnterLogin: () =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_LOGIN,
+      })
   };
 }
 

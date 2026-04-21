@@ -131,6 +131,13 @@ export function selectLoginView(state) {
   };
 }
 
+export function selectRegisterView(state) {
+  return {
+    type: VIEW_STATE_TYPE.REGISTER,
+    capabilities: {},
+  };
+}
+
 export function selectListingListView(state) {
   const listings = selectListings(state);
   return {
@@ -250,6 +257,8 @@ export function selectViewState(state) {
   switch (state.ui.mode) {
     case UI_MODE.LOGIN:
       return selectLoginView(state);
+    case UI_MODE.REGISTER:
+      return selectRegisterView(state);
     case UI_MODE.PROFILE:
       return selectProfileView(state);
     case UI_MODE.LISTING_LIST:

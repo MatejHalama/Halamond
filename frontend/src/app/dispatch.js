@@ -17,10 +17,12 @@ import { enterTicketDetail } from "./actions/enterTicketDetail.js";
 import { contactSeller } from "./actions/contactSeller.js";
 import { sendMessage } from "./actions/sendMessage.js";
 import { closeTicket } from "./actions/closeTicket.js";
-import {sellListing} from "./actions/sellListing.js";
-import {deleteListing} from "./actions/deleteListing.js";
-import {enterListingAdministration} from "./actions/enterListingAdministration.js";
-import {updateListing} from "./actions/updateListing.js";
+import { sellListing } from "./actions/sellListing.js";
+import { deleteListing } from "./actions/deleteListing.js";
+import { enterListingAdministration } from "./actions/enterListingAdministration.js";
+import { updateListing } from "./actions/updateListing.js";
+import { enterRegister } from "./actions/enterRegister.js";
+import { submitRegister } from "./actions/submitRegister.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -75,6 +77,14 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.SUBMIT_LOGIN:
         result = await submitLogin({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.ENTER_REGISTER:
+        result = await enterRegister({ store, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_REGISTER:
+        result = await submitRegister({ store, api, payload });
         break;
 
       case ACTION_TYPE.LOGOUT:

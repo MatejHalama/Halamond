@@ -22,7 +22,8 @@ import { ListingListView } from "./views/ListingListView.js";
 import { ListingDetailView } from "./views/ListingDetailView.js";
 import { TicketListView } from "./views/TicketListView.js";
 import { TicketDetailView } from "./views/TicketDetailView.js";
-import {ListingAdministrationView} from "./views/ListingAdministrationView.js";
+import { ListingAdministrationView } from "./views/ListingAdministrationView.js";
+import { RegisterView } from "./views/RegisterView.js";
 
 /*
  ** viewState má tvar
@@ -69,6 +70,10 @@ export function render(root, state, dispatch) {
       view = LoginView({ viewState, handlers });
       break;
 
+    case VIEW_STATE_TYPE.REGISTER:
+      view = RegisterView({ viewState, handlers });
+      break;
+
     case VIEW_STATE_TYPE.LISTING_LIST:
       view = ListingListView({ viewState, handlers });
       break;
@@ -102,7 +107,8 @@ export function render(root, state, dispatch) {
   if (
     state.auth.userId &&
     viewState.type !== VIEW_STATE_TYPE.PROFILE &&
-    viewState.type !== VIEW_STATE_TYPE.LOGIN
+    viewState.type !== VIEW_STATE_TYPE.LOGIN &&
+    viewState.type !== VIEW_STATE_TYPE.REGISTER
   ) {
     root.appendChild(createUserIcon(handlers.onEnterProfile));
   }
