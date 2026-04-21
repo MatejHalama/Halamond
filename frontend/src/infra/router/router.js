@@ -42,6 +42,10 @@ export function parseUrl(path) {
     return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
   }
 
+  if (parts.length === 2 && parts[0] === URLS.LISTING_ADMINISTRATION) {
+    return { context: UI_MODE.LISTING_ADMINISTRATION, listingId: parts[1] };
+  }
+
   if (parts.length === 1 && parts[0] === URLS.PROFILE) {
     return { context: UI_MODE.PROFILE };
   }
@@ -68,6 +72,11 @@ export function routeToAction(route) {
     case UI_MODE.LISTING_DETAIL:
       return {
         type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId: route.listingId },
+      };
+    case UI_MODE.LISTING_ADMINISTRATION:
+      return {
+        type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId: route.listingId },
       };
     case UI_MODE.TICKET_LIST:
@@ -102,6 +111,10 @@ export function stateToPath(state) {
       return selectedListing
         ? `/${URLS.LISTING_DETAIL}/${selectedListing.ListingID}`
         : `/${URLS.LISTING_LIST}`;
+    case UI_MODE.LISTING_ADMINISTRATION:
+      return selectedListing
+          ? `/${URLS.LISTING_ADMINISTRATION}/${selectedListing.ListingID}`
+          : `/${URLS.LISTING_LIST}`;
     case UI_MODE.TICKET_LIST:
       return `/${URLS.TICKET_LIST}`;
     case UI_MODE.TICKET_DETAIL: {

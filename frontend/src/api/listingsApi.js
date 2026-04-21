@@ -16,8 +16,8 @@ export function createListingsApi() {
         if (categoryId) params.set("categoryId", categoryId);
         if (minPrice) params.set("minPrice", minPrice);
         if (maxPrice) params.set("maxPrice", maxPrice);
-        params.set("page", page);
-        params.set("limit", limit);
+        params.set("page", page.toString());
+        params.set("limit", limit.toString());
 
         const response = await fetch(`${BASE}/api/listings?${params}`, {
           credentials: "include",
@@ -39,6 +39,17 @@ export function createListingsApi() {
       }
     },
 
+    async getListingAuth(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/auth`, {
+          credentials: "include",
+        });
+        return await response.json();
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
+
     async createListing(payload) {
       const { title, price, categoryId, description = "" } = payload;
 
@@ -50,10 +61,36 @@ export function createListingsApi() {
           },
           credentials: "include",
           body: JSON.stringify({
-            tittle: title,
-            price: price,
-            categoryId: categoryId,
-            description: description,
+            ...(title && { title: title}),
+            ...(price && { price: price}),
+            ...(categoryId && { categoryId : categoryId}),
+            ...(description && { description: description}),
+          })
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async updateListing(id, payload) {
+      const { title, price, categoryId, description } = payload;
+
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ...(title && { title: title }),
+            ...(price && { price: price }),
+            ...(categoryId && { categoryId: categoryId }),
+            ...(description && { description: description }),
           })
         });
         return await response.json();
@@ -68,6 +105,66 @@ export function createListingsApi() {
     async activateListing(id) {
       try {
         const response = await fetch(`${BASE}/api/listings/${id}/activate`, {
+          method: "PATCH",
+          credentials: "include",
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async sellListing(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/sell`, {
+          method: "PATCH",
+          credentials: "include",
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async deleteListing(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/delete`, {
+          method: "PATCH",
+          credentials: "include",
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async blockListing(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/block`, {
+          method: "PATCH",
+          credentials: "include",
+        });
+        return await response.json();
+      }
+      catch (error) {
+        return {
+          status: "ERROR", reason: "Chyba spojení se serverem"
+        }
+      }
+    },
+
+    async unblockListing(id) {
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/unblock`, {
           method: "PATCH",
           credentials: "include",
         });

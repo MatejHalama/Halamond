@@ -22,6 +22,7 @@ import { ListingListView } from "./views/ListingListView.js";
 import { ListingDetailView } from "./views/ListingDetailView.js";
 import { TicketListView } from "./views/TicketListView.js";
 import { TicketDetailView } from "./views/TicketDetailView.js";
+import {ListingAdministrationView} from "./views/ListingAdministrationView.js";
 
 /*
  ** viewState má tvar
@@ -74,6 +75,10 @@ export function render(root, state, dispatch) {
 
     case VIEW_STATE_TYPE.LISTING_DETAIL:
       view = ListingDetailView({ viewState, handlers });
+      break;
+
+    case VIEW_STATE_TYPE.LISTING_ADMINISTRATION:
+      view = ListingAdministrationView({ viewState, handlers });
       break;
 
     case VIEW_STATE_TYPE.PROFILE:

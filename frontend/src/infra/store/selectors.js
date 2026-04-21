@@ -13,12 +13,12 @@ import * as ROLE from "../../constants/role.js";
 export function canCreateListing(state) {
   // TODO: check if user is not blocked
   const { role } = state.auth;
-  return role === ROLE.USER;
+  return role === ROLE.USER || role === ROLE.ADMIN;
 }
 
 export function canUpdateListing(state) {
   const { role, userId } = state.auth;
-  if (role !== ROLE.USER) return false;
+  if (role !== ROLE.USER && role !== ROLE.ADMIN) return false;
 
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
@@ -30,7 +30,7 @@ export function canUpdateListing(state) {
 
 export function canActivateListing(state) {
   const { role, userId } = state.auth;
-  if (role !== ROLE.USER) return false;
+  if (role !== ROLE.USER && role !== ROLE.ADMIN) return false;
 
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
@@ -42,7 +42,7 @@ export function canActivateListing(state) {
 
 export function canSellListing(state) {
   const { role, userId } = state.auth;
-  if (role !== ROLE.USER) return false;
+  if (role !== ROLE.USER && role !== ROLE.ADMIN) return false;
 
   const listing = state.ui.selectedListing ?? null;
   if (!listing) return false;
@@ -52,11 +52,29 @@ export function canSellListing(state) {
   return listing.State === "active";
 }
 
-/*export function canEnterAdministration(state)
-{
-    const { role } = state.auth;
-    return role === ROLE.TEACHER;
-}*/
+export function canDeleteListing(state) {
+  const { role, userId } = state.auth;
+  if (role !== ROLE.USER && role !== ROLE.ADMIN) return false;
+
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
+
+  if (listing.author !== userId) return false;
+
+  return listing.State === "active" || listing.State === "sold";
+}
+
+export function canEnterAdministration(state) {
+  const { role, userId } = state.auth;
+  if (role !== ROLE.USER && role !== ROLE.ADMIN) return false;
+
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
+
+  if (listing.author !== userId) return false;
+
+  return listing.State === "active" || listing.State === "draft";
+}
 
 /**/
 
@@ -125,11 +143,12 @@ export function selectListingListView(state) {
     capabilities: {
       canEnterDetail: true,
       canCreateListing: canCreateListing(state),
+      canEnterAdministration: canEnterAdministration(state),
     },
   };
 }
 
-export function selectExamTermDetailView(state) {
+export function selectListingDetailView(state) {
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
     listing: state.ui.selectedListing ?? null,
@@ -139,6 +158,21 @@ export function selectExamTermDetailView(state) {
       canContactSeller: canContactSeller(state),
       canActivateListing: canActivateListing(state),
       canSellListing: canSellListing(state),
+      canDeleteListing: canDeleteListing(state),
+      canEnterAdministration: canEnterAdministration(state),
+    },
+  };
+}
+
+export function selectListingAdministrationView(state)
+{
+  return {
+    type: VIEW_STATE_TYPE.LISTING_ADMINISTRATION,
+    listing: state.ui.selectedListing ?? null,
+    auth: state.auth,
+    capabilities: {
+      canBackToList: true,
+      canUpdateListing: canUpdateListing(state),
     },
   };
 }
@@ -221,7 +255,9 @@ export function selectViewState(state) {
     case UI_MODE.LISTING_LIST:
       return selectListingListView(state);
     case UI_MODE.LISTING_DETAIL:
-      return selectExamTermDetailView(state);
+      return selectListingDetailView(state);
+    case UI_MODE.LISTING_ADMINISTRATION:
+      return selectListingAdministrationView(state);
     case UI_MODE.TICKET_LIST:
       return selectTicketListView(state);
     case UI_MODE.TICKET_DETAIL:

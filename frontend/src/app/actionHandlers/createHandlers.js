@@ -37,6 +37,9 @@ export function createHandlers(dispatch, viewState) {
     case VIEW_STATE_TYPE.LISTING_DETAIL:
       handlers = listingDetailHandlers(dispatch, viewState);
       break;
+    case VIEW_STATE_TYPE.LISTING_ADMINISTRATION:
+      handlers = listingAdministrationHandlers(dispatch, viewState);
+      break;
     case VIEW_STATE_TYPE.PROFILE:
       handlers = userProfileHandlers(dispatch, viewState);
       break;
@@ -87,7 +90,7 @@ export function listingListHandlers(dispatch, viewState) {
   if (canEnterAdministration) {
     handlers.onEnterAdministration = (listingId) =>
       dispatch({
-        type: ACTION_TYPE.ENTER_LISTING_ADMIN,
+        type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId },
       });
   }
@@ -109,6 +112,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canBackToList,
     canActivateListing,
     canSellListing,
+    canDeleteListing,
     canEnterAdministration,
   } = capabilities;
   const handlers = {};
@@ -139,10 +143,18 @@ export function listingDetailHandlers(dispatch, viewState) {
       });
   }
 
+  if (canDeleteListing) {
+    handlers.onDelete = () =>
+        dispatch({
+          type: ACTION_TYPE.DELETE_LISTING,
+          payload: { listingId },
+        });
+  }
+
   if (canEnterAdministration) {
     handlers.onEnterAdministration = () =>
       dispatch({
-        type: ACTION_TYPE.ENTER_LISTING_ADMIN,
+        type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId },
       });
   }
@@ -158,6 +170,29 @@ export function listingDetailHandlers(dispatch, viewState) {
 
   handlers.onEnterTicketList = () =>
     dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST });
+
+  return handlers;
+}
+
+export function listingAdministrationHandlers(dispatch, viewState) {
+  const { capabilities } = viewState;
+  const { canBackToList, canUpdateListing} = capabilities;
+  const handlers = {};
+  const listingId = viewState.listing?.ListingID;
+
+  if (!listingId) return handlers;
+
+  if (canBackToList) {
+    handlers.onBackToList = () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST });
+  }
+
+  if (canUpdateListing) {
+    handlers.onUpdate = (data) =>
+        dispatch({
+          type: ACTION_TYPE.UPDATE_LISTING,
+          payload: { listingId, ...data },
+        });
+  }
 
   return handlers;
 }
