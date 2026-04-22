@@ -20,9 +20,7 @@ export async function sendMessage({ store, api, payload }) {
   store.setState((state) => ({
     ...state,
     tickets: state.tickets.map((t) =>
-      t.TicketID === ticketId
-        ? { ...t, messages: [result.message] }
-        : t,
+      t.TicketID === ticketId ? { ...t, messages: [result.message] } : t,
     ),
     ui: {
       ...state.ui,
