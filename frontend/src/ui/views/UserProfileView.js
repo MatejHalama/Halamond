@@ -5,8 +5,8 @@ import { addActionButton } from "../builder/components/button.js";
 
 export function UserProfileView({ viewState, handlers }) {
   const { profileUser, capabilities } = viewState;
-  const { canBackToList, canLogout } = capabilities;
-  const { onBackToList, onLogout } = handlers;
+  const { canBackToList, canLogout, canReportUser } = capabilities;
+  const { onBackToList, onLogout, onReportUser } = handlers;
 
   const container = createSection("");
 
@@ -78,6 +78,34 @@ export function UserProfileView({ viewState, handlers }) {
     });
   }
   container.appendChild(ratingsSection);
+
+  if (canReportUser && onReportUser && profileUser) {
+    const reportSection = createSection("report-form");
+    reportSection.appendChild(createTitle(3, "Nahlásit uživatele"));
+    const input = document.createElement("textarea");
+    input.placeholder = "Důvod hlášení...";
+    input.rows = 2;
+    reportSection.appendChild(input);
+    const btn = document.createElement("button");
+    btn.textContent = "Nahlásit";
+    btn.className = "button--danger";
+    btn.addEventListener("click", async () => {
+      const text = input.value.trim();
+      if (!text) return;
+      btn.disabled = true;
+      const result = await onReportUser(profileUser.UserID, text);
+      if (result?.status === "SUCCESS") {
+        reportSection.innerHTML = "";
+        reportSection.appendChild(
+          createText(["Uživatel byl nahlášen. Děkujeme."]),
+        );
+      } else {
+        btn.disabled = false;
+      }
+    });
+    reportSection.appendChild(btn);
+    container.appendChild(reportSection);
+  }
 
   if (canLogout && onLogout) {
     container.appendChild(

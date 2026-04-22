@@ -174,6 +174,7 @@ export function selectListingListView(state) {
     categories: state.categories ?? [],
     filters: state.ui.filters,
     auth: state.auth,
+    notifications: state.notifications ?? [],
     unreadCount: selectUnreadCount(state),
     notificationCount: selectUnreadNotificationCount(state),
     capabilities: {
@@ -187,6 +188,10 @@ export function selectListingDetailView(state) {
   const listing = state.ui.selectedListing ?? null;
   const sellerId = listing?.user?.UserID ?? listing?.author ?? null;
   const canViewSellerProfile = !!sellerId && sellerId !== state.auth.userId;
+  const canReportListing =
+    state.auth.role !== ROLE.ANON &&
+    !!listing &&
+    listing.author !== state.auth.userId;
 
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
@@ -200,6 +205,7 @@ export function selectListingDetailView(state) {
       canDeleteListing: canDeleteListing(state),
       canEnterAdministration: canEnterAdministration(state),
       canViewSellerProfile,
+      canReportListing,
     },
   };
 }
@@ -243,6 +249,8 @@ export function selectTicketDetailView(state) {
 
 export function selectProfileView(state) {
   const isOwnProfile = state.profileUser?.UserID === state.auth.userId;
+  const canReportUser =
+    !isOwnProfile && state.auth.role !== ROLE.ANON && !!state.profileUser;
   return {
     type: VIEW_STATE_TYPE.PROFILE,
     auth: state.auth,
@@ -250,6 +258,7 @@ export function selectProfileView(state) {
     capabilities: {
       canBackToList: true,
       canLogout: isOwnProfile,
+      canReportUser,
     },
   };
 }

@@ -11,7 +11,7 @@ const usersRoutes = require("./routes/users");
 const categoriesRoutes = require("./routes/categories");
 const notificationsRoutes = require("./routes/notifications");
 const ratingsRoutes = require("./routes/ratings");
-// const reportsRoutes = require("./routes/reports");
+const reportsRoutes = require("./routes/reports");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,7 +35,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/ratings", ratingsRoutes);
-// app.use("/api/reports", reportsRoutes);
+app.use("/api/reports", reportsRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "OK" });

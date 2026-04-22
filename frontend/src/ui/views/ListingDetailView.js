@@ -20,13 +20,30 @@ export function ListingDetailView({ viewState, handlers }) {
     canEnterAdministration,
     canContactSeller,
     canViewSellerProfile,
+    canReportListing,
   } = capabilities;
-  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller, onEnterTicketList, onEnterSellerProfile } = handlers;
+  const {
+    onBackToList,
+    onActivate,
+    onSell,
+    onDelete,
+    onEnterAdministration,
+    onContactSeller,
+    onEnterTicketList,
+    onEnterSellerProfile,
+    onReportListing,
+  } = handlers;
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
   if (onEnterTicketList) {
-    container.appendChild(addActionButton(onEnterTicketList, "← Moje konverzace", "button--secondary"));
+    container.appendChild(
+      addActionButton(
+        onEnterTicketList,
+        "← Moje konverzace",
+        "button--secondary",
+      ),
+    );
   }
 
   if (!listing) {
@@ -37,7 +54,9 @@ export function ListingDetailView({ viewState, handlers }) {
   container.appendChild(createTitle(2, listing.Title));
 
   if (listing.Price != null) {
-    container.appendChild(createText(`Cena: ${Number(listing.Price).toFixed(0)} Kč`));
+    container.appendChild(
+      createText(`Cena: ${Number(listing.Price).toFixed(0)} Kč`),
+    );
   }
   if (listing.Description) {
     container.appendChild(createText(listing.Description));
@@ -49,7 +68,13 @@ export function ListingDetailView({ viewState, handlers }) {
     const sellerDiv = createDiv("listing-seller");
     sellerDiv.appendChild(createText(`Prodejce: ${sellerName}`));
     if (canViewSellerProfile && onEnterSellerProfile && sellerId) {
-      sellerDiv.appendChild(addActionButton(() => onEnterSellerProfile(sellerId), "Profil prodejce", "button--secondary"));
+      sellerDiv.appendChild(
+        addActionButton(
+          () => onEnterSellerProfile(sellerId),
+          "Profil prodejce",
+          "button--secondary",
+        ),
+      );
     }
     container.appendChild(sellerDiv);
   }
@@ -72,12 +97,19 @@ export function ListingDetailView({ viewState, handlers }) {
   }
 
   if (canDeleteListing && onDelete) {
-    container.appendChild(addActionButton(onDelete, "Delete", "button--danger"));
+    container.appendChild(
+      addActionButton(onDelete, "Delete", "button--danger"),
+    );
   }
 
-  if (canEnterAdministration && onEnterAdministration)
-  {
-    container.appendChild(addActionButton(onEnterAdministration, 'Administration', 'button--success'));
+  if (canEnterAdministration && onEnterAdministration) {
+    container.appendChild(
+      addActionButton(
+        onEnterAdministration,
+        "Administration",
+        "button--success",
+      ),
+    );
   }
 
   if (canContactSeller && onContactSeller) {
@@ -126,5 +158,34 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
   }*/
 
+  if (canReportListing && onReportListing) {
+    container.appendChild(createReportForm((text) => onReportListing(text)));
+  }
+
   return container;
+}
+
+function createReportForm(onSubmit) {
+  const section = createSection("report-form");
+  section.appendChild(createTitle(3, "Nahlásit inzerát"));
+  const input = createElement("textarea", {
+    placeholder: "Důvod hlášení...",
+    rows: "2",
+  });
+  section.appendChild(input);
+  const btn = addActionButton(null, "Nahlásit", "button--danger");
+  btn.addEventListener("click", async () => {
+    const text = input.value.trim();
+    if (!text) return;
+    btn.disabled = true;
+    const result = await onSubmit(text);
+    if (result?.status === "SUCCESS") {
+      section.innerHTML = "";
+      section.appendChild(createText("Inzerát byl nahlášen. Děkujeme."));
+    } else {
+      btn.disabled = false;
+    }
+  });
+  section.appendChild(btn);
+  return section;
 }

@@ -5,6 +5,7 @@ import { createCategoriesApi } from "./categoriesApi.js";
 import { createNotificationsApi } from "./notificationsApi.js";
 import { createUsersApi } from "./usersApi.js";
 import { createRatingsApi } from "./ratingsApi.js";
+import { createReportsApi } from "./reportsApi.js";
 
 export function createApi() {
   return {
@@ -15,5 +16,6 @@ export function createApi() {
     notifications: createNotificationsApi(),
     users: createUsersApi(),
     ratings: createRatingsApi(),
+    reports: createReportsApi(),
   };
 }

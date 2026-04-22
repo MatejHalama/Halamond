@@ -133,6 +133,9 @@ export function listingListHandlers(dispatch, viewState) {
   handlers.onSetFilters = (filters) =>
     dispatch({ type: ACTION_TYPE.SET_FILTERS, payload: filters });
 
+  handlers.onOpenNotification = (ticketId) =>
+    dispatch({ type: ACTION_TYPE.ENTER_TICKET_DETAIL, payload: { ticketId } });
+
   return handlers;
 }
 
@@ -145,6 +148,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canDeleteListing,
     canEnterAdministration,
     canViewSellerProfile,
+    canReportListing,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -207,6 +211,14 @@ export function listingDetailHandlers(dispatch, viewState) {
       dispatch({ type: ACTION_TYPE.ENTER_PROFILE, payload: { userId } });
   }
 
+  if (canReportListing) {
+    handlers.onReportListing = (text) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_REPORT,
+        payload: { text, reportedListingId: listingId },
+      });
+  }
+
   return handlers;
 }
 
@@ -246,7 +258,8 @@ export function ticketListHandlers(dispatch, viewState) {
 }
 
 export function ticketDetailHandlers(dispatch, viewState) {
-  const { canSendMessage, canCloseTicket, canRateSeller } = viewState.capabilities;
+  const { canSendMessage, canCloseTicket, canRateSeller } =
+    viewState.capabilities;
   const handlers = {
     onBackToTickets: () => dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST }),
   };
@@ -278,11 +291,22 @@ export function ticketDetailHandlers(dispatch, viewState) {
   return handlers;
 }
 
-export function userProfileHandlers(dispatch) {
-  return {
+export function userProfileHandlers(dispatch, viewState) {
+  const { canReportUser } = viewState.capabilities;
+  const handlers = {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onLogout: () => dispatch({ type: ACTION_TYPE.LOGOUT }),
   };
+
+  if (canReportUser) {
+    handlers.onReportUser = (userId, text) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_REPORT,
+        payload: { text, reportedUserId: userId },
+      });
+  }
+
+  return handlers;
 }
 
 export function errorHandlers(dispatch) {

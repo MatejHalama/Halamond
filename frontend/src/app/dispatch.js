@@ -25,6 +25,7 @@ import { enterRegister } from "./actions/enterRegister.js";
 import { submitRegister } from "./actions/submitRegister.js";
 import { setFilters } from "./actions/setFilters.js";
 import { submitRating } from "./actions/submitRating.js";
+import { submitReport } from "./actions/submitReport.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -155,6 +156,10 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.SUBMIT_RATING:
         result = await submitRating({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_REPORT:
+        result = await submitReport({ api, payload });
         break;
 
       default:

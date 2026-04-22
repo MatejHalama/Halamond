@@ -9,13 +9,19 @@ export function ListingListView({ viewState, handlers }) {
     capabilities,
     categories,
     filters,
+    notifications,
     unreadCount,
     notificationCount,
     auth,
   } = viewState;
   const { canEnterDetail, canCreateListing } = capabilities;
-  const { onEnterDetail, onCreateListing, onEnterTicketList, onSetFilters } =
-    handlers;
+  const {
+    onEnterDetail,
+    onCreateListing,
+    onEnterTicketList,
+    onSetFilters,
+    onOpenNotification,
+  } = handlers;
 
   const totalUnread = (unreadCount ?? 0) + (notificationCount ?? 0);
   const ticketBtn =
@@ -31,6 +37,10 @@ export function ListingListView({ viewState, handlers }) {
     categories,
     filters,
     onSetFilters,
+  });
+  const notifPanel = createNotificationsPanel({
+    notifications,
+    onOpenNotification,
   });
 
   const cards = createSection("cards");
@@ -73,11 +83,35 @@ export function ListingListView({ viewState, handlers }) {
     [
       createTitle(1, "Inzeráty"),
       ticketBtn,
+      notifPanel,
       filterSection,
       cards,
       createBtn,
     ].filter(Boolean),
   );
+}
+
+function createNotificationsPanel({ notifications, onOpenNotification }) {
+  const unread = (notifications ?? []).filter((n) => !n.Read);
+  if (unread.length === 0) return null;
+
+  const panel = createSection("notifications-panel");
+  const title = document.createElement("strong");
+  title.textContent = `Notifikace (${unread.length})`;
+  panel.appendChild(title);
+
+  unread.forEach((n) => {
+    const item = document.createElement("div");
+    item.className = "notification-item";
+    item.textContent = n.Text;
+    if (n.ticket && onOpenNotification) {
+      item.style.cursor = "pointer";
+      item.addEventListener("click", () => onOpenNotification(n.ticket));
+    }
+    panel.appendChild(item);
+  });
+
+  return panel;
 }
 
 function createFilterSection({ categories, filters, onSetFilters }) {

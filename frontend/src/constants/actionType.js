@@ -26,3 +26,5 @@ export const CLOSE_TICKET = "CLOSE_TICKET";
 export const SET_FILTERS = "SET_FILTERS";
 
 export const SUBMIT_RATING = "SUBMIT_RATING";
+
+export const SUBMIT_REPORT = "SUBMIT_REPORT";
