@@ -2,8 +2,21 @@ import * as UI_MODE from '../../constants/uiMode.js'
 import * as API_STATUS from "../../statuses/apiStatus.js";
 import * as UI_STATUS from "../../statuses/uiStatus.js";
 
-export async function enterListingList({ store, api }) {
-    const dataResult = await api.listings.getListings({});
+export async function enterListingList({ store, api, payload }) {
+    store.setState(
+        (state) => (
+            {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    status: UI_STATUS.LOAD,
+                    notification: null,
+                },
+            }
+        )
+    );
+
+    const dataResult = await api.listings.getListings(payload);
 
     if (dataResult.status !== API_STATUS.OK)
     {
