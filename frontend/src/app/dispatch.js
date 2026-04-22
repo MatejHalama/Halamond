@@ -26,6 +26,9 @@ import { submitRegister } from "./actions/submitRegister.js";
 import { setFilters } from "./actions/setFilters.js";
 import { submitRating } from "./actions/submitRating.js";
 import { submitReport } from "./actions/submitReport.js";
+import { blockUser } from "./actions/blockUser.js";
+import { unblockUser } from "./actions/unblockUser.js";
+import { blockListing } from "./actions/blockListing.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -160,6 +163,18 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.SUBMIT_REPORT:
         result = await submitReport({ api, payload });
+        break;
+
+      case ACTION_TYPE.BLOCK_USER:
+        result = await blockUser({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UNBLOCK_USER:
+        result = await unblockUser({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.BLOCK_LISTING:
+        result = await blockListing({ store, api, payload });
         break;
 
       default:

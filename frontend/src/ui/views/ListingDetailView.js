@@ -21,6 +21,7 @@ export function ListingDetailView({ viewState, handlers }) {
     canContactSeller,
     canViewSellerProfile,
     canReportListing,
+    canBlockListing,
   } = capabilities;
   const {
     onBackToList,
@@ -32,6 +33,7 @@ export function ListingDetailView({ viewState, handlers }) {
     onEnterTicketList,
     onEnterSellerProfile,
     onReportListing,
+    onBlockListing,
   } = handlers;
 
   const container = createDiv();
@@ -160,6 +162,18 @@ export function ListingDetailView({ viewState, handlers }) {
 
   if (canReportListing && onReportListing) {
     container.appendChild(createReportForm((text) => onReportListing(text)));
+  }
+
+  if (canBlockListing && onBlockListing) {
+    const adminSection = createSection("admin-zone");
+    adminSection.appendChild(createTitle(3, "Administrace"));
+    const blockBtn = addActionButton(null, "Blokovat inzerát", "button--danger admin-action");
+    blockBtn.addEventListener("click", async () => {
+      blockBtn.disabled = true;
+      await onBlockListing();
+    });
+    adminSection.appendChild(blockBtn);
+    container.appendChild(adminSection);
   }
 
   return container;

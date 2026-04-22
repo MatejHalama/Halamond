@@ -192,6 +192,11 @@ export function selectListingDetailView(state) {
     state.auth.role !== ROLE.ANON &&
     !!listing &&
     listing.author !== state.auth.userId;
+  const isAdmin = state.auth.role === ROLE.ADMIN;
+  const canBlockListing =
+    isAdmin &&
+    !!listing &&
+    !["blocked", "deleted"].includes(listing.State);
 
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
@@ -206,6 +211,7 @@ export function selectListingDetailView(state) {
       canEnterAdministration: canEnterAdministration(state),
       canViewSellerProfile,
       canReportListing,
+      canBlockListing,
     },
   };
 }
@@ -249,8 +255,10 @@ export function selectTicketDetailView(state) {
 
 export function selectProfileView(state) {
   const isOwnProfile = state.profileUser?.UserID === state.auth.userId;
-  const canReportUser =
-    !isOwnProfile && state.auth.role !== ROLE.ANON && !!state.profileUser;
+  const isAdmin = state.auth.role === ROLE.ADMIN;
+  const canReportUser = !isOwnProfile && state.auth.role !== ROLE.ANON && !!state.profileUser;
+  const canBlockUser = isAdmin && !isOwnProfile && !!state.profileUser && state.profileUser.State === "active";
+  const canUnblockUser = isAdmin && !isOwnProfile && !!state.profileUser && state.profileUser.State === "blocked";
   return {
     type: VIEW_STATE_TYPE.PROFILE,
     auth: state.auth,
@@ -259,6 +267,8 @@ export function selectProfileView(state) {
       canBackToList: true,
       canLogout: isOwnProfile,
       canReportUser,
+      canBlockUser,
+      canUnblockUser,
     },
   };
 }

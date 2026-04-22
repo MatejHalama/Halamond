@@ -149,6 +149,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canEnterAdministration,
     canViewSellerProfile,
     canReportListing,
+    canBlockListing,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -216,6 +217,14 @@ export function listingDetailHandlers(dispatch, viewState) {
       dispatch({
         type: ACTION_TYPE.SUBMIT_REPORT,
         payload: { text, reportedListingId: listingId },
+      });
+  }
+
+  if (canBlockListing) {
+    handlers.onBlockListing = () =>
+      dispatch({
+        type: ACTION_TYPE.BLOCK_LISTING,
+        payload: { listingId },
       });
   }
 
@@ -292,7 +301,7 @@ export function ticketDetailHandlers(dispatch, viewState) {
 }
 
 export function userProfileHandlers(dispatch, viewState) {
-  const { canReportUser } = viewState.capabilities;
+  const { canReportUser, canBlockUser, canUnblockUser } = viewState.capabilities;
   const handlers = {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onLogout: () => dispatch({ type: ACTION_TYPE.LOGOUT }),
@@ -303,6 +312,22 @@ export function userProfileHandlers(dispatch, viewState) {
       dispatch({
         type: ACTION_TYPE.SUBMIT_REPORT,
         payload: { text, reportedUserId: userId },
+      });
+  }
+
+  if (canBlockUser) {
+    handlers.onBlockUser = (userId) =>
+      dispatch({
+        type: ACTION_TYPE.BLOCK_USER,
+        payload: { userId },
+      });
+  }
+
+  if (canUnblockUser) {
+    handlers.onUnblockUser = (userId) =>
+      dispatch({
+        type: ACTION_TYPE.UNBLOCK_USER,
+        payload: { userId },
       });
   }
 

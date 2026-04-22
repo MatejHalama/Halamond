@@ -28,3 +28,7 @@ export const SET_FILTERS = "SET_FILTERS";
 export const SUBMIT_RATING = "SUBMIT_RATING";
 
 export const SUBMIT_REPORT = "SUBMIT_REPORT";
+
+export const BLOCK_USER = "BLOCK_USER";
+export const UNBLOCK_USER = "UNBLOCK_USER";
+export const BLOCK_LISTING = "BLOCK_LISTING";
