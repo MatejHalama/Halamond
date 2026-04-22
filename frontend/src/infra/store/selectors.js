@@ -231,7 +231,8 @@ export function selectTicketDetailView(state) {
 export function selectProfileView(state) {
   return {
     type: VIEW_STATE_TYPE.PROFILE,
-    user: state.auth,
+    auth: state.auth,
+    profileUser: state.profileUser,
     capabilities: {
       canBackToList: true,
       canLogout: true,

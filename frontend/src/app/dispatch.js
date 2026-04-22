@@ -125,7 +125,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:
-        result = await enterUserProfile({ store });
+        result = await enterUserProfile({ store, api });
         break;
 
       case ACTION_TYPE.ENTER_TICKET_LIST:
