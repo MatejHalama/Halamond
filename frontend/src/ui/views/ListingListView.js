@@ -80,6 +80,14 @@ function createNotificationsPanel({ notifications, onOpenNotification }) {
   return panel;
 }
 
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
 function createFilterSection({ categories, filters, onSetFilters }) {
   const section = createSection("filters");
 
@@ -87,8 +95,9 @@ function createFilterSection({ categories, filters, onSetFilters }) {
   searchInput.type = "text";
   searchInput.placeholder = "Hledat...";
   searchInput.value = filters?.q ?? "";
-  searchInput.addEventListener("input", (e) =>
-    onSetFilters?.({ q: e.target.value || "" }),
+  searchInput.addEventListener(
+    "input",
+    debounce((e) => onSetFilters?.({ q: e.target.value || "" }), 350),
   );
 
   const categorySelect = document.createElement("select");
@@ -113,20 +122,30 @@ function createFilterSection({ categories, filters, onSetFilters }) {
   minInput.type = "number";
   minInput.placeholder = "Min Kč";
   minInput.value = filters?.minPrice ?? "";
-  minInput.addEventListener("input", (e) =>
-    onSetFilters?.({
-      minPrice: e.target.value ? Number(e.target.value) : null,
-    }),
+  minInput.addEventListener(
+    "input",
+    debounce(
+      (e) =>
+        onSetFilters?.({
+          minPrice: e.target.value ? Number(e.target.value) : null,
+        }),
+      350,
+    ),
   );
 
   const maxInput = document.createElement("input");
   maxInput.type = "number";
   maxInput.placeholder = "Max Kč";
   maxInput.value = filters?.maxPrice ?? "";
-  maxInput.addEventListener("input", (e) =>
-    onSetFilters?.({
-      maxPrice: e.target.value ? Number(e.target.value) : null,
-    }),
+  maxInput.addEventListener(
+    "input",
+    debounce(
+      (e) =>
+        onSetFilters?.({
+          maxPrice: e.target.value ? Number(e.target.value) : null,
+        }),
+      350,
+    ),
   );
 
   section.appendChild(searchInput);

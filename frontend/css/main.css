@@ -339,8 +339,10 @@ p {
   border-radius: var(--radius);
   font-family: inherit;
   font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--text);
   background: var(--bg);
+  margin: 0;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
