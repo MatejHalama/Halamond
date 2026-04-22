@@ -22,3 +22,5 @@ export const ENTER_TICKET_DETAIL = "ENTER_TICKET_DETAIL";
 export const CONTACT_SELLER = "CONTACT_SELLER";
 export const SEND_MESSAGE = "SEND_MESSAGE";
 export const CLOSE_TICKET = "CLOSE_TICKET";
+
+export const SET_FILTERS = "SET_FILTERS";

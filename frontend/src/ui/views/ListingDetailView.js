@@ -20,10 +20,13 @@ export function ListingDetailView({ viewState, handlers }) {
     canEnterAdministration,
     canContactSeller,
   } = capabilities;
-  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller } = handlers;
+  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller, onEnterTicketList } = handlers;
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
+  if (onEnterTicketList) {
+    container.appendChild(addActionButton(onEnterTicketList, "← Moje konverzace", "button--secondary"));
+  }
 
   if (!listing) {
     container.appendChild(createText("Listing was not found"));

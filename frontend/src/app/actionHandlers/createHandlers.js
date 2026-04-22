@@ -58,7 +58,10 @@ export function createHandlers(dispatch, viewState) {
     // TODO: more handlers
   }
 
-  if (viewState.type !== VIEW_STATE_TYPE.LOGIN && viewState.type !== VIEW_STATE_TYPE.REGISTER) {
+  if (
+    viewState.type !== VIEW_STATE_TYPE.LOGIN &&
+    viewState.type !== VIEW_STATE_TYPE.REGISTER
+  ) {
     handlers.onEnterProfile = () =>
       dispatch({ type: ACTION_TYPE.ENTER_PROFILE });
   }
@@ -89,7 +92,7 @@ export function registerHandlers(dispatch) {
     onEnterLogin: () =>
       dispatch({
         type: ACTION_TYPE.ENTER_LOGIN,
-      })
+      }),
   };
 }
 
@@ -123,6 +126,12 @@ export function listingListHandlers(dispatch, viewState) {
         payload: data,
       });
   }
+
+  handlers.onEnterTicketList = () =>
+    dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST });
+
+  handlers.onSetFilters = (filters) =>
+    dispatch({ type: ACTION_TYPE.SET_FILTERS, payload: filters });
 
   return handlers;
 }
@@ -166,10 +175,10 @@ export function listingDetailHandlers(dispatch, viewState) {
 
   if (canDeleteListing) {
     handlers.onDelete = () =>
-        dispatch({
-          type: ACTION_TYPE.DELETE_LISTING,
-          payload: { listingId },
-        });
+      dispatch({
+        type: ACTION_TYPE.DELETE_LISTING,
+        payload: { listingId },
+      });
   }
 
   if (canEnterAdministration) {
@@ -197,22 +206,23 @@ export function listingDetailHandlers(dispatch, viewState) {
 
 export function listingAdministrationHandlers(dispatch, viewState) {
   const { capabilities } = viewState;
-  const { canBackToList, canUpdateListing} = capabilities;
+  const { canBackToList, canUpdateListing } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
 
   if (!listingId) return handlers;
 
   if (canBackToList) {
-    handlers.onBackToList = () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST });
+    handlers.onBackToList = () =>
+      dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST });
   }
 
   if (canUpdateListing) {
     handlers.onUpdate = (data) =>
-        dispatch({
-          type: ACTION_TYPE.UPDATE_LISTING,
-          payload: { listingId, ...data },
-        });
+      dispatch({
+        type: ACTION_TYPE.UPDATE_LISTING,
+        payload: { listingId, ...data },
+      });
   }
 
   return handlers;

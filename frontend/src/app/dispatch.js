@@ -23,6 +23,7 @@ import { enterListingAdministration } from "./actions/enterListingAdministration
 import { updateListing } from "./actions/updateListing.js";
 import { enterRegister } from "./actions/enterRegister.js";
 import { submitRegister } from "./actions/submitRegister.js";
+import { setFilters } from "./actions/setFilters.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -124,7 +125,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:
-        result = await enterUserProfile({ store });
+        result = await enterUserProfile({ store, api });
         break;
 
       case ACTION_TYPE.ENTER_TICKET_LIST:
@@ -145,6 +146,10 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.CLOSE_TICKET:
         result = await closeTicket({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SET_FILTERS:
+        result = setFilters({ store, payload });
         break;
 
       default:

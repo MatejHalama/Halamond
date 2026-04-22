@@ -20,14 +20,17 @@ export function TicketListView({ viewState, handlers }) {
   }
 
   tickets.forEach((ticket) => {
+    const lastMsg = ticket.messages?.[0];
+    const isUnread =
+      ticket.State === "open" && lastMsg && lastMsg.sender !== auth.userId;
+
     const row = createDiv("ticket-row");
     const title = ticket.listing?.Title ?? `Ticket #${ticket.TicketID}`;
-    const state = ticket.State === "open" ? "Otevřeno" : "Uzavřeno";
-    const lastMsg = ticket.messages?.[0]?.Text ?? "-";
+    const stateLabel = ticket.State === "open" ? "Otevřeno" : "Uzavřeno";
 
-    row.appendChild(createTitle(3, title));
-    row.appendChild(createText(`Stav: ${state}`));
-    row.appendChild(createText(`Poslední zpráva: ${lastMsg}`));
+    row.appendChild(createTitle(3, isUnread ? `● ${title}` : title));
+    row.appendChild(createText(`Stav: ${stateLabel}`));
+    row.appendChild(createText(`Poslední zpráva: ${lastMsg?.Text ?? "-"}`));
 
     if (capabilities.canEnterDetail && onEnterDetail) {
       row.appendChild(
