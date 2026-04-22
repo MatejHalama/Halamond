@@ -17,5 +17,32 @@ export function createReportsApi() {
         return { status: "ERROR", reason: "Chyba spojení se serverem" };
       }
     },
+
+    async getReports() {
+      try {
+        const res = await fetch(`${BASE}/api/reports`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) return { status: "ERROR", reason: data.reason };
+        return { status: "SUCCESS", reports: data.reports };
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
+
+    async deleteReport(id) {
+      try {
+        const res = await fetch(`${BASE}/api/reports/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) return { status: "ERROR", reason: data.reason };
+        return { status: "SUCCESS" };
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
   };
 }

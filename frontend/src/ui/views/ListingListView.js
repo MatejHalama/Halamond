@@ -4,34 +4,10 @@ import { createButton, addActionButton } from "../builder/components/button.js";
 import { createCard } from "../builder/layout/card.js";
 
 export function ListingListView({ viewState, handlers }) {
-  const {
-    listings,
-    capabilities,
-    categories,
-    filters,
-    notifications,
-    unreadCount,
-    notificationCount,
-    auth,
-  } = viewState;
-  const { canEnterDetail, canCreateListing } = capabilities;
-  const {
-    onEnterDetail,
-    onCreateListing,
-    onEnterTicketList,
-    onSetFilters,
-    onOpenNotification,
-  } = handlers;
-
-  const totalUnread = (unreadCount ?? 0) + (notificationCount ?? 0);
-  const ticketBtn =
-    auth?.userId && onEnterTicketList
-      ? addActionButton(
-          onEnterTicketList,
-          `Moje konverzace${totalUnread > 0 ? ` (${totalUnread})` : ""}`,
-          "button--secondary",
-        )
-      : null;
+  const { listings, capabilities, categories, filters, notifications } =
+    viewState;
+  const { canEnterDetail } = capabilities;
+  const { onEnterDetail, onSetFilters, onOpenNotification } = handlers;
 
   const filterSection = createFilterSection({
     categories,
@@ -44,6 +20,12 @@ export function ListingListView({ viewState, handlers }) {
   });
 
   const cards = createSection("cards");
+  if (listings.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "listings-empty";
+    empty.textContent = "Žádné inzeráty.";
+    cards.appendChild(empty);
+  }
   listings.forEach((listing) => {
     const price =
       listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
@@ -67,27 +49,11 @@ export function ListingListView({ viewState, handlers }) {
     cards.appendChild(card);
   });
 
-  const createBtn =
-    canCreateListing && onCreateListing
-      ? (() => {
-          const btn = createButton("button--primary mt-15", "Přidat inzerát");
-          btn.addEventListener("click", () =>
-            onCreateListing({ title: "Nový inzerát", price: "100" }),
-          );
-          return btn;
-        })()
-      : null;
-
   return createSection(
-    "",
-    [
-      createTitle(1, "Inzeráty"),
-      ticketBtn,
-      notifPanel,
-      filterSection,
-      cards,
-      createBtn,
-    ].filter(Boolean),
+    "listing-list-view",
+    [createTitle(1, "Inzeráty"), notifPanel, filterSection, cards].filter(
+      Boolean,
+    ),
   );
 }
 

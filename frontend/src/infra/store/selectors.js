@@ -194,9 +194,7 @@ export function selectListingDetailView(state) {
     listing.author !== state.auth.userId;
   const isAdmin = state.auth.role === ROLE.ADMIN;
   const canBlockListing =
-    isAdmin &&
-    !!listing &&
-    !["blocked", "deleted"].includes(listing.State);
+    isAdmin && !!listing && !["blocked", "deleted"].includes(listing.State);
 
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
@@ -256,9 +254,18 @@ export function selectTicketDetailView(state) {
 export function selectProfileView(state) {
   const isOwnProfile = state.profileUser?.UserID === state.auth.userId;
   const isAdmin = state.auth.role === ROLE.ADMIN;
-  const canReportUser = !isOwnProfile && state.auth.role !== ROLE.ANON && !!state.profileUser;
-  const canBlockUser = isAdmin && !isOwnProfile && !!state.profileUser && state.profileUser.State === "active";
-  const canUnblockUser = isAdmin && !isOwnProfile && !!state.profileUser && state.profileUser.State === "blocked";
+  const canReportUser =
+    !isOwnProfile && state.auth.role !== ROLE.ANON && !!state.profileUser;
+  const canBlockUser =
+    isAdmin &&
+    !isOwnProfile &&
+    !!state.profileUser &&
+    state.profileUser.State === "active";
+  const canUnblockUser =
+    isAdmin &&
+    !isOwnProfile &&
+    !!state.profileUser &&
+    state.profileUser.State === "blocked";
   return {
     type: VIEW_STATE_TYPE.PROFILE,
     auth: state.auth,
@@ -296,6 +303,27 @@ export function selectProfileView(state) {
  **   },
  ** }
  */
+export function selectCreateListingView(state) {
+  return {
+    type: VIEW_STATE_TYPE.CREATE_LISTING,
+    categories: state.categories ?? [],
+    capabilities: {
+      canBackToList: true,
+    },
+  };
+}
+
+export function selectAdminView(state) {
+  return {
+    type: VIEW_STATE_TYPE.ADMIN,
+    reports: state.reports ?? [],
+    capabilities: {
+      canBackToList: true,
+      canDismissReport: true,
+    },
+  };
+}
+
 export function selectViewState(state) {
   if (state.ui.status === UI_STATUS.LOAD) {
     return { type: VIEW_STATE_TYPE.LOADING };
@@ -321,10 +349,14 @@ export function selectViewState(state) {
       return selectListingDetailView(state);
     case UI_MODE.LISTING_ADMINISTRATION:
       return selectListingAdministrationView(state);
+    case UI_MODE.CREATE_LISTING:
+      return selectCreateListingView(state);
     case UI_MODE.TICKET_LIST:
       return selectTicketListView(state);
     case UI_MODE.TICKET_DETAIL:
       return selectTicketDetailView(state);
+    case UI_MODE.ADMIN:
+      return selectAdminView(state);
     default:
       return {
         type: VIEW_STATE_TYPE.ERROR,

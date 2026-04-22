@@ -32,3 +32,8 @@ export const SUBMIT_REPORT = "SUBMIT_REPORT";
 export const BLOCK_USER = "BLOCK_USER";
 export const UNBLOCK_USER = "UNBLOCK_USER";
 export const BLOCK_LISTING = "BLOCK_LISTING";
+
+export const ENTER_CREATE_LISTING = "ENTER_CREATE_LISTING";
+
+export const ENTER_ADMIN = "ENTER_ADMIN";
+export const DISMISS_REPORT = "DISMISS_REPORT";

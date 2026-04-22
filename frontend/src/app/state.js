@@ -18,6 +18,7 @@ export function createInitialState() {
     categories: [],
     tickets: [],
     notifications: [],
+    reports: [],
     profileUser: null,
 
     auth: {

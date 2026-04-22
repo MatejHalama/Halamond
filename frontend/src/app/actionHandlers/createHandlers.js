@@ -55,7 +55,12 @@ export function createHandlers(dispatch, viewState) {
     case VIEW_STATE_TYPE.TICKET_DETAIL:
       handlers = ticketDetailHandlers(dispatch, viewState);
       break;
-    // TODO: more handlers
+    case VIEW_STATE_TYPE.CREATE_LISTING:
+      handlers = createListingFormHandlers(dispatch, viewState);
+      break;
+    case VIEW_STATE_TYPE.ADMIN:
+      handlers = adminHandlers(dispatch, viewState);
+      break;
   }
 
   if (
@@ -301,7 +306,8 @@ export function ticketDetailHandlers(dispatch, viewState) {
 }
 
 export function userProfileHandlers(dispatch, viewState) {
-  const { canReportUser, canBlockUser, canUnblockUser } = viewState.capabilities;
+  const { canReportUser, canBlockUser, canUnblockUser } =
+    viewState.capabilities;
   const handlers = {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onLogout: () => dispatch({ type: ACTION_TYPE.LOGOUT }),
@@ -332,6 +338,27 @@ export function userProfileHandlers(dispatch, viewState) {
   }
 
   return handlers;
+}
+
+export function createListingFormHandlers(dispatch, viewState) {
+  const { canBackToList } = viewState.capabilities;
+  const handlers = {
+    onSubmitCreate: (data) =>
+      dispatch({ type: ACTION_TYPE.CREATE_LISTING, payload: data }),
+  };
+  if (canBackToList) {
+    handlers.onBackToList = () =>
+      dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST });
+  }
+  return handlers;
+}
+
+export function adminHandlers(dispatch) {
+  return {
+    onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
+    onDismissReport: (reportId) =>
+      dispatch({ type: ACTION_TYPE.DISMISS_REPORT, payload: { reportId } }),
+  };
 }
 
 export function errorHandlers(dispatch) {
