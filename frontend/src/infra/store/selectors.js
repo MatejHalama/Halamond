@@ -128,6 +128,24 @@ export function selectListings(state) {
   return state.listings ?? [];
 }
 
+export function selectFilteredListings(state) {
+  const listings = selectListings(state);
+  const { q, categoryId, minPrice, maxPrice } = state.ui.filters ?? {};
+
+  return listings.filter((l) => {
+    if (q) {
+      const needle = q.toLowerCase();
+      const inTitle = l.Title?.toLowerCase().includes(needle);
+      const inDesc = l.Description?.toLowerCase().includes(needle);
+      if (!inTitle && !inDesc) return false;
+    }
+    if (categoryId != null && l.belongsTo !== categoryId) return false;
+    if (minPrice != null && Number(l.Price) < Number(minPrice)) return false;
+    if (maxPrice != null && Number(l.Price) > Number(maxPrice)) return false;
+    return true;
+  });
+}
+
 export function selectLoginView(state) {
   return {
     type: VIEW_STATE_TYPE.LOGIN,
@@ -143,10 +161,9 @@ export function selectRegisterView(state) {
 }
 
 export function selectListingListView(state) {
-  const listings = selectListings(state);
   return {
     type: VIEW_STATE_TYPE.LISTING_LIST,
-    listings,
+    listings: selectFilteredListings(state),
     categories: state.categories ?? [],
     filters: state.ui.filters,
     auth: state.auth,
@@ -155,7 +172,6 @@ export function selectListingListView(state) {
     capabilities: {
       canEnterDetail: true,
       canCreateListing: canCreateListing(state),
-      canEnterAdministration: canEnterAdministration(state),
     },
   };
 }

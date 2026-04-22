@@ -130,6 +130,9 @@ export function listingListHandlers(dispatch, viewState) {
   handlers.onEnterTicketList = () =>
     dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST });
 
+  handlers.onSetFilters = (filters) =>
+    dispatch({ type: ACTION_TYPE.SET_FILTERS, payload: filters });
+
   return handlers;
 }
 
