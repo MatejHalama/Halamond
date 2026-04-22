@@ -144,6 +144,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canSellListing,
     canDeleteListing,
     canEnterAdministration,
+    canViewSellerProfile,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -200,6 +201,11 @@ export function listingDetailHandlers(dispatch, viewState) {
 
   handlers.onEnterTicketList = () =>
     dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST });
+
+  if (canViewSellerProfile) {
+    handlers.onEnterSellerProfile = (userId) =>
+      dispatch({ type: ACTION_TYPE.ENTER_PROFILE, payload: { userId } });
+  }
 
   return handlers;
 }

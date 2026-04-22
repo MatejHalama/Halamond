@@ -29,6 +29,7 @@ export async function enterListingList({ store, api }) {
                     ...state.ui,
                     mode: UI_MODE.LISTING_LIST,
                     selectedListing: null,
+                    filters: { q: "", categoryId: null, minPrice: null, maxPrice: null },
                     status: UI_STATUS.RDY,
                     errorMessage: null,
                 },

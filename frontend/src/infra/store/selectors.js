@@ -184,9 +184,13 @@ export function selectListingListView(state) {
 }
 
 export function selectListingDetailView(state) {
+  const listing = state.ui.selectedListing ?? null;
+  const sellerId = listing?.user?.UserID ?? listing?.author ?? null;
+  const canViewSellerProfile = !!sellerId && sellerId !== state.auth.userId;
+
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
-    listing: state.ui.selectedListing ?? null,
+    listing,
     auth: state.auth,
     capabilities: {
       canBackToList: true,
@@ -195,6 +199,7 @@ export function selectListingDetailView(state) {
       canSellListing: canSellListing(state),
       canDeleteListing: canDeleteListing(state),
       canEnterAdministration: canEnterAdministration(state),
+      canViewSellerProfile,
     },
   };
 }
@@ -237,13 +242,14 @@ export function selectTicketDetailView(state) {
 }
 
 export function selectProfileView(state) {
+  const isOwnProfile = state.profileUser?.UserID === state.auth.userId;
   return {
     type: VIEW_STATE_TYPE.PROFILE,
     auth: state.auth,
     profileUser: state.profileUser,
     capabilities: {
       canBackToList: true,
-      canLogout: true,
+      canLogout: isOwnProfile,
     },
   };
 }

@@ -73,7 +73,7 @@ export function UserProfileView({ viewState, handlers }) {
       item.className = "profile-rating-item";
       const stars = "★".repeat(r.Rating) + "☆".repeat(5 - r.Rating);
       const reviewer = r.reviewerUser?.Username ?? "Anonymní";
-      item.textContent = `${stars} — ${reviewer}`;
+      item.textContent = `${stars} - ${reviewer}`;
       ratingsSection.appendChild(item);
     });
   }

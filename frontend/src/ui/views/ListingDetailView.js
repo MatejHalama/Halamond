@@ -19,8 +19,9 @@ export function ListingDetailView({ viewState, handlers }) {
     canDeleteListing,
     canEnterAdministration,
     canContactSeller,
+    canViewSellerProfile,
   } = capabilities;
-  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller, onEnterTicketList } = handlers;
+  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller, onEnterTicketList, onEnterSellerProfile } = handlers;
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
@@ -33,7 +34,25 @@ export function ListingDetailView({ viewState, handlers }) {
     return container;
   }
 
-  container.appendChild(createTitle(2, `Detail of ${listing.Title}`));
+  container.appendChild(createTitle(2, listing.Title));
+
+  if (listing.Price != null) {
+    container.appendChild(createText(`Cena: ${Number(listing.Price).toFixed(0)} Kč`));
+  }
+  if (listing.Description) {
+    container.appendChild(createText(listing.Description));
+  }
+
+  const sellerName = listing.user?.Username ?? null;
+  const sellerId = listing.user?.UserID ?? null;
+  if (sellerName) {
+    const sellerDiv = createDiv("listing-seller");
+    sellerDiv.appendChild(createText(`Prodejce: ${sellerName}`));
+    if (canViewSellerProfile && onEnterSellerProfile && sellerId) {
+      sellerDiv.appendChild(addActionButton(() => onEnterSellerProfile(sellerId), "Profil prodejce", "button--secondary"));
+    }
+    container.appendChild(sellerDiv);
+  }
   /*container.appendChild(createText(`Datum: ${exam.date}`));
   container.appendChild(createText(`State: ${exam.status}`));
   container.appendChild(createText(`Capacity: ${exam.capacity}`));
