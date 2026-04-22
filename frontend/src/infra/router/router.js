@@ -58,7 +58,7 @@ export function parseUrl(path) {
     return { context: UI_MODE.TICKET_LIST };
   }
 
-  if (parts.length === 2 && parts[0] === URLS.TICKET_LIST) {
+  if (parts.length === 2 && parts[0] === URLS.TICKET_DETAIL) {
     return { context: UI_MODE.TICKET_DETAIL, ticketId: Number(parts[1]) };
   }
 
@@ -128,8 +128,8 @@ export function stateToPath(state) {
     case UI_MODE.TICKET_DETAIL: {
       const { selectedTicket } = state.ui ?? {};
       return selectedTicket
-        ? `/${URLS.TICKET_LIST}/${selectedTicket.TicketID}`
-        : `/${URLS.TICKET_LIST}`;
+        ? `/${URLS.TICKET_DETAIL}/${selectedTicket.TicketID}`
+        : `/${URLS.TICKET_DETAIL}`;
     }
     default:
       return `/${URLS.LISTING_LIST}`;
