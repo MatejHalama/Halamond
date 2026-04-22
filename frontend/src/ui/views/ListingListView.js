@@ -9,7 +9,8 @@ import { createCard } from "../builder/layout/card.js";
 
 // TODO: complete ListingListView
 export function ListingListView({ viewState, handlers }) {
-  const { listings, capabilities, unreadCount, auth } = viewState;
+  const { listings, capabilities, unreadCount, notificationCount, auth } =
+    viewState;
   const { canEnterDetail, canEnterAdministration, canCreateListing } =
     capabilities;
   const {
@@ -49,11 +50,12 @@ export function ListingListView({ viewState, handlers }) {
     cards.appendChild(card);
   });
 
+  const totalUnread = (unreadCount ?? 0) + (notificationCount ?? 0);
   const ticketBtn =
     auth?.userId && onEnterTicketList
       ? addActionButton(
           onEnterTicketList,
-          `Moje konverzace${unreadCount > 0 ? ` (${unreadCount})` : ""}`,
+          `Moje konverzace${totalUnread > 0 ? ` (${totalUnread})` : ""}`,
           "button--secondary",
         )
       : null;

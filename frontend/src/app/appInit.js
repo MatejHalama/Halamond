@@ -15,22 +15,29 @@ export async function appInit({ store, api, dispatch }) {
 
   const whoResult = await api.auth.whoAmI();
 
-  const auth = whoResult.status === API_STATUS.OK ? {
-    role: whoResult.user.Role,
-    userId: whoResult.user.UserID,
-    name: whoResult.user.Username,
-  } : {
-    role: ROLE.ANON,
-    userId: null,
-    name: null,
-  };
+  const auth =
+    whoResult.status === API_STATUS.OK
+      ? {
+          role: whoResult.user.Role,
+          userId: whoResult.user.UserID,
+          name: whoResult.user.Username,
+        }
+      : {
+          role: ROLE.ANON,
+          userId: null,
+          name: null,
+        };
 
   const isLoggedIn = auth.userId !== null;
 
-  const [categoriesResult, ticketsResult] = await Promise.all([
-    api.categories.getCategories(),
-    isLoggedIn ? api.tickets.getTickets() : Promise.resolve({ status: "SKIP" }),
-  ]);
+  const skip = Promise.resolve({ status: "SKIP" });
+
+  const [categoriesResult, ticketsResult, notificationsResult] =
+    await Promise.all([
+      api.categories.getCategories(),
+      isLoggedIn ? api.tickets.getTickets() : skip,
+      isLoggedIn ? api.notifications.getNotifications() : skip,
+    ]);
 
   store.setState((state) => ({
     ...state,
@@ -41,6 +48,10 @@ export async function appInit({ store, api, dispatch }) {
         : [],
     tickets:
       ticketsResult.status === API_STATUS.OK ? ticketsResult.tickets : [],
+    notifications:
+      notificationsResult.status === API_STATUS.OK
+        ? notificationsResult.notifications
+        : [],
     ui: {
       ...state.ui,
       status: UI_STATUS.RDY,

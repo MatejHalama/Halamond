@@ -120,6 +120,10 @@ export function selectUnreadCount(state) {
   }).length;
 }
 
+export function selectUnreadNotificationCount(state) {
+  return (state.notifications ?? []).filter((n) => !n.Read).length;
+}
+
 export function selectListings(state) {
   return state.listings ?? [];
 }
@@ -147,6 +151,7 @@ export function selectListingListView(state) {
     filters: state.ui.filters,
     auth: state.auth,
     unreadCount: selectUnreadCount(state),
+    notificationCount: selectUnreadNotificationCount(state),
     capabilities: {
       canEnterDetail: true,
       canCreateListing: canCreateListing(state),
@@ -171,8 +176,7 @@ export function selectListingDetailView(state) {
   };
 }
 
-export function selectListingAdministrationView(state)
-{
+export function selectListingAdministrationView(state) {
   return {
     type: VIEW_STATE_TYPE.LISTING_ADMINISTRATION,
     listing: state.ui.selectedListing ?? null,

@@ -17,6 +17,7 @@ export function createInitialState() {
     listings: [],
     categories: [],
     tickets: [],
+    notifications: [],
 
     auth: {
       role: ROLE.ANON,

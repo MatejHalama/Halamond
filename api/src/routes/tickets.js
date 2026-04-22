@@ -133,7 +133,16 @@ router.post("/", requireAuth, async (req, res) => {
       },
     });
 
-    // zde pozdeji implementovat vytvoreni notifikace
+    if (listing.author) {
+      await prisma.notification.create({
+        data: {
+          recipient: listing.author,
+          ticket: ticket.TicketID,
+          Text: `Nová zpráva k inzerátu "${listing.Title}"`,
+          Link: `/tickets/${ticket.TicketID}`,
+        },
+      });
+    }
 
     return res.status(201).json({ status: "SUCCESS", ticket });
   } catch (err) {
@@ -190,6 +199,18 @@ router.post("/:id/messages", requireAuth, async (req, res) => {
         data: { Updatedat: new Date() },
       }),
     ]);
+
+    const recipientId = isBuyer ? ticket.listing?.author : ticket.buyer;
+    if (recipientId) {
+      await prisma.notification.create({
+        data: {
+          recipient: recipientId,
+          ticket: id,
+          Text: "Nová zpráva v konverzaci",
+          Link: `/tickets/${id}`,
+        },
+      });
+    }
 
     return res.status(201).json({ status: "SUCCESS", message: msg });
   } catch (err) {
