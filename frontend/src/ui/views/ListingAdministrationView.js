@@ -16,9 +16,17 @@ export function ListingAdministrationView({ viewState, handlers }) {
     canCancel,
     canDelete,
     canBackToList,
+    canUploadPicture,
   } = capabilities;
-  const { onUpdateCapacity, onUpdate, onCancel, onDelete, onBackToList } =
-    handlers;
+  const {
+    onUpdateCapacity,
+    onUpdate,
+    onCancel,
+    onDelete,
+    onBackToList,
+    onUploadPicture,
+    onDeletePicture,
+  } = handlers;
 
   const root = createDiv();
   root.appendChild(canGoBack(canBackToList, onBackToList));
@@ -108,5 +116,74 @@ export function ListingAdministrationView({ viewState, handlers }) {
     }*/
 
   root.appendChild(container);
+
+  if (canUploadPicture && onUploadPicture && onDeletePicture) {
+    const pictureSection = createDiv("listing-admin-pictures");
+    const picTitle = document.createElement("h2");
+    picTitle.textContent = "Fotografie";
+    pictureSection.appendChild(picTitle);
+
+    const pictures = Array.isArray(listing.pictures) ? listing.pictures : [];
+    if (pictures.length === 0) {
+      pictureSection.appendChild(createText("Zatím žádné fotografie."));
+    } else {
+      const grid = createDiv("listing-admin-pic-grid");
+      const API_BASE = "http://localhost:3000";
+      pictures.forEach((pic) => {
+        const src = pic.Path?.startsWith("http")
+          ? pic.Path
+          : API_BASE + pic.Path;
+        const wrapper = createDiv("listing-admin-pic-wrapper");
+
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = "";
+        img.className = "listing-admin-pic";
+        img.loading = "lazy";
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "button button--danger listing-admin-pic-del";
+        delBtn.textContent = "×";
+        delBtn.title = "Smazat";
+        delBtn.addEventListener("click", () => {
+          delBtn.disabled = true;
+          onDeletePicture(pic.PictureID);
+        });
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(delBtn);
+        grid.appendChild(wrapper);
+      });
+      pictureSection.appendChild(grid);
+    }
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+
+    const uploadBtn = document.createElement("button");
+    uploadBtn.className = "button button--secondary mt-15";
+    uploadBtn.textContent = "Nahrát obrázek";
+    uploadBtn.type = "button";
+    uploadBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Nahrávám…";
+      onUploadPicture(file).then(() => {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Nahrát obrázek";
+        fileInput.value = "";
+      });
+    });
+
+    pictureSection.appendChild(fileInput);
+    pictureSection.appendChild(uploadBtn);
+    root.appendChild(pictureSection);
+  }
+
   return root;
 }

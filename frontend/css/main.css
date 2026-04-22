@@ -905,6 +905,151 @@ select:focus {
   color: var(--muted);
 }
 
+/* Card image */
+
+.card__img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  background: var(--bg);
+}
+
+.card__footer {
+  padding: 0.5rem 1rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* Listing gallery (detail view) */
+
+.listing-gallery {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.listing-gallery__img {
+  height: 220px;
+  width: auto;
+  max-width: 360px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* My listings section */
+
+.my-listings {
+  margin-top: 2rem;
+}
+
+.my-listings h2 {
+  margin-bottom: 0.75rem;
+}
+
+.my-listing-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.my-listing-row:hover {
+  box-shadow: var(--shadow);
+}
+
+.my-listing-title {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+
+.my-listing-price {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.my-listing-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge--draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge--sold {
+  background: var(--success-light);
+  color: #166534;
+}
+
+/* Listing administration pictures */
+
+.listing-admin-pictures {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  max-width: 600px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+.listing-admin-pictures h2 {
+  margin-bottom: 1rem;
+}
+
+.listing-admin-pic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.listing-admin-pic-wrapper {
+  position: relative;
+  width: 120px;
+  height: 90px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.listing-admin-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.listing-admin-pic-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 4px;
+}
+
 /* Scrollbar */
 
 ::-webkit-scrollbar {

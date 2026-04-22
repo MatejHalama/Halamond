@@ -38,27 +38,37 @@ export function ListingDetailView({ viewState, handlers }) {
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
-  if (onEnterTicketList) {
-    container.appendChild(
-      addActionButton(
-        onEnterTicketList,
-        "← Moje konverzace",
-        "button--secondary",
-      ),
-    );
-  }
 
   if (!listing) {
     container.appendChild(createText("Listing was not found"));
     return container;
   }
 
+  const pictures = Array.isArray(listing.pictures) ? listing.pictures : [];
+  if (pictures.length > 0) {
+    const gallery = createDiv("listing-gallery");
+    pictures.forEach((pic) => {
+      const path = pic?.Path ?? pic?.path ?? "";
+      const url = path.startsWith("http")
+        ? path
+        : `http://localhost:3000${path}`;
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = listing.Title ?? "";
+      img.className = "listing-gallery__img";
+      img.loading = "lazy";
+      gallery.appendChild(img);
+    });
+    container.appendChild(gallery);
+  }
+
   container.appendChild(createTitle(2, listing.Title));
 
   if (listing.Price != null) {
-    container.appendChild(
-      createText(`Cena: ${Number(listing.Price).toFixed(0)} Kč`),
-    );
+    const priceEl = document.createElement("p");
+    priceEl.className = "listing-price";
+    priceEl.textContent = `${Number(listing.Price).toFixed(0)} Kč`;
+    container.appendChild(priceEl);
   }
   if (listing.Description) {
     container.appendChild(createText(listing.Description));
@@ -167,7 +177,11 @@ export function ListingDetailView({ viewState, handlers }) {
   if (canBlockListing && onBlockListing) {
     const adminSection = createSection("admin-zone");
     adminSection.appendChild(createTitle(3, "Administrace"));
-    const blockBtn = addActionButton(null, "Blokovat inzerát", "button--danger admin-action");
+    const blockBtn = addActionButton(
+      null,
+      "Blokovat inzerát",
+      "button--danger admin-action",
+    );
     blockBtn.addEventListener("click", async () => {
       blockBtn.disabled = true;
       await onBlockListing();

@@ -171,6 +171,7 @@ export function selectListingListView(state) {
   return {
     type: VIEW_STATE_TYPE.LISTING_LIST,
     listings: selectFilteredListings(state),
+    myListings: state.myListings ?? [],
     categories: state.categories ?? [],
     filters: state.ui.filters,
     auth: state.auth,
@@ -222,6 +223,7 @@ export function selectListingAdministrationView(state) {
     capabilities: {
       canBackToList: true,
       canUpdateListing: canUpdateListing(state),
+      canUploadPicture: canUpdateListing(state),
     },
   };
 }

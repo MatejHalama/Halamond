@@ -15,6 +15,7 @@ READY -> ERROR
 export function createInitialState() {
   return {
     listings: [],
+    myListings: [],
     categories: [],
     tickets: [],
     notifications: [],

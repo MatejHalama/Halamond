@@ -238,7 +238,7 @@ export function listingDetailHandlers(dispatch, viewState) {
 
 export function listingAdministrationHandlers(dispatch, viewState) {
   const { capabilities } = viewState;
-  const { canBackToList, canUpdateListing } = capabilities;
+  const { canBackToList, canUpdateListing, canUploadPicture } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
 
@@ -254,6 +254,19 @@ export function listingAdministrationHandlers(dispatch, viewState) {
       dispatch({
         type: ACTION_TYPE.UPDATE_LISTING,
         payload: { listingId, ...data },
+      });
+  }
+
+  if (canUploadPicture) {
+    handlers.onUploadPicture = (file) =>
+      dispatch({
+        type: ACTION_TYPE.UPLOAD_PICTURE,
+        payload: { listingId, file },
+      });
+    handlers.onDeletePicture = (picId) =>
+      dispatch({
+        type: ACTION_TYPE.DELETE_PICTURE,
+        payload: { listingId, picId },
       });
   }
 

@@ -32,6 +32,8 @@ import { blockListing } from "./actions/blockListing.js";
 import { enterCreateListing } from "./actions/enterCreateListing.js";
 import { enterAdmin } from "./actions/enterAdmin.js";
 import { dismissReport } from "./actions/dismissReport.js";
+import { uploadPicture } from "./actions/uploadPicture.js";
+import { deletePicture } from "./actions/deletePicture.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -190,6 +192,14 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.DISMISS_REPORT:
         result = await dismissReport({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UPLOAD_PICTURE:
+        result = await uploadPicture({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.DELETE_PICTURE:
+        result = await deletePicture({ store, api, payload });
         break;
 
       default:
