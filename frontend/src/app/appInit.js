@@ -25,7 +25,12 @@ export async function appInit({ store, api, dispatch }) {
     name: null,
   };
 
-  const categoriesResult = await api.categories.getCategories();
+  const isLoggedIn = auth.userId !== null;
+
+  const [categoriesResult, ticketsResult] = await Promise.all([
+    api.categories.getCategories(),
+    isLoggedIn ? api.tickets.getTickets() : Promise.resolve({ status: "SKIP" }),
+  ]);
 
   store.setState((state) => ({
     ...state,
@@ -34,6 +39,8 @@ export async function appInit({ store, api, dispatch }) {
       categoriesResult.status === API_STATUS.OK
         ? categoriesResult.categories
         : [],
+    tickets:
+      ticketsResult.status === API_STATUS.OK ? ticketsResult.tickets : [],
     ui: {
       ...state.ui,
       status: UI_STATUS.RDY,
