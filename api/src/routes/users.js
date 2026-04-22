@@ -67,11 +67,10 @@ router.get("/:id", async (req, res) => {
         .status(404)
         .json({ status: "ERROR", reason: "Uživatel nenalezen" });
 
-    const avgRating =
-      user.receivedRatings.length > 0
-        ? user.receivedRatings.reduce((sum, r) => sum + r.Rating, 0) /
-          user.receivedRatings.length
-        : null;
+    const [ratingRow] = await prisma.$queryRaw`
+      SELECT get_user_avg_rating(${id}::integer) AS avg
+    `;
+    const avgRating = ratingRow.avg !== null ? Number(ratingRow.avg) : null;
 
     return res.json({ status: "SUCCESS", user: { ...user, avgRating } });
   } catch (err) {

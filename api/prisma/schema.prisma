@@ -193,6 +193,21 @@ model Notification {
   @@map("Notification")
 }
 
+view TicketOverview {
+  TicketID       Int         @unique
+  State          TicketState
+  Createdat      DateTime
+  Updatedat      DateTime?
+  buyer          Int?
+  subjectListing Int?
+  listingAuthor  Int?
+  listing        Json?
+  buyerUser      Json?
+  messages       Json
+
+  @@map("TicketOverview")
+}
+
 view ActiveListing {
   ListingID   Int          @unique
   Createdat   DateTime

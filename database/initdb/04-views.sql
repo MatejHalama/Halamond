@@ -21,6 +21,36 @@ GROUP BY
     l."ListingID", ca."CategoryID", u."UserID";
 
 
+CREATE VIEW "TicketOverview" AS
+SELECT
+    t."TicketID",
+    t."State",
+    t."Createdat",
+    t."Updatedat",
+    t."buyer",
+    t."subjectListing",
+    l."author" AS "listingAuthor",
+    to_jsonb((SELECT row FROM (
+        SELECT l."ListingID", l."Title", l."State", l."author"
+    ) AS row)) AS "listing",
+    to_jsonb((SELECT row FROM (
+        SELECT u."UserID", u."Username"
+    ) AS row)) AS "buyerUser",
+    COALESCE(
+        (SELECT jsonb_agg(msg_sub) FROM (
+            SELECT m."MessageID", m."Text", m."sender", m."Createdat"
+            FROM "Message" m
+            WHERE m."ticket" = t."TicketID"
+            ORDER BY m."Createdat" DESC
+            LIMIT 1
+        ) AS msg_sub),
+        '[]'::jsonb
+    ) AS "messages"
+FROM "Ticket" t
+LEFT JOIN "Listing" l ON t."subjectListing" = l."ListingID"
+LEFT JOIN "User" u ON t."buyer" = u."UserID";
+
+
 CREATE VIEW "ListingDetail" AS
 SELECT
     l.*,

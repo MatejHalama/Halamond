@@ -7,8 +7,9 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth");
 const listingsRoutes = require("./routes/listings");
 const ticketsRoutes = require("./routes/tickets");
-// const usersRoutes = require("./routes/users");
+const usersRoutes = require("./routes/users");
 const categoriesRoutes = require("./routes/categories");
+const notificationsRoutes = require("./routes/notifications");
 // const ratingsRoutes = require("./routes/ratings");
 // const reportsRoutes = require("./routes/reports");
 
@@ -30,8 +31,9 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingsRoutes);
 app.use("/api/tickets", ticketsRoutes);
-// app.use("/api/users", usersRoutes);
+app.use("/api/users", usersRoutes);
 app.use("/api/categories", categoriesRoutes);
+app.use("/api/notifications", notificationsRoutes);
 // app.use("/api/ratings", ratingsRoutes);
 // app.use("/api/reports", reportsRoutes);
 

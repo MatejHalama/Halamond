@@ -35,4 +35,20 @@ export async function enterTicketDetail({ store, api, payload }) {
       errorMessage: null,
     },
   }));
+
+  const unread = store
+    .getState()
+    .notifications.filter((n) => !n.Read && n.ticket === ticketId);
+
+  if (unread.length > 0) {
+    await Promise.all(
+      unread.map((n) => api.notifications.markRead(n.NotificationID)),
+    );
+    store.setState((state) => ({
+      ...state,
+      notifications: state.notifications.map((n) =>
+        n.ticket === ticketId ? { ...n, Read: true } : n,
+      ),
+    }));
+  }
 }
