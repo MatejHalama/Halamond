@@ -3,6 +3,7 @@ import { createStore } from '../infra/store/createStore.js';
 import { createDispatcher } from './dispatch.js';
 import { render } from '../ui/render.js';
 import { createApi } from '../api/api.js';
+import { syncUrlWithState } from "../infra/router/router.js";
 import { urlToAction } from '../infra/router/router.js';
 
 import * as ACTION_TYPE from '../constants/actionType.js';
@@ -18,6 +19,9 @@ const root = document.getElementById('app');
 // přihlášení renderu ke změnám
 store.subscribe((state) => render(root, state, dispatch));
 
+// aktualizace URL
+store.subscribe(syncUrlWithState);
+
 // 3. aplikační incializace stavu
 dispatch({type: ACTION_TYPE.INIT})
     .catch(err => {
@@ -25,7 +29,7 @@ dispatch({type: ACTION_TYPE.INIT})
     });
 
 // 4. naslouchání změnám v řádku s adresou
-window.addEventListener('popstate', () => {
+window.addEventListener("hashchange", () => {
     const action = urlToAction(window.location.href);
     dispatch({
         ...action,
