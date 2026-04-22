@@ -8,19 +8,9 @@ router.get("/", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const tickets = await prisma.ticket.findMany({
+    const tickets = await prisma.ticketOverview.findMany({
       where: {
-        OR: [{ buyer: userId }, { listing: { author: userId } }],
-      },
-      include: {
-        listing: {
-          select: { ListingID: true, Title: true, State: true, author: true },
-        },
-        buyerUser: { select: { UserID: true, Username: true } },
-        messages: {
-          orderBy: { Createdat: "desc" },
-          take: 1,
-        },
+        OR: [{ buyer: userId }, { listingAuthor: userId }],
       },
       orderBy: { Updatedat: "desc" },
     });
@@ -38,6 +28,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
 
   const userId = req.user.userId;
+  const isAdmin = req.user.role === "admin";
 
   try {
     const ticket = await prisma.ticket.findUnique({
@@ -59,14 +50,14 @@ router.get("/:id", requireAuth, async (req, res) => {
         .status(404)
         .json({ status: "ERROR", reason: "Ticket nenalezen" });
 
-    const isBuyer = ticket.buyer === userId;
-    const isSeller = ticket.listing?.author === userId;
-    const isAdmin = req.user.role === "admin";
-
-    if (!isBuyer && !isSeller && !isAdmin) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen" });
+    if (!isAdmin) {
+      const [row] = await prisma.$queryRaw`
+        SELECT is_ticket_participant(${id}::integer, ${userId}::integer) AS result
+      `;
+      if (!row.result)
+        return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen" });
     }
 
     return res.json({ status: "SUCCESS", ticket });
@@ -94,16 +85,14 @@ router.post("/", requireAuth, async (req, res) => {
       return res
         .status(404)
         .json({ status: "ERROR", reason: "Inzerát nenalezen" });
-    if (listing.State !== "active") {
+    if (listing.State !== "active")
       return res
         .status(400)
         .json({ status: "ERROR", reason: "Inzerát není aktivní" });
-    }
-    if (listing.author === userId) {
+    if (listing.author === userId)
       return res
         .status(400)
         .json({ status: "ERROR", reason: "Nelze kontaktovat sebe sama" });
-    }
 
     const existing = await prisma.ticket.findFirst({
       where: {
@@ -128,20 +117,18 @@ router.post("/", requireAuth, async (req, res) => {
           create: { Text: message, sender: userId },
         },
       },
-      include: {
-        messages: true,
-      },
+      include: { messages: true },
     });
 
     if (listing.author) {
-      await prisma.notification.create({
-        data: {
-          recipient: listing.author,
-          ticket: ticket.TicketID,
-          Text: `Nová zpráva k inzerátu "${listing.Title}"`,
-          Link: `/tickets/${ticket.TicketID}`,
-        },
-      });
+      await prisma.$queryRaw`
+        CALL create_notification(
+          ${listing.author}::integer,
+          ${ticket.TicketID}::integer,
+          ${'Nová zpráva k inzerátu "' + listing.Title + '"'}::varchar,
+          ${"/tickets/" + ticket.TicketID}::varchar
+        )
+      `;
     }
 
     return res.status(201).json({ status: "SUCCESS", ticket });
@@ -165,52 +152,37 @@ router.post("/:id/messages", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    const [participantRow] = await prisma.$queryRaw`
+      SELECT is_ticket_participant(${id}::integer, ${userId}::integer) AS result
+    `;
+    if (!participantRow.result)
+      return res
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen" });
+
     const ticket = await prisma.ticket.findUnique({
       where: { TicketID: id },
-      include: { listing: { select: { author: true } } },
+      select: { State: true },
     });
-
     if (!ticket)
       return res
         .status(404)
         .json({ status: "ERROR", reason: "Ticket nenalezen" });
-
-    const isBuyer = ticket.buyer === userId;
-    const isSeller = ticket.listing?.author === userId;
-
-    if (!isBuyer && !isSeller) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen" });
-    }
-    if (ticket.State === "closed") {
+    if (ticket.State === "closed")
       return res
         .status(400)
         .json({ status: "ERROR", reason: "Ticket je uzavřen" });
-    }
 
-    const [msg] = await prisma.$transaction([
-      prisma.message.create({
-        data: { Text: message, sender: userId, ticket: id },
+    const msg = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`
+        CALL send_ticket_message(${id}::integer, ${userId}::integer, ${message}::text)
+      `;
+      return tx.message.findFirst({
+        where: { ticket: id, sender: userId },
+        orderBy: { Createdat: "desc" },
         include: { senderUser: { select: { UserID: true, Username: true } } },
-      }),
-      prisma.ticket.update({
-        where: { TicketID: id },
-        data: { Updatedat: new Date() },
-      }),
-    ]);
-
-    const recipientId = isBuyer ? ticket.listing?.author : ticket.buyer;
-    if (recipientId) {
-      await prisma.notification.create({
-        data: {
-          recipient: recipientId,
-          ticket: id,
-          Text: "Nová zpráva v konverzaci",
-          Link: `/tickets/${id}`,
-        },
       });
-    }
+    });
 
     return res.status(201).json({ status: "SUCCESS", message: msg });
   } catch (err) {
@@ -225,39 +197,35 @@ router.patch("/:id/close", requireAuth, async (req, res) => {
     return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
 
   const userId = req.user.userId;
+  const isAdmin = req.user.role === "admin";
 
   try {
+    if (!isAdmin) {
+      const [row] = await prisma.$queryRaw`
+        SELECT is_ticket_participant(${id}::integer, ${userId}::integer) AS result
+      `;
+      if (!row.result)
+        return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen" });
+    }
+
     const ticket = await prisma.ticket.findUnique({
       where: { TicketID: id },
-      include: { listing: { select: { author: true } } },
+      select: { State: true },
     });
-
     if (!ticket)
       return res
         .status(404)
         .json({ status: "ERROR", reason: "Ticket nenalezen" });
-
-    const isBuyer = ticket.buyer === userId;
-    const isSeller = ticket.listing?.author === userId;
-    const isAdmin = req.user.role === "admin";
-
-    if (!isBuyer && !isSeller && !isAdmin) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen" });
-    }
-    if (ticket.State === "closed") {
+    if (ticket.State === "closed")
       return res
         .status(400)
         .json({ status: "ERROR", reason: "Ticket je již uzavřen" });
-    }
 
-    const updated = await prisma.ticket.update({
-      where: { TicketID: id },
-      data: { State: "closed" },
-    });
+    await prisma.$queryRaw`CALL close_ticket(${id}::integer)`;
 
-    return res.json({ status: "SUCCESS", ticket: updated });
+    return res.json({ status: "SUCCESS" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });

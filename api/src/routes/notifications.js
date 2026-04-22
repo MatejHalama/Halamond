@@ -8,13 +8,22 @@ router.get("/", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const notifications = await prisma.notification.findMany({
-      where: { recipient: userId },
-      orderBy: { Createdat: "desc" },
-      take: 30,
-    });
+    const [notifications, countRow] = await Promise.all([
+      prisma.notification.findMany({
+        where: { recipient: userId },
+        orderBy: { Createdat: "desc" },
+        take: 30,
+      }),
+      prisma.$queryRaw`
+        SELECT get_unread_notification_count(${userId}::integer) AS count
+      `,
+    ]);
 
-    return res.json({ status: "SUCCESS", notifications });
+    return res.json({
+      status: "SUCCESS",
+      notifications,
+      unreadCount: Number(countRow[0].count),
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
