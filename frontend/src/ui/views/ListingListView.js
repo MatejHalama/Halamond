@@ -37,9 +37,11 @@ export function ListingListView({ viewState, handlers }) {
   listings.forEach((listing) => {
     const price =
       listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
+    const category = listing.category?.Name ?? "";
     const card = createCard({
       title: listing.Title,
       state: price,
+      signed: category,
       button: [
         canEnterDetail
           ? (() => {
