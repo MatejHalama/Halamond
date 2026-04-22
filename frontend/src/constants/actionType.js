@@ -24,3 +24,5 @@ export const SEND_MESSAGE = "SEND_MESSAGE";
 export const CLOSE_TICKET = "CLOSE_TICKET";
 
 export const SET_FILTERS = "SET_FILTERS";
+
+export const SUBMIT_RATING = "SUBMIT_RATING";

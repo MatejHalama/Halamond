@@ -240,8 +240,7 @@ export function ticketListHandlers(dispatch, viewState) {
 }
 
 export function ticketDetailHandlers(dispatch, viewState) {
-  const { ticket } = viewState;
-  const { canSendMessage, canCloseTicket } = viewState.capabilities;
+  const { canSendMessage, canCloseTicket, canRateSeller } = viewState.capabilities;
   const handlers = {
     onBackToTickets: () => dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST }),
   };
@@ -259,6 +258,14 @@ export function ticketDetailHandlers(dispatch, viewState) {
       dispatch({
         type: ACTION_TYPE.CLOSE_TICKET,
         payload: { ticketId },
+      });
+  }
+
+  if (canRateSeller) {
+    handlers.onRateSeller = (reviewedId, rating) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_RATING,
+        payload: { reviewedId, rating },
       });
   }
 

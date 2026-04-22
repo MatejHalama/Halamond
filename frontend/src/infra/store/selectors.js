@@ -99,6 +99,13 @@ export function canSendMessage(state) {
   return ticket.buyer === userId || ticket.listing?.author === userId;
 }
 
+export function canRateSeller(state) {
+  const ticket = state.ui.selectedTicket ?? null;
+  if (!ticket) return false;
+  const { userId } = state.auth;
+  return ticket.buyer === userId;
+}
+
 export function canCloseTicket(state) {
   const ticket = state.ui.selectedTicket ?? null;
   if (!ticket) return false;
@@ -224,6 +231,7 @@ export function selectTicketDetailView(state) {
     capabilities: {
       canSendMessage: canSendMessage(state),
       canCloseTicket: canCloseTicket(state),
+      canRateSeller: canRateSeller(state),
     },
   };
 }

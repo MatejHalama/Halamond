@@ -7,7 +7,7 @@ import { createElement } from "../builder/createElement.js";
 
 export function TicketDetailView({ viewState, handlers }) {
   const { ticket, auth, capabilities } = viewState;
-  const { onBackToTickets, onSendMessage, onCloseTicket } = handlers;
+  const { onBackToTickets, onSendMessage, onCloseTicket, onRateSeller } = handlers;
 
   const root = createSection("ticket-detail-view");
   root.appendChild(
@@ -71,6 +71,44 @@ export function TicketDetailView({ viewState, handlers }) {
       ),
     );
     root.appendChild(form);
+  }
+
+  // rating form for buyer
+  if (capabilities.canRateSeller && onRateSeller) {
+    const sellerAuthorId = ticket.listing?.author;
+    if (sellerAuthorId) {
+      const ratingSection = createSection("rating-form");
+      ratingSection.appendChild(createTitle(2, "Ohodnotit prodejce"));
+
+      const select = document.createElement("select");
+      [1, 2, 3, 4, 5].forEach((n) => {
+        const opt = document.createElement("option");
+        opt.value = n;
+        opt.textContent = "★".repeat(n) + " (" + n + ")";
+        select.appendChild(opt);
+      });
+      select.value = "5";
+      ratingSection.appendChild(select);
+
+      const errorEl = createText([], "rating-error");
+      ratingSection.appendChild(errorEl);
+
+      const submitBtn = addActionButton(null, "Odeslat hodnocení", "button--primary");
+      submitBtn.addEventListener("click", async () => {
+        submitBtn.disabled = true;
+        errorEl.textContent = "";
+        const result = await onRateSeller(sellerAuthorId, parseInt(select.value));
+        if (result?.status === "SUCCESS") {
+          ratingSection.innerHTML = "";
+          ratingSection.appendChild(createText(["Hodnocení odesláno. Děkujeme!"], "rating-success"));
+        } else {
+          errorEl.textContent = result?.reason ?? "Chyba při odesílání hodnocení.";
+          submitBtn.disabled = false;
+        }
+      });
+      ratingSection.appendChild(submitBtn);
+      root.appendChild(ratingSection);
+    }
   }
 
   return root;

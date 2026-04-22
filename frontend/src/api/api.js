@@ -4,6 +4,7 @@ import { createTicketsApi } from "./ticketsApi.js";
 import { createCategoriesApi } from "./categoriesApi.js";
 import { createNotificationsApi } from "./notificationsApi.js";
 import { createUsersApi } from "./usersApi.js";
+import { createRatingsApi } from "./ratingsApi.js";
 
 export function createApi() {
   return {
@@ -13,5 +14,6 @@ export function createApi() {
     categories: createCategoriesApi(),
     notifications: createNotificationsApi(),
     users: createUsersApi(),
+    ratings: createRatingsApi(),
   };
 }
