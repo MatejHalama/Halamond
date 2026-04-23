@@ -24,6 +24,8 @@ export async function enterListingAdministration({ store, api, payload }) {
             ...state,
             ui: {
                 ...state.ui,
+                selectedTicket: null,
+                notification: null,
                 status: UI_STATUS.ERR,
                 errorMessage: 'No data loaded'
             },
@@ -40,7 +42,9 @@ export async function enterListingAdministration({ store, api, payload }) {
                     mode: UI_MODE.LISTING_ADMINISTRATION,
                     selectedListing: dataResult.listing,
                     status: UI_STATUS.RDY,
+                    selectedTicket: null,
                     errorMessage: null,
+                    notification: null,
                 },
             }
         }

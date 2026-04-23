@@ -1,4 +1,5 @@
 import * as API_STATUS from "../../statuses/apiStatus.js";
+import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js";
 
 export async function deletePicture({ store, api, payload }) {
   const { listingId, picId } = payload;
@@ -17,8 +18,30 @@ export async function deletePicture({ store, api, payload }) {
               ),
             }
           : state.ui.selectedListing,
+        selectedTicket: null,
+        errorMessage: null,
+        notification: {
+          type: NOTIFICATION_TYPE.OK,
+          message: "Obrázek úspěšně nahrán",
+        },
       },
     }));
+  }
+  else {
+    store.setState((state) => {
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          selectedTicket: null,
+          errorMessage: null,
+          notification: {
+            type: NOTIFICATION_TYPE.ERR,
+            message: result.reason,
+          },
+        },
+      };
+    });
   }
 
   return result;

@@ -16,8 +16,11 @@ export async function enterTicketList({ store, api }) {
     ui: {
       ...state.ui,
       mode: UI_MODE.TICKET_LIST,
-      selectedTicket: null,
       status: UI_STATUS.RDY,
+      selectedListing: null,
+      selectedTicket: null,
+      errorMessage: null,
+      notification: null,
     },
   }));
 }

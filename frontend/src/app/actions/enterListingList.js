@@ -29,7 +29,14 @@ export async function enterListingList({ store, api }) {
   if (dataResult.status !== API_STATUS.OK) {
     store.setState((s) => ({
       ...s,
-      ui: { ...s.ui, status: UI_STATUS.ERR, errorMessage: "No data loaded" },
+      ui: {
+        ...s.ui,
+        selectedListing: null,
+        selectedTicket: null,
+        notification: null,
+        status: UI_STATUS.ERR,
+        errorMessage: "No data loaded"
+      },
     }));
     return;
   }
@@ -42,10 +49,12 @@ export async function enterListingList({ store, api }) {
     ui: {
       ...s.ui,
       mode: UI_MODE.LISTING_LIST,
-      selectedListing: null,
       filters: { q: "", categoryId: null, minPrice: null, maxPrice: null },
       status: UI_STATUS.RDY,
+      selectedListing: null,
+      selectedTicket: null,
       errorMessage: null,
+      notification: null,
     },
   }));
 }
