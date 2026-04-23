@@ -1,23 +1,28 @@
-import { selectViewState } from "../infra/store/selectors.js";
+import {
+  selectViewState,
+  selectUnreadCount,
+  selectUnreadNotificationCount,
+  canCreateListing,
+} from "../infra/store/selectors.js";
 import { createHandlers } from "../app/actionHandlers/createHandlers.js";
 
 import { LoadingView } from "./views/LoadingView.js";
 import { ErrorView } from "./views/ErrorView.js";
 import { LoginView } from "./views/LoginView.js";
 import { UserProfileView } from "./views/UserProfileView.js";
+import { CreateListingView } from "./views/CreateListingView.js";
+import { AdminView } from "./views/AdminView.js";
 
 import {
   createSuccessNotification,
   createErrorNotification,
 } from "./builder/layout/notification.js";
-import { createUserIcon } from "./builder/layout/user.js";
 import { createSection } from "./builder/components/section.js";
 
-// TODO: review ./builder
-// TODO: review external sources (e.a. css, images, icons)
-
 import * as VIEW_STATE_TYPE from "../constants/viewStateType.js";
+import * as ACTION_TYPE from "../constants/actionType.js";
 import * as NOTIFICATION_TYPE from "../statuses/notificationType.js";
+import * as ROLE from "../constants/role.js";
 import { ListingListView } from "./views/ListingListView.js";
 import { ListingDetailView } from "./views/ListingDetailView.js";
 import { TicketListView } from "./views/TicketListView.js";
@@ -48,13 +53,83 @@ import { RegisterView } from "./views/RegisterView.js";
  **   },
  ** }
  */
+function buildNavbar(state, dispatch, viewState) {
+  const isAuthView =
+    viewState.type === VIEW_STATE_TYPE.LOGIN ||
+    viewState.type === VIEW_STATE_TYPE.REGISTER;
+  const isLoggedIn = !!state.auth.userId;
+
+  const nav = document.createElement("nav");
+  nav.className = "navbar";
+
+  const brand = document.createElement("button");
+  brand.className = "navbar-brand";
+  brand.textContent = "Halamond";
+  brand.addEventListener("click", () =>
+    dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
+  );
+  nav.appendChild(brand);
+
+  if (isLoggedIn && !isAuthView) {
+    const right = document.createElement("div");
+    right.className = "navbar-right";
+
+    if (canCreateListing(state)) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "button button--primary navbar-btn";
+      addBtn.textContent = "+ Přidat inzerát";
+      addBtn.addEventListener("click", () =>
+        dispatch({ type: ACTION_TYPE.ENTER_CREATE_LISTING }),
+      );
+      right.appendChild(addBtn);
+    }
+
+    const totalUnread =
+      selectUnreadCount(state) + selectUnreadNotificationCount(state);
+    const convBtn = document.createElement("button");
+    convBtn.className = "button button--secondary navbar-btn";
+    convBtn.textContent =
+      totalUnread > 0 ? `Zprávy (${totalUnread})` : "Zprávy";
+    convBtn.addEventListener("click", () =>
+      dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST }),
+    );
+    right.appendChild(convBtn);
+
+    if (state.auth.role === ROLE.ADMIN) {
+      const adminBtn = document.createElement("button");
+      adminBtn.className = "button button--secondary navbar-btn";
+      adminBtn.textContent = "Admin";
+      adminBtn.addEventListener("click", () =>
+        dispatch({ type: ACTION_TYPE.ENTER_ADMIN }),
+      );
+      right.appendChild(adminBtn);
+    }
+
+    const profileBtn = document.createElement("button");
+    profileBtn.className =
+      "button button--secondary navbar-btn navbar-profile-btn";
+    profileBtn.innerHTML = '<i class="fa fa-user"></i>';
+    profileBtn.addEventListener("click", () =>
+      dispatch({ type: ACTION_TYPE.ENTER_PROFILE }),
+    );
+    right.appendChild(profileBtn);
+
+    nav.appendChild(right);
+  }
+
+  return nav;
+}
+
 export function render(root, state, dispatch) {
   root.replaceChildren();
 
-  // TODO: selectors
   const viewState = selectViewState(state);
-  // TODO: handlers
   const handlers = createHandlers(dispatch, viewState);
+
+  root.appendChild(buildNavbar(state, dispatch, viewState));
+
+  const main = document.createElement("main");
+  main.className = "main-content";
 
   let view;
   switch (viewState.type) {
@@ -86,6 +161,10 @@ export function render(root, state, dispatch) {
       view = ListingAdministrationView({ viewState, handlers });
       break;
 
+    case VIEW_STATE_TYPE.CREATE_LISTING:
+      view = CreateListingView({ viewState, handlers });
+      break;
+
     case VIEW_STATE_TYPE.PROFILE:
       view = UserProfileView({ viewState, handlers });
       break;
@@ -98,23 +177,19 @@ export function render(root, state, dispatch) {
       view = TicketDetailView({ viewState, handlers });
       break;
 
+    case VIEW_STATE_TYPE.ADMIN:
+      view = AdminView({ viewState, handlers });
+      break;
+
     default:
       view = document.createTextNode(`Unknown view type: ${viewState.type}`);
   }
 
-  root.appendChild(view);
-
-  if (
-    state.auth.userId &&
-    viewState.type !== VIEW_STATE_TYPE.PROFILE &&
-    viewState.type !== VIEW_STATE_TYPE.LOGIN &&
-    viewState.type !== VIEW_STATE_TYPE.REGISTER
-  ) {
-    root.appendChild(createUserIcon(handlers.onEnterProfile));
-  }
+  main.appendChild(view);
+  root.appendChild(main);
 
   const { notification } = state.ui;
-  let messages = createSection("notification");
+  const messages = createSection("toast-container");
   if (notification) {
     const nMessage = notification.message;
     if (nMessage) {
@@ -136,9 +211,7 @@ export function render(root, state, dispatch) {
           break;
       }
     }
-
     state.ui.notification = null;
   }
-
   root.appendChild(messages);
 }

@@ -5,8 +5,15 @@ import { addActionButton } from "../builder/components/button.js";
 
 export function UserProfileView({ viewState, handlers }) {
   const { profileUser, capabilities } = viewState;
-  const { canBackToList, canLogout } = capabilities;
-  const { onBackToList, onLogout } = handlers;
+  const {
+    canBackToList,
+    canLogout,
+    canReportUser,
+    canBlockUser,
+    canUnblockUser,
+  } = capabilities;
+  const { onBackToList, onLogout, onReportUser, onBlockUser, onUnblockUser } =
+    handlers;
 
   const container = createSection("");
 
@@ -73,11 +80,65 @@ export function UserProfileView({ viewState, handlers }) {
       item.className = "profile-rating-item";
       const stars = "★".repeat(r.Rating) + "☆".repeat(5 - r.Rating);
       const reviewer = r.reviewerUser?.Username ?? "Anonymní";
-      item.textContent = `${stars} — ${reviewer}`;
+      item.textContent = `${stars} - ${reviewer}`;
       ratingsSection.appendChild(item);
     });
   }
   container.appendChild(ratingsSection);
+
+  if (canReportUser && onReportUser && profileUser) {
+    const reportSection = createSection("report-form");
+    reportSection.appendChild(createTitle(3, "Nahlásit uživatele"));
+    const input = document.createElement("textarea");
+    input.placeholder = "Důvod hlášení...";
+    input.rows = 2;
+    reportSection.appendChild(input);
+    const btn = document.createElement("button");
+    btn.textContent = "Nahlásit";
+    btn.className = "button--danger";
+    btn.addEventListener("click", async () => {
+      const text = input.value.trim();
+      if (!text) return;
+      btn.disabled = true;
+      const result = await onReportUser(profileUser.UserID, text);
+      if (result?.status === "SUCCESS") {
+        reportSection.innerHTML = "";
+        reportSection.appendChild(
+          createText(["Uživatel byl nahlášen. Děkujeme."]),
+        );
+      } else {
+        btn.disabled = false;
+      }
+    });
+    reportSection.appendChild(btn);
+    container.appendChild(reportSection);
+  }
+
+  if (canBlockUser && onBlockUser && profileUser) {
+    const blockBtn = addActionButton(
+      null,
+      "Blokovat uživatele",
+      "button--danger admin-action",
+    );
+    blockBtn.addEventListener("click", async () => {
+      blockBtn.disabled = true;
+      await onBlockUser(profileUser.UserID);
+    });
+    container.appendChild(blockBtn);
+  }
+
+  if (canUnblockUser && onUnblockUser && profileUser) {
+    const unblockBtn = addActionButton(
+      null,
+      "Odblokovat uživatele",
+      "button--success admin-action",
+    );
+    unblockBtn.addEventListener("click", async () => {
+      unblockBtn.disabled = true;
+      await onUnblockUser(profileUser.UserID);
+    });
+    container.appendChild(unblockBtn);
+  }
 
   if (canLogout && onLogout) {
     container.appendChild(

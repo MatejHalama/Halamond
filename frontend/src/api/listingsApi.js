@@ -61,18 +61,18 @@ export function createListingsApi() {
           },
           credentials: "include",
           body: JSON.stringify({
-            ...(title && { title: title}),
-            ...(price && { price: price}),
-            ...(categoryId && { categoryId : categoryId}),
-            ...(description && { description: description}),
-          })
+            ...(title && { title: title }),
+            ...(price && { price: price }),
+            ...(categoryId && { categoryId: categoryId }),
+            ...(description && { description: description }),
+          }),
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
 
@@ -91,14 +91,14 @@ export function createListingsApi() {
             ...(price && { price: price }),
             ...(categoryId && { categoryId: categoryId }),
             ...(description && { description: description }),
-          })
+          }),
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
 
@@ -109,11 +109,11 @@ export function createListingsApi() {
           credentials: "include",
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
 
@@ -124,11 +124,11 @@ export function createListingsApi() {
           credentials: "include",
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
 
@@ -139,11 +139,55 @@ export function createListingsApi() {
           credentials: "include",
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
+      }
+    },
+
+    async getMyListings() {
+      try {
+        const response = await fetch(`${BASE}/api/listings/my`, {
+          credentials: "include",
+        });
+        return await response.json();
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
+
+    async uploadPicture(listingId, file) {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        const response = await fetch(
+          `${BASE}/api/listings/${listingId}/pictures`,
+          {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          },
+        );
+        return await response.json();
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
+
+    async deletePicture(listingId, picId) {
+      try {
+        const response = await fetch(
+          `${BASE}/api/listings/${listingId}/pictures/${picId}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          },
+        );
+        return await response.json();
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
       }
     },
 
@@ -154,11 +198,11 @@ export function createListingsApi() {
           credentials: "include",
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
 
@@ -169,11 +213,11 @@ export function createListingsApi() {
           credentials: "include",
         });
         return await response.json();
-      }
-      catch (error) {
+      } catch (error) {
         return {
-          status: "ERROR", reason: "Chyba spojení se serverem"
-        }
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
       }
     },
   };

@@ -15,9 +15,11 @@ READY -> ERROR
 export function createInitialState() {
   return {
     listings: [],
+    myListings: [],
     categories: [],
     tickets: [],
     notifications: [],
+    reports: [],
     profileUser: null,
 
     auth: {

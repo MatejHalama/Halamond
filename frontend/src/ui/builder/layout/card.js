@@ -3,16 +3,29 @@ import { createText } from "../components/text.js";
 import { createDiv } from "../components/div.js";
 import { createArticle } from "../components/article.js";
 
-// TODO: accommodate card to listing
-export function createCard({ title, date, state, signed, button})
-{
-    const titleElement = createTitle(2, title);
-    const dateElement = createText( date);
-    const stateElement = createText( state);
-    const signedElement = createText( signed);
+export function createCard({ title, date, state, signed, button, imageUrl }) {
+  const titleElement = createTitle(2, title);
+  const stateElement = createText(state);
+  const signedElement = createText(signed);
 
-    const cardTitle = createDiv('card__title', [titleElement]);
-    const cardText = createDiv('card__text', [dateElement, stateElement, signedElement]);
+  let imgEl = null;
+  if (imageUrl) {
+    imgEl = document.createElement("img");
+    imgEl.src = imageUrl;
+    imgEl.alt = title ?? "";
+    imgEl.className = "card__img";
+    imgEl.loading = "lazy";
+  }
 
-    return createArticle( "card" , [cardTitle, cardText, button]  );
+  const cardTitle = createDiv("card__title", [titleElement]);
+  const cardText = createDiv("card__text", [stateElement, signedElement]);
+  const footer = createDiv(
+    "card__footer",
+    Array.isArray(button) ? button : button ? [button] : [],
+  );
+
+  return createArticle(
+    "card",
+    [imgEl, cardTitle, cardText, footer].filter(Boolean),
+  );
 }
