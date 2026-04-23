@@ -9,7 +9,11 @@ const prisma = new PrismaClient({ adapter })
         async isBuyer(listingId, userId) {
             const [result] = await prisma.$queryRaw`SELECT is_buyer(${listingId}, ${userId})`;
             return result.is_buyer;
-        }
+        },
+        async isBlocked(userId) {
+            const [result] = await prisma.$queryRaw`SELECT is_blocked(${userId})`;
+            return result.is_blocked;
+        },
     }
 });
 

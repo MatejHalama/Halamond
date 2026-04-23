@@ -10,6 +10,18 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE FUNCTION is_blocked(UserID "User"."UserID"%TYPE)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS(
+        SELECT 1
+        FROM "User" u
+        WHERE u."UserID" = UserID AND u."State" = 'blocked'
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+
 CREATE FUNCTION get_unread_notification_count(p_user_id INTEGER)
 RETURNS INTEGER AS $$
 BEGIN
