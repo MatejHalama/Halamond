@@ -339,6 +339,8 @@ export function selectViewState(state) {
   }
 
   switch (state.ui.mode) {
+    case UI_MODE.INIT:
+      return { type: VIEW_STATE_TYPE.LOADING };
     case UI_MODE.LOGIN:
       return selectLoginView(state);
     case UI_MODE.REGISTER:

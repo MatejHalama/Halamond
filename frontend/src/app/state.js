@@ -29,7 +29,7 @@ export function createInitialState() {
     },
 
     ui: {
-      mode: UI_MODE.LOGIN,
+      mode: UI_MODE.INIT,
       selectedExamId: null,
       selectedListing: null,
       selectedTicket: null,

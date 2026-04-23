@@ -141,6 +141,9 @@ export function stateToUrl(state) {
 }
 
 export function syncUrlWithState(state, { replace = false } = {}) {
+  if (state.ui?.mode === UI_MODE.INIT)
+    return;
+
   const nextUrl = stateToUrl(state);
   const currentUrl = window.location.hash || "#";
 
