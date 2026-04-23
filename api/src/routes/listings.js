@@ -1,8 +1,48 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const prisma = require("../lib/prisma");
-const { requireAuth, requireAdmin} = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
+
+const uploadDir = path.join(__dirname, "../../uploads");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: uploadDir,
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `listing-${req.params.id}-${Date.now()}${ext}`);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) cb(null, true);
+    else cb(new Error("Povoleny jsou pouze obrázky"));
+  },
+});
+
+router.get("/my", requireAuth, async (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const listings = await prisma.listing.findMany({
+      where: { author: userId },
+      include: {
+        pictures: true,
+        category: true,
+      },
+      orderBy: { Createdat: "desc" },
+    });
+    return res.json({ status: "SUCCESS", listings });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
 
 router.get("/", async (req, res) => {
   const q = req.query.q;
@@ -58,7 +98,11 @@ router.get("/:id", async (req, res) => {
 
   try {
     const listing = await prisma.listingDetail.findUnique({
-      where: { ListingID: id, State: "active", user: { path: ["State"], equals: "active" } },
+      where: {
+        ListingID: id,
+        State: "active",
+        user: { path: ["State"], equals: "active" },
+      },
     });
 
     if (!listing)
@@ -82,17 +126,20 @@ router.get("/:id/auth", requireAuth, async (req, res) => {
 
   try {
     const listing = await prisma.listingDetail.findUnique({
-      where: { ListingID: id, OR: [
+      where: {
+        ListingID: id,
+        OR: [
           { State: "active", user: { path: ["State"], equals: "active" } },
           { author: userId },
-          { ...(await prisma.isBuyer(id, userId) && { ListingID: id }) },
-        ] },
+          { ...((await prisma.isBuyer(id, userId)) && { ListingID: id }) },
+        ],
+      },
     });
 
     if (!listing)
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
 
     return res.json({ status: "SUCCESS", listing });
   } catch (error) {
@@ -199,12 +246,10 @@ router.patch("/:id/activate", requireAuth, async (req, res) => {
     }
 
     if (listing.State !== "draft" && listing.State !== "sold") {
-      return res
-        .status(403)
-        .json({
-          status: "ERROR",
-          reason: "Inzerát nelze označit jako aktivní",
-        });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Inzerát nelze označit jako aktivní",
+      });
     }
 
     const updated = await prisma.listing.update({
@@ -249,12 +294,10 @@ router.patch("/:id/sell", requireAuth, async (req, res) => {
     }
 
     if (listing.State !== "active") {
-      return res
-        .status(403)
-        .json({
-          status: "ERROR",
-          reason: "Inzerát nelze označit jako prodaný",
-        });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Inzerát nelze označit jako prodaný",
+      });
     }
 
     const updated = await prisma.listing.update({
@@ -289,22 +332,20 @@ router.patch("/:id/delete", requireAuth, async (req, res) => {
 
     if (!listing)
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
 
     if (listing.author !== userId) {
       return res
-          .status(403)
-          .json({ status: "ERROR", reason: "Přístup odepřen" });
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen" });
     }
 
     if (listing.State !== "active") {
-      return res
-          .status(403)
-          .json({
-            status: "ERROR",
-            reason: "Inzerát nelze označit jako smazaný",
-          });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Inzerát nelze označit jako smazaný",
+      });
     }
 
     const updated = await prisma.listing.update({
@@ -318,8 +359,8 @@ router.patch("/:id/delete", requireAuth, async (req, res) => {
   } catch (err) {
     if (err.code === "P2025")
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
   }
@@ -337,16 +378,14 @@ router.patch("/:id/block", requireAdmin, async (req, res) => {
 
     if (!listing)
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
 
     if (listing.State !== "active" && listing.State !== "sold") {
-      return res
-          .status(403)
-          .json({
-            status: "ERROR",
-            reason: "Inzerát nelze označit jako zablokovaný",
-          });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Inzerát nelze označit jako zablokovaný",
+      });
     }
 
     const updated = await prisma.listing.update({
@@ -360,8 +399,8 @@ router.patch("/:id/block", requireAdmin, async (req, res) => {
   } catch (err) {
     if (err.code === "P2025")
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
   }
@@ -379,16 +418,14 @@ router.patch("/:id/unblock", requireAdmin, async (req, res) => {
 
     if (!listing)
       return res
-          .status(404)
-          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
 
     if (listing.State !== "block") {
-      return res
-          .status(403)
-          .json({
-            status: "ERROR",
-            reason: "Inzerát nelze označit jako aktivní",
-          });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Inzerát nelze označit jako aktivní",
+      });
     }
 
     const updated = await prisma.listing.update({
@@ -402,8 +439,77 @@ router.patch("/:id/unblock", requireAdmin, async (req, res) => {
   } catch (err) {
     if (err.code === "P2025")
       return res
+        .status(404)
+        .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
+
+router.post(
+  "/:id/pictures",
+  requireAuth,
+  upload.single("image"),
+  async (req, res) => {
+    const id = parseInt(req.params.id);
+    const userId = req.user.userId;
+
+    if (!req.file)
+      return res.status(400).json({ status: "ERROR", reason: "Žádný soubor" });
+
+    try {
+      const listing = await prisma.listing.findUnique({
+        where: { ListingID: id },
+      });
+      if (!listing)
+        return res
           .status(404)
           .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+      if (listing.author !== userId)
+        return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen" });
+
+      const picture = await prisma.picture.create({
+        data: { Path: `/uploads/${req.file.filename}`, listing: id },
+      });
+
+      return res.status(201).json({ status: "SUCCESS", picture });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+    }
+  },
+);
+
+router.delete("/:id/pictures/:picId", requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const picId = parseInt(req.params.picId);
+  const userId = req.user.userId;
+
+  try {
+    const listing = await prisma.listing.findUnique({
+      where: { ListingID: id },
+    });
+    if (!listing || listing.author !== userId)
+      return res
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen" });
+
+    const pic = await prisma.picture.findUnique({
+      where: { PictureID: picId },
+    });
+    if (!pic)
+      return res
+        .status(404)
+        .json({ status: "ERROR", reason: "Obrázek nenalezen" });
+
+    const filePath = path.join(uploadDir, path.basename(pic.Path));
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    await prisma.picture.delete({ where: { PictureID: picId } });
+    return res.json({ status: "SUCCESS" });
+  } catch (err) {
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
   }

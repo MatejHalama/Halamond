@@ -24,6 +24,16 @@ import { updateListing } from "./actions/updateListing.js";
 import { enterRegister } from "./actions/enterRegister.js";
 import { submitRegister } from "./actions/submitRegister.js";
 import { setFilters } from "./actions/setFilters.js";
+import { submitRating } from "./actions/submitRating.js";
+import { submitReport } from "./actions/submitReport.js";
+import { blockUser } from "./actions/blockUser.js";
+import { unblockUser } from "./actions/unblockUser.js";
+import { blockListing } from "./actions/blockListing.js";
+import { enterCreateListing } from "./actions/enterCreateListing.js";
+import { enterAdmin } from "./actions/enterAdmin.js";
+import { dismissReport } from "./actions/dismissReport.js";
+import { uploadPicture } from "./actions/uploadPicture.js";
+import { deletePicture } from "./actions/deletePicture.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -125,7 +135,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:
-        result = await enterUserProfile({ store, api });
+        result = await enterUserProfile({ store, api, payload });
         break;
 
       case ACTION_TYPE.ENTER_TICKET_LIST:
@@ -150,6 +160,46 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.SET_FILTERS:
         result = setFilters({ store, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_RATING:
+        result = await submitRating({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_REPORT:
+        result = await submitReport({ api, payload });
+        break;
+
+      case ACTION_TYPE.BLOCK_USER:
+        result = await blockUser({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UNBLOCK_USER:
+        result = await unblockUser({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.BLOCK_LISTING:
+        result = await blockListing({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.ENTER_CREATE_LISTING:
+        result = enterCreateListing({ store });
+        break;
+
+      case ACTION_TYPE.ENTER_ADMIN:
+        result = await enterAdmin({ store, api });
+        break;
+
+      case ACTION_TYPE.DISMISS_REPORT:
+        result = await dismissReport({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UPLOAD_PICTURE:
+        result = await uploadPicture({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.DELETE_PICTURE:
+        result = await deletePicture({ store, api, payload });
         break;
 
       default:

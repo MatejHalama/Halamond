@@ -3,37 +3,48 @@ import { createTitle } from "../builder/components/title.js";
 import { createButton, addActionButton } from "../builder/components/button.js";
 import { createCard } from "../builder/layout/card.js";
 
+const API_BASE = "http://localhost:3000";
+
+function getFirstImageUrl(listing) {
+  const pics = listing.pictures;
+  if (!pics) return null;
+  const arr = Array.isArray(pics) ? pics : [];
+  if (arr.length === 0) return null;
+  const p = arr[0];
+  const path = p?.Path ?? p?.path ?? null;
+  if (!path) return null;
+  return path.startsWith("http") ? path : `${API_BASE}${path}`;
+}
+
 export function ListingListView({ viewState, handlers }) {
   const {
     listings,
+    myListings,
     capabilities,
     categories,
     filters,
-    unreadCount,
-    notificationCount,
-    auth,
+    notifications,
   } = viewState;
-  const { canEnterDetail, canCreateListing } = capabilities;
-  const { onEnterDetail, onCreateListing, onEnterTicketList, onSetFilters } =
-    handlers;
-
-  const totalUnread = (unreadCount ?? 0) + (notificationCount ?? 0);
-  const ticketBtn =
-    auth?.userId && onEnterTicketList
-      ? addActionButton(
-          onEnterTicketList,
-          `Moje konverzace${totalUnread > 0 ? ` (${totalUnread})` : ""}`,
-          "button--secondary",
-        )
-      : null;
+  const { canEnterDetail } = capabilities;
+  const { onEnterDetail, onSetFilters, onOpenNotification } = handlers;
 
   const filterSection = createFilterSection({
     categories,
     filters,
     onSetFilters,
   });
+  const notifPanel = createNotificationsPanel({
+    notifications,
+    onOpenNotification,
+  });
 
   const cards = createSection("cards");
+  if (listings.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "listings-empty";
+    empty.textContent = "Žádné inzeráty.";
+    cards.appendChild(empty);
+  }
   listings.forEach((listing) => {
     const price =
       listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
@@ -42,42 +53,84 @@ export function ListingListView({ viewState, handlers }) {
       title: listing.Title,
       state: price,
       signed: category,
-      button: [
-        canEnterDetail
-          ? (() => {
-              const btn = createButton("button--primary", "Detail");
-              btn.addEventListener("click", () =>
-                onEnterDetail(listing.ListingID),
-              );
-              return btn;
-            })()
-          : null,
-      ].filter(Boolean),
+      imageUrl: getFirstImageUrl(listing),
+      button: canEnterDetail
+        ? (() => {
+            const btn = createButton("button--primary", "Detail");
+            btn.addEventListener("click", () =>
+              onEnterDetail(listing.ListingID),
+            );
+            return btn;
+          })()
+        : null,
     });
     cards.appendChild(card);
   });
 
-  const createBtn =
-    canCreateListing && onCreateListing
-      ? (() => {
-          const btn = createButton("button--primary mt-15", "Přidat inzerát");
-          btn.addEventListener("click", () =>
-            onCreateListing({ title: "Nový inzerát", price: "100" }),
-          );
-          return btn;
-        })()
-      : null;
+  const root = createSection("listing-list-view");
+  root.appendChild(createTitle(1, "Inzeráty"));
+  if (notifPanel) root.appendChild(notifPanel);
+  root.appendChild(filterSection);
+  root.appendChild(cards);
 
-  return createSection(
-    "",
-    [
-      createTitle(1, "Inzeráty"),
-      ticketBtn,
-      filterSection,
-      cards,
-      createBtn,
-    ].filter(Boolean),
+  const nonActive = (myListings ?? []).filter(
+    (l) =>
+      l.State !== "active" && l.State !== "deleted" && l.State !== "blocked",
   );
+  if (nonActive.length > 0) {
+    const mySection = createSection("my-listings");
+    mySection.appendChild(createTitle(2, "Moje inzeráty"));
+    nonActive.forEach((listing) => {
+      const row = document.createElement("div");
+      row.className = "my-listing-row";
+      const stateLabel =
+        { draft: "Návrh", sold: "Prodáno" }[listing.State] ?? listing.State;
+      const price =
+        listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
+      row.innerHTML = `<span class="my-listing-title">${listing.Title}</span>
+        <span class="my-listing-badge badge--${listing.State}">${stateLabel}</span>
+        ${price ? `<span class="my-listing-price">${price}</span>` : ""}`;
+      if (onEnterDetail) {
+        row.style.cursor = "pointer";
+        row.addEventListener("click", () => onEnterDetail(listing.ListingID));
+      }
+      mySection.appendChild(row);
+    });
+    root.appendChild(mySection);
+  }
+
+  return root;
+}
+
+function createNotificationsPanel({ notifications, onOpenNotification }) {
+  const unread = (notifications ?? []).filter((n) => !n.Read);
+  if (unread.length === 0) return null;
+
+  const panel = createSection("notifications-panel");
+  const title = document.createElement("strong");
+  title.textContent = `Notifikace (${unread.length})`;
+  panel.appendChild(title);
+
+  unread.forEach((n) => {
+    const item = document.createElement("div");
+    item.className = "notification-item";
+    item.textContent = n.Text;
+    if (n.ticket && onOpenNotification) {
+      item.style.cursor = "pointer";
+      item.addEventListener("click", () => onOpenNotification(n.ticket));
+    }
+    panel.appendChild(item);
+  });
+
+  return panel;
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
 }
 
 function createFilterSection({ categories, filters, onSetFilters }) {
@@ -87,8 +140,9 @@ function createFilterSection({ categories, filters, onSetFilters }) {
   searchInput.type = "text";
   searchInput.placeholder = "Hledat...";
   searchInput.value = filters?.q ?? "";
-  searchInput.addEventListener("input", (e) =>
-    onSetFilters?.({ q: e.target.value || "" }),
+  searchInput.addEventListener(
+    "input",
+    debounce((e) => onSetFilters?.({ q: e.target.value || "" }), 350),
   );
 
   const categorySelect = document.createElement("select");
@@ -113,20 +167,30 @@ function createFilterSection({ categories, filters, onSetFilters }) {
   minInput.type = "number";
   minInput.placeholder = "Min Kč";
   minInput.value = filters?.minPrice ?? "";
-  minInput.addEventListener("input", (e) =>
-    onSetFilters?.({
-      minPrice: e.target.value ? Number(e.target.value) : null,
-    }),
+  minInput.addEventListener(
+    "input",
+    debounce(
+      (e) =>
+        onSetFilters?.({
+          minPrice: e.target.value ? Number(e.target.value) : null,
+        }),
+      350,
+    ),
   );
 
   const maxInput = document.createElement("input");
   maxInput.type = "number";
   maxInput.placeholder = "Max Kč";
   maxInput.value = filters?.maxPrice ?? "";
-  maxInput.addEventListener("input", (e) =>
-    onSetFilters?.({
-      maxPrice: e.target.value ? Number(e.target.value) : null,
-    }),
+  maxInput.addEventListener(
+    "input",
+    debounce(
+      (e) =>
+        onSetFilters?.({
+          maxPrice: e.target.value ? Number(e.target.value) : null,
+        }),
+      350,
+    ),
   );
 
   section.appendChild(searchInput);

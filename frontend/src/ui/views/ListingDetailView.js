@@ -19,21 +19,77 @@ export function ListingDetailView({ viewState, handlers }) {
     canDeleteListing,
     canEnterAdministration,
     canContactSeller,
+    canViewSellerProfile,
+    canReportListing,
+    canBlockListing,
   } = capabilities;
-  const { onBackToList, onActivate, onSell, onDelete, onEnterAdministration, onContactSeller, onEnterTicketList } = handlers;
+  const {
+    onBackToList,
+    onActivate,
+    onSell,
+    onDelete,
+    onEnterAdministration,
+    onContactSeller,
+    onEnterTicketList,
+    onEnterSellerProfile,
+    onReportListing,
+    onBlockListing,
+  } = handlers;
 
   const container = createDiv();
   container.appendChild(canGoBack(canBackToList, onBackToList));
-  if (onEnterTicketList) {
-    container.appendChild(addActionButton(onEnterTicketList, "← Moje konverzace", "button--secondary"));
-  }
 
   if (!listing) {
     container.appendChild(createText("Listing was not found"));
     return container;
   }
 
-  container.appendChild(createTitle(2, `Detail of ${listing.Title}`));
+  const pictures = Array.isArray(listing.pictures) ? listing.pictures : [];
+  if (pictures.length > 0) {
+    const gallery = createDiv("listing-gallery");
+    pictures.forEach((pic) => {
+      const path = pic?.Path ?? pic?.path ?? "";
+      const url = path.startsWith("http")
+        ? path
+        : `http://localhost:3000${path}`;
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = listing.Title ?? "";
+      img.className = "listing-gallery__img";
+      img.loading = "lazy";
+      gallery.appendChild(img);
+    });
+    container.appendChild(gallery);
+  }
+
+  container.appendChild(createTitle(2, listing.Title));
+
+  if (listing.Price != null) {
+    const priceEl = document.createElement("p");
+    priceEl.className = "listing-price";
+    priceEl.textContent = `${Number(listing.Price).toFixed(0)} Kč`;
+    container.appendChild(priceEl);
+  }
+  if (listing.Description) {
+    container.appendChild(createText(listing.Description));
+  }
+
+  const sellerName = listing.user?.Username ?? null;
+  const sellerId = listing.user?.UserID ?? null;
+  if (sellerName) {
+    const sellerDiv = createDiv("listing-seller");
+    sellerDiv.appendChild(createText(`Prodejce: ${sellerName}`));
+    if (canViewSellerProfile && onEnterSellerProfile && sellerId) {
+      sellerDiv.appendChild(
+        addActionButton(
+          () => onEnterSellerProfile(sellerId),
+          "Profil prodejce",
+          "button--secondary",
+        ),
+      );
+    }
+    container.appendChild(sellerDiv);
+  }
   /*container.appendChild(createText(`Datum: ${exam.date}`));
   container.appendChild(createText(`State: ${exam.status}`));
   container.appendChild(createText(`Capacity: ${exam.capacity}`));
@@ -53,12 +109,19 @@ export function ListingDetailView({ viewState, handlers }) {
   }
 
   if (canDeleteListing && onDelete) {
-    container.appendChild(addActionButton(onDelete, "Delete", "button--danger"));
+    container.appendChild(
+      addActionButton(onDelete, "Delete", "button--danger"),
+    );
   }
 
-  if (canEnterAdministration && onEnterAdministration)
-  {
-    container.appendChild(addActionButton(onEnterAdministration, 'Administration', 'button--success'));
+  if (canEnterAdministration && onEnterAdministration) {
+    container.appendChild(
+      addActionButton(
+        onEnterAdministration,
+        "Administration",
+        "button--success",
+      ),
+    );
   }
 
   if (canContactSeller && onContactSeller) {
@@ -107,5 +170,50 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
   }*/
 
+  if (canReportListing && onReportListing) {
+    container.appendChild(createReportForm((text) => onReportListing(text)));
+  }
+
+  if (canBlockListing && onBlockListing) {
+    const adminSection = createSection("admin-zone");
+    adminSection.appendChild(createTitle(3, "Administrace"));
+    const blockBtn = addActionButton(
+      null,
+      "Blokovat inzerát",
+      "button--danger admin-action",
+    );
+    blockBtn.addEventListener("click", async () => {
+      blockBtn.disabled = true;
+      await onBlockListing();
+    });
+    adminSection.appendChild(blockBtn);
+    container.appendChild(adminSection);
+  }
+
   return container;
+}
+
+function createReportForm(onSubmit) {
+  const section = createSection("report-form");
+  section.appendChild(createTitle(3, "Nahlásit inzerát"));
+  const input = createElement("textarea", {
+    placeholder: "Důvod hlášení...",
+    rows: "2",
+  });
+  section.appendChild(input);
+  const btn = addActionButton(null, "Nahlásit", "button--danger");
+  btn.addEventListener("click", async () => {
+    const text = input.value.trim();
+    if (!text) return;
+    btn.disabled = true;
+    const result = await onSubmit(text);
+    if (result?.status === "SUCCESS") {
+      section.innerHTML = "";
+      section.appendChild(createText("Inzerát byl nahlášen. Děkujeme."));
+    } else {
+      btn.disabled = false;
+    }
+  });
+  section.appendChild(btn);
+  return section;
 }

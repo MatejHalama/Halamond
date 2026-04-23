@@ -55,7 +55,12 @@ export function createHandlers(dispatch, viewState) {
     case VIEW_STATE_TYPE.TICKET_DETAIL:
       handlers = ticketDetailHandlers(dispatch, viewState);
       break;
-    // TODO: more handlers
+    case VIEW_STATE_TYPE.CREATE_LISTING:
+      handlers = createListingFormHandlers(dispatch, viewState);
+      break;
+    case VIEW_STATE_TYPE.ADMIN:
+      handlers = adminHandlers(dispatch, viewState);
+      break;
   }
 
   if (
@@ -133,6 +138,9 @@ export function listingListHandlers(dispatch, viewState) {
   handlers.onSetFilters = (filters) =>
     dispatch({ type: ACTION_TYPE.SET_FILTERS, payload: filters });
 
+  handlers.onOpenNotification = (ticketId) =>
+    dispatch({ type: ACTION_TYPE.ENTER_TICKET_DETAIL, payload: { ticketId } });
+
   return handlers;
 }
 
@@ -144,6 +152,9 @@ export function listingDetailHandlers(dispatch, viewState) {
     canSellListing,
     canDeleteListing,
     canEnterAdministration,
+    canViewSellerProfile,
+    canReportListing,
+    canBlockListing,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -201,12 +212,33 @@ export function listingDetailHandlers(dispatch, viewState) {
   handlers.onEnterTicketList = () =>
     dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST });
 
+  if (canViewSellerProfile) {
+    handlers.onEnterSellerProfile = (userId) =>
+      dispatch({ type: ACTION_TYPE.ENTER_PROFILE, payload: { userId } });
+  }
+
+  if (canReportListing) {
+    handlers.onReportListing = (text) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_REPORT,
+        payload: { text, reportedListingId: listingId },
+      });
+  }
+
+  if (canBlockListing) {
+    handlers.onBlockListing = () =>
+      dispatch({
+        type: ACTION_TYPE.BLOCK_LISTING,
+        payload: { listingId },
+      });
+  }
+
   return handlers;
 }
 
 export function listingAdministrationHandlers(dispatch, viewState) {
   const { capabilities } = viewState;
-  const { canBackToList, canUpdateListing } = capabilities;
+  const { canBackToList, canUpdateListing, canUploadPicture } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
 
@@ -225,6 +257,19 @@ export function listingAdministrationHandlers(dispatch, viewState) {
       });
   }
 
+  if (canUploadPicture) {
+    handlers.onUploadPicture = (file) =>
+      dispatch({
+        type: ACTION_TYPE.UPLOAD_PICTURE,
+        payload: { listingId, file },
+      });
+    handlers.onDeletePicture = (picId) =>
+      dispatch({
+        type: ACTION_TYPE.DELETE_PICTURE,
+        payload: { listingId, picId },
+      });
+  }
+
   return handlers;
 }
 
@@ -240,8 +285,8 @@ export function ticketListHandlers(dispatch, viewState) {
 }
 
 export function ticketDetailHandlers(dispatch, viewState) {
-  const { ticket } = viewState;
-  const { canSendMessage, canCloseTicket } = viewState.capabilities;
+  const { canSendMessage, canCloseTicket, canRateSeller } =
+    viewState.capabilities;
   const handlers = {
     onBackToTickets: () => dispatch({ type: ACTION_TYPE.ENTER_TICKET_LIST }),
   };
@@ -262,13 +307,70 @@ export function ticketDetailHandlers(dispatch, viewState) {
       });
   }
 
+  if (canRateSeller) {
+    handlers.onRateSeller = (reviewedId, rating) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_RATING,
+        payload: { reviewedId, rating },
+      });
+  }
+
   return handlers;
 }
 
-export function userProfileHandlers(dispatch) {
-  return {
+export function userProfileHandlers(dispatch, viewState) {
+  const { canReportUser, canBlockUser, canUnblockUser } =
+    viewState.capabilities;
+  const handlers = {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onLogout: () => dispatch({ type: ACTION_TYPE.LOGOUT }),
+  };
+
+  if (canReportUser) {
+    handlers.onReportUser = (userId, text) =>
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_REPORT,
+        payload: { text, reportedUserId: userId },
+      });
+  }
+
+  if (canBlockUser) {
+    handlers.onBlockUser = (userId) =>
+      dispatch({
+        type: ACTION_TYPE.BLOCK_USER,
+        payload: { userId },
+      });
+  }
+
+  if (canUnblockUser) {
+    handlers.onUnblockUser = (userId) =>
+      dispatch({
+        type: ACTION_TYPE.UNBLOCK_USER,
+        payload: { userId },
+      });
+  }
+
+  return handlers;
+}
+
+export function createListingFormHandlers(dispatch, viewState) {
+  const { canBackToList } = viewState.capabilities;
+  const handlers = {
+    onSubmitCreate: (data) =>
+      dispatch({ type: ACTION_TYPE.CREATE_LISTING, payload: data }),
+  };
+  if (canBackToList) {
+    handlers.onBackToList = () =>
+      dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST });
+  }
+  return handlers;
+}
+
+export function adminHandlers(dispatch) {
+  return {
+    onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
+    onDismissReport: (reportId) =>
+      dispatch({ type: ACTION_TYPE.DISMISS_REPORT, payload: { reportId } }),
   };
 }
 

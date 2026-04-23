@@ -1,28 +1,48 @@
-import {createDiv} from "../builder/components/div.js";
-import {canGoBack, submitButton, addActionButton} from "../builder/components/button.js";
+import { createDiv } from "../builder/components/div.js";
+import {
+  canGoBack,
+  submitButton,
+  addActionButton,
+} from "../builder/components/button.js";
 import { createTitle } from "../builder/components/title.js";
 import { createText } from "../builder/components/text.js";
 import { createInput } from "../builder/components/input.js";
 
-export function ListingAdministrationView({ viewState, handlers })
-{
-    const { listing, capabilities } = viewState;
-    const { canUpdateCapacity, canUpdateListing, canCancel, canDelete, canBackToList } = capabilities;
-    const { onUpdateCapacity, onUpdate, onCancel, onDelete, onBackToList } = handlers;
+export function ListingAdministrationView({ viewState, handlers }) {
+  const { listing, capabilities } = viewState;
+  const {
+    canUpdateCapacity,
+    canUpdateListing,
+    canCancel,
+    canDelete,
+    canBackToList,
+    canUploadPicture,
+  } = capabilities;
+  const {
+    onUpdateCapacity,
+    onUpdate,
+    onCancel,
+    onDelete,
+    onBackToList,
+    onUploadPicture,
+    onDeletePicture,
+  } = handlers;
 
+  const root = createDiv();
+  root.appendChild(canGoBack(canBackToList, onBackToList));
+  const container = createDiv("listing-admin-form");
 
-    const root = createDiv();
-    root.appendChild(canGoBack(canBackToList, onBackToList));
-    const container = createDiv('text-center w-25');
-    container.appendChild(createTitle(1, `Administration of: ${listing.Title ?? listing.ListingID}`));
+  if (!listing) {
+    container.appendChild(createText("Listing was not found"));
+    root.appendChild(container);
+    return root;
+  }
 
-    if (!listing)
-    {
-        container.appendChild(createText('Listing was not found'));
-        return container;
-    }
+  container.appendChild(
+    createTitle(1, `Úprava: ${listing.Title ?? listing.ListingID}`),
+  );
 
-    /*if (canUpdateCapacity && onUpdateCapacity)
+  /*if (canUpdateCapacity && onUpdateCapacity)
     {
         let capacityInput = createInput('', {
                 type: 'number',
@@ -41,51 +61,49 @@ export function ListingAdministrationView({ viewState, handlers })
         container.appendChild(formCapacity);
     }*/
 
-    if (canUpdateListing && onUpdate)
-    {
-        let titleInput = createInput('', {
-            type: 'text',
-            value: listing.Title,
-            name: 'listingTitle',
-            id: 'listingTitleInput',
-        });
-        let descriptionInput = createInput('', {
-            type: 'text',
-            value: listing.Description ?? '',
-            name: 'listingDescription',
-            id: 'listingDescriptionInput',
-        });
-        let priceInput = createInput('', {
-            type: 'number',
-            value: listing.Price,
-            min: 0,
-            name: 'listingPrice',
-            id: 'listingPriceInput',
-        });
-        // TODO: category select
+  if (canUpdateListing && onUpdate) {
+    let titleInput = createInput("", {
+      type: "text",
+      value: listing.Title,
+      name: "listingTitle",
+      id: "listingTitleInput",
+    });
+    let descriptionInput = createInput("", {
+      type: "text",
+      value: listing.Description ?? "",
+      name: "listingDescription",
+      id: "listingDescriptionInput",
+    });
+    let priceInput = createInput("", {
+      type: "number",
+      value: listing.Price,
+      min: 0,
+      name: "listingPrice",
+      id: "listingPriceInput",
+    });
+    // TODO: category select
 
-        const formData = createDiv('', [
-                titleInput,
-                descriptionInput,
-                priceInput,
-                submitButton('Save', () => onUpdate({
-                            title: document.getElementById('listingTitleInput').value,
-                            description: document.getElementById('listingDescriptionInput').value,
-                            price: document.getElementById('listingPriceInput').value,
-                            //categoryId: document.getElementById('listingCategoryIdInput').value,
-                        }
-                    )
-                )
-            ]
-        );
-        container.appendChild(formData);
-    }
+    const formData = createDiv("", [
+      titleInput,
+      descriptionInput,
+      priceInput,
+      submitButton("Save", () =>
+        onUpdate({
+          title: document.getElementById("listingTitleInput").value,
+          description: document.getElementById("listingDescriptionInput").value,
+          price: document.getElementById("listingPriceInput").value,
+          //categoryId: document.getElementById('listingCategoryIdInput').value,
+        }),
+      ),
+    ]);
+    container.appendChild(formData);
+  }
 
-    /**
-     * Cancel
-     */
+  /**
+   * Cancel
+   */
 
-    /*if (canCancel && onCancel) {
+  /*if (canCancel && onCancel) {
         const btn = document.createElement('button');
         btn.textContent = 'Zrušit';
         btn.addEventListener('click', onCancel);
@@ -97,7 +115,75 @@ export function ListingAdministrationView({ viewState, handlers })
         container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
     }*/
 
+  root.appendChild(container);
 
-    root.appendChild(container);
-    return root;
+  if (canUploadPicture && onUploadPicture && onDeletePicture) {
+    const pictureSection = createDiv("listing-admin-pictures");
+    const picTitle = document.createElement("h2");
+    picTitle.textContent = "Fotografie";
+    pictureSection.appendChild(picTitle);
+
+    const pictures = Array.isArray(listing.pictures) ? listing.pictures : [];
+    if (pictures.length === 0) {
+      pictureSection.appendChild(createText("Zatím žádné fotografie."));
+    } else {
+      const grid = createDiv("listing-admin-pic-grid");
+      const API_BASE = "http://localhost:3000";
+      pictures.forEach((pic) => {
+        const src = pic.Path?.startsWith("http")
+          ? pic.Path
+          : API_BASE + pic.Path;
+        const wrapper = createDiv("listing-admin-pic-wrapper");
+
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = "";
+        img.className = "listing-admin-pic";
+        img.loading = "lazy";
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "button button--danger listing-admin-pic-del";
+        delBtn.textContent = "×";
+        delBtn.title = "Smazat";
+        delBtn.addEventListener("click", () => {
+          delBtn.disabled = true;
+          onDeletePicture(pic.PictureID);
+        });
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(delBtn);
+        grid.appendChild(wrapper);
+      });
+      pictureSection.appendChild(grid);
+    }
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+
+    const uploadBtn = document.createElement("button");
+    uploadBtn.className = "button button--secondary mt-15";
+    uploadBtn.textContent = "Nahrát obrázek";
+    uploadBtn.type = "button";
+    uploadBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Nahrávám…";
+      onUploadPicture(file).then(() => {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Nahrát obrázek";
+        fileInput.value = "";
+      });
+    });
+
+    pictureSection.appendChild(fileInput);
+    pictureSection.appendChild(uploadBtn);
+    root.appendChild(pictureSection);
+  }
+
+  return root;
 }
