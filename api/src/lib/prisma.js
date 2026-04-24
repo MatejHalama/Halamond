@@ -14,6 +14,9 @@ const prisma = new PrismaClient({ adapter })
             const [result] = await prisma.$queryRaw`SELECT is_blocked(${userId})`;
             return result.is_blocked;
         },
+        async getAllSubcategories(categoryId) {
+            return prisma.$queryRaw`SELECT * FROM get_all_subcategories(${categoryId})`;
+        },
     }
 });
 

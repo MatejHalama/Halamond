@@ -72,6 +72,13 @@ router.get("/", async (req, res) => {
   const skip = !isNaN(page) ? (page - 1) * take : 0;
 
   try {
+    if (!isNaN(categoryId)) {
+      const subCategories = await prisma.getAllSubcategories(categoryId);
+      if (subCategories.length > 0) {
+        where.AND.push({ belongsTo: { in: subCategories.map(item => item.CategoryID) } });
+      }
+    }
+
     const [listings, total] = await Promise.all([
       prisma.activeListing.findMany({
         where: where,
