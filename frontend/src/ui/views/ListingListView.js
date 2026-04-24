@@ -1,6 +1,6 @@
 import { createSection } from "../builder/components/section.js";
 import { createTitle } from "../builder/components/title.js";
-import { createButton, addActionButton } from "../builder/components/button.js";
+import { createButton } from "../builder/components/button.js";
 import { createCard } from "../builder/layout/card.js";
 
 const API_BASE = "http://localhost:3000";

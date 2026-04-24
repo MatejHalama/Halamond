@@ -1,6 +1,5 @@
 import { createSection } from '../builder/components/section.js';
 import { createTitle } from '../builder/components/title.js';
-import { createText } from '../builder/components/text.js';
 import { createInput } from '../builder/components/input.js';
 import { submitButton } from '../builder/components/button.js';
 import { createDiv } from '../builder/components/div.js';
@@ -13,7 +12,6 @@ export function LoginView({ viewState, handlers })
   const card = createDiv('text-center w-25');
 
   card.appendChild(createTitle(1, 'Login'));
-  //card.appendChild(createText('Zadejte uživatelské jméno. Heslo se v této variantě neřeší.'));
 
   const email = createInput('',
       {

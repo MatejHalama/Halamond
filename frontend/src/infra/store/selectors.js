@@ -11,7 +11,6 @@ import * as ROLE from "../../constants/role.js";
 /* ****************************************** */
 
 export function canCreateListing(state) {
-  // TODO: check if user is not blocked
   const { role } = state.auth;
   return role === ROLE.USER || role === ROLE.ADMIN;
 }
@@ -79,7 +78,7 @@ export function canEnterAdministration(state) {
 /**/
 
 export function canComment(state) {
-  const { role, userId } = state.auth;
+  const { role } = state.auth;
   if (role === ROLE.ANON) return false;
 
   const listing = state.ui.selectedListing ?? null;
@@ -315,29 +314,7 @@ export function selectProfileView(state) {
   };
 }
 
-/*
- ** vrací objekt ve tvaru
- ** {
- **   type: 'LOADING' | 'ERROR' | EXAM_TERM_LIST | 'EXAM_TERM_DETAIL' | 'EXAM_TERM_ADMINISTRATION',
- **   message?: string ,
- **   exam?: ExamTerm,
- **   exams?: ExamTerm[],
- **   capabilities?: {
- **     canEnterDetail: boolean,
- **     canEnterAdministration: boolean,
- **     canBackToList: boolean,
- **     canCreateExam: boolean,
- **     canRegister: boolean,
- **     canUnregister: boolean,
- **     canPublish: boolean,
- **     canUnpublish: boolean,
- **     canCancel: boolean,
- **     canDelete: boolean,
- **     canUpdateCapacity: boolean,
- **     canUpdate: boolean
- **   },
- ** }
- */
+
 export function selectCreateListingView(state) {
   return {
     type: VIEW_STATE_TYPE.CREATE_LISTING,
