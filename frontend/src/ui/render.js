@@ -30,29 +30,6 @@ import { TicketDetailView } from "./views/TicketDetailView.js";
 import { ListingAdministrationView } from "./views/ListingAdministrationView.js";
 import { RegisterView } from "./views/RegisterView.js";
 
-/*
- ** viewState má tvar
- ** {
- **   type: 'LOADING' | 'ERROR' | EXAM_TERM_LIST | 'EXAM_TERM_DETAIL' | 'EXAM_TERM_ADMINISTRATION',
- **   message?: string ,
- **   exam?: ExamTerm,
- **   exams?: ExamTerm[],
- **   capabilities?: {
- **     canEnterDetail: boolean,
- **     canEnterAdministration: boolean,
- **     canBackToList: boolean,
- **     canCreateExam: boolean,
- **     canRegister: boolean,
- **     canUnregister: boolean,
- **     canPublish: boolean,
- **     canUnpublish: boolean,
- **     canCancel: boolean,
- **     canDelete: boolean,
- **     canUpdateCapacity: boolean,
- **     canUpdate: boolean
- **   },
- ** }
- */
 function buildNavbar(state, dispatch, viewState) {
   const isAuthView =
     viewState.type === VIEW_STATE_TYPE.LOGIN ||

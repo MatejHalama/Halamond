@@ -5,18 +5,6 @@ import * as URLS from "../../constants/urls.js";
 
 const UNKNOWN = "UNKNOWN";
 
-// --------------------------------------------------
-// Navigační kontexty jsou:
-//
-// TODO: aktualizovat adresy
-//
-//   #/login                 ... přihlášení
-//   #/exam-terms            ... seznam termínů
-//   #/exam-terms/:id        ... detail termínu
-//   #/exam-terms/:id/edit   ... administrace termínu
-//   #/profile               ... profil uživatele
-// --------------------------------------------------
-
 // URL -> route
 export function urlToRoute(url) {
   const hashIndex = url.indexOf("#");

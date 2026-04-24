@@ -3,7 +3,7 @@ import { createText } from "../components/text.js";
 import { createDiv } from "../components/div.js";
 import { createArticle } from "../components/article.js";
 
-export function createCard({ title, date, state, signed, button, imageUrl }) {
+export function createCard({ title, state, signed, button, imageUrl }) {
   const titleElement = createTitle(2, title);
   const stateElement = createText(state);
   const signedElement = createText(signed);
