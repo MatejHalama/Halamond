@@ -160,8 +160,6 @@ export function syncUrlWithState(state, { replace = false } = {}) {
     return;
   }
 
-  console.log(replace);
-
   const method = replace ? "replaceState" : "pushState";
   window.history[method]({ path: nextUrl }, "", nextUrl);
 }

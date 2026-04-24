@@ -12,7 +12,7 @@ export function UserProfileView({ viewState, handlers }) {
     canBlockUser,
     canUnblockUser,
   } = capabilities;
-  const { onBackToList, onLogout, onReportUser, onBlockUser, onUnblockUser } =
+  const { onBackToList, onLogout, onReportUser, onBlockUser, onUnblockUser, onEnterDetail } =
     handlers;
 
   const container = createSection("");
@@ -64,6 +64,10 @@ export function UserProfileView({ viewState, handlers }) {
       const price =
         listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
       item.textContent = `${listing.Title}${price ? " - " + price : ""}`;
+      if (listing.ListingID && onEnterDetail) {
+        item.style.cursor = "pointer";
+        item.addEventListener("click", () => onEnterDetail(listing.ListingID));
+      }
       listingsSection.appendChild(item);
     });
   }

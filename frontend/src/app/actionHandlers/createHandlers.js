@@ -350,6 +350,12 @@ export function userProfileHandlers(dispatch, viewState) {
       });
   }
 
+  handlers.onEnterDetail = (listingId) =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId },
+      });
+
   return handlers;
 }
 
