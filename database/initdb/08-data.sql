@@ -73,6 +73,12 @@ CALL create_notification(5, 5, 'Nová zpráva k inzerátu Jak na správnou datab
 CALL send_ticket_message(1, 1, 'Můžeme se sejít ve škole a domluvit se');
 CALL send_ticket_message(3, 3, 'V podněli nebo pátek odpoledne bývám na koleji, klidně se můžeš pro ledničku zastavit');
 
+UPDATE "Listing"
+SET
+    "State" = 'sold'
+WHERE
+    "ListingID" IN (1, 3);
+
 CALL close_ticket(1);
 CALL close_ticket(3);
 
@@ -82,5 +88,17 @@ VALUES
     (4, 3, 4)
 ;
 
---TODO: comment
---TODO: report
+
+INSERT INTO "Comment" ("Text", author, "parentComment", listing)
+VALUES
+    ('Co si tak běžně tisknete doma na 3d tiskárně?', 1, null, 7),
+    ('Všechno možné, třeba držkák na telefon :)', 4, 1, 7),
+    ('Kdo má doma 3D tiksárnu? O_o', 3, null, 7),
+    ('Přece každý pořádný Geek!', 5, null, 7)
+;
+
+INSERT INTO "Report" ("Text", "reportedListing", reporter, "reportedUser")
+VALUES
+    ('Poslala jsem peníze a prodavající přestala komunikovat.', null, 3, 5),
+    ('Telefon přestal fungovat a prodávající nereaguje.', 1, 2, null)
+;
