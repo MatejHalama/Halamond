@@ -7,7 +7,8 @@ import { createElement } from "../builder/createElement.js";
 
 export function TicketDetailView({ viewState, handlers }) {
   const { ticket, auth, capabilities } = viewState;
-  const { onBackToTickets, onSendMessage, onCloseTicket, onRateSeller } = handlers;
+  const { onBackToTickets, onSendMessage, onCloseTicket, onRateSeller } =
+    handlers;
 
   const root = createSection("ticket-detail-view");
   root.appendChild(
@@ -93,16 +94,25 @@ export function TicketDetailView({ viewState, handlers }) {
       const errorEl = createText([], "rating-error");
       ratingSection.appendChild(errorEl);
 
-      const submitBtn = addActionButton(null, "Odeslat hodnocení", "button--primary");
+      const submitBtn = addActionButton(
+        null,
+        "Odeslat hodnocení",
+        "button--primary",
+      );
       submitBtn.addEventListener("click", async () => {
         submitBtn.disabled = true;
         errorEl.textContent = "";
-        const result = await onRateSeller(sellerAuthorId, parseInt(select.value));
+        const result = await onRateSeller(
+          sellerAuthorId,
+          parseInt(select.value),
+        );
         if (result?.status === "SUCCESS") {
-          ratingSection.innerHTML = "";
-          ratingSection.appendChild(createText(["Hodnocení odesláno. Děkujeme!"], "rating-success"));
+          ratingSection.replaceChildren(
+            createText(["Hodnocení odesláno. Děkujeme!"], "rating-success"),
+          );
         } else {
-          errorEl.textContent = result?.reason ?? "Chyba při odesílání hodnocení.";
+          errorEl.textContent =
+            result?.reason ?? "Chyba při odesílání hodnocení.";
           submitBtn.disabled = false;
         }
       });

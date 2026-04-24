@@ -34,6 +34,10 @@ export async function fakeApi() {
                 status: "SUCCESS",
                 listings: [],
             }),
+            getListing: async () => ({
+                status: "SUCCESS",
+                listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
+            }),
             getListingAuth: async () => ({
                 status: "SUCCESS",
                 listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
@@ -95,7 +99,7 @@ export async function fakeApi() {
             }),
             createTicket: async () => ({
                 status: "SUCCESS",
-                ticket: {}
+                ticket: { TicketID: 1 }
             }),
             closeTicket: async () => ({
                 status: "SUCCESS",
@@ -117,6 +121,17 @@ export async function fakeApi() {
             getAllSubCategories: async () => ({
                 status: "SUCCESS",
                 categories: [{ CategoryID: 1 }],
+            }),
+            createCategory: async () => ({
+                status: "SUCCESS",
+                category: { CategoryID: 10, Name: "New Category", parentCategory: null },
+            }),
+            updateCategory: async () => ({
+                status: "SUCCESS",
+                category: { CategoryID: 1, Name: "Updated Name", parentCategory: null },
+            }),
+            deleteCategory: async () => ({
+                status: "SUCCESS",
             }),
         },
         notifications: {
@@ -185,6 +200,9 @@ export async function fakeErrorApi() {
             getMyListings: async () => ({
                 ...error
             }),
+            getListing: async () => ({
+                ...error
+            }),
             getListingAuth: async () => ({
                 ...error
             }),
@@ -235,6 +253,9 @@ export async function fakeErrorApi() {
             closeTicket: async () => ({
                 ...error
             }),
+            sendMessage: async () => ({
+                ...error
+            }),
         },
         categories: {
             getCategories: async () => ({
@@ -244,6 +265,15 @@ export async function fakeErrorApi() {
                 ...error
             }),
             getAllSubCategories: async () => ({
+                ...error
+            }),
+            createCategory: async () => ({
+                ...error
+            }),
+            updateCategory: async () => ({
+                ...error
+            }),
+            deleteCategory: async () => ({
                 ...error
             }),
         },

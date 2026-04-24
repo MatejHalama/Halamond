@@ -1,10 +1,7 @@
 import { createText } from "../builder/components/text.js";
 import { createTitle } from "../builder/components/title.js";
 import { createDiv } from "../builder/components/div.js";
-import {
-  canGoBack,
-  addActionButton,
-} from "../builder/components/button.js";
+import { canGoBack, addActionButton } from "../builder/components/button.js";
 import { createSection } from "../builder/components/section.js";
 import { createElement } from "../builder/createElement.js";
 
@@ -187,7 +184,14 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(adminSection);
   }
 
-  container.appendChild(createCommentSection(listing.comments, canComment, onSubmitComment, onReply));
+  container.appendChild(
+    createCommentSection(
+      listing.comments ?? [],
+      canComment,
+      onSubmitComment,
+      onReply,
+    ),
+  );
 
   return container;
 }
@@ -207,8 +211,7 @@ function createReportForm(onSubmit) {
     btn.disabled = true;
     const result = await onSubmit(text);
     if (result?.status === "SUCCESS") {
-      section.innerHTML = "";
-      section.appendChild(createText("Inzerát byl nahlášen. Děkujeme."));
+      section.replaceChildren(createText("Inzerát byl nahlášen. Děkujeme."));
     } else {
       btn.disabled = false;
     }
@@ -229,23 +232,24 @@ function createCommentSection(comments, canComment, onSubmitComment, onReply) {
     commentSection.appendChild(input);
 
     commentSection.appendChild(
-        addActionButton(
-            () => {
-              const value = input.value.trim();
-              if (value) onSubmitComment(null, value);
-            },
-            "Odeslat komentář",
-            "button--primary",
-        ),
+      addActionButton(
+        () => {
+          const value = input.value.trim();
+          if (value) onSubmitComment(null, value);
+        },
+        "Odeslat komentář",
+        "button--primary",
+      ),
     );
   }
 
   if (comments.length === 0) {
     commentSection.appendChild(createText(["Žádné komentáře."]));
-  }
-  else {
+  } else {
     comments.forEach((comment) => {
-      commentSection.appendChild(createCommentItem(comment, canComment, onSubmitComment, onReply));
+      commentSection.appendChild(
+        createCommentItem(comment, canComment, onSubmitComment, onReply),
+      );
     });
   }
   return commentSection;
@@ -270,29 +274,31 @@ function createCommentItem(comment, canComment, onSubmitComment, onReply) {
     });
 
     const submit = addActionButton(
-        () => {
-          const value = input.value.trim();
-          if (value) onSubmitComment(comment.CommentID, value);
-        },
-        "Odeslat odpověď",
-        "button--primary",
+      () => {
+        const value = input.value.trim();
+        if (value) onSubmitComment(comment.CommentID, value);
+      },
+      "Odeslat odpověď",
+      "button--primary",
     );
 
     item.appendChild(
-        addActionButton(
-            (e) => {
-              item.removeChild(e.target);
-              item.appendChild(input);
-              item.appendChild(submit);
-            },
-            "Odpovědět",
-            "button--secondary",
-        ),
+      addActionButton(
+        (e) => {
+          item.removeChild(e.target);
+          item.appendChild(input);
+          item.appendChild(submit);
+        },
+        "Odpovědět",
+        "button--secondary",
+      ),
     );
   }
 
   comment.replies.forEach((reply) => {
-    item.appendChild(createCommentItem(reply, canComment, onSubmitComment, onReply));
+    item.appendChild(
+      createCommentItem(reply, canComment, onSubmitComment, onReply),
+    );
   });
   return item;
 }
