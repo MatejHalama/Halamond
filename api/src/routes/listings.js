@@ -404,6 +404,60 @@ router.patch("/:id/delete", requireAuth, async (req, res) => {
   }
 });
 
+router.post("/:id/comment", requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id))
+    return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+  const { parentId, text } = req.body;
+
+  if ((parentId !== null && isNaN(parentId)) || !text) {
+    return res
+        .status(400)
+        .json({ status: "ERROR", reason: "Chybí text nebo je nevalidní parentId" });
+  }
+
+  const userId = req.user.userId;
+
+  try {
+    if (await prisma.isBlocked(userId)) {
+      return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
+    const listing = await prisma.listing.findUnique({
+      where: { ListingID: id },
+    });
+
+    if (!listing)
+      return res
+          .status(404)
+          .json({ status: "ERROR", reason: "Inzerát nenalezen" });
+
+    if (listing.State !== "active") {
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "K tomuto inzerátu nelze přidávat komentáře",
+      });
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        parentComment: parentId !== null ? parseInt(parentId) : null,
+        Text: text,
+        author: userId,
+        listing: listing.ListingID,
+      },
+    });
+
+    return res.status(201).json({ status: "SUCCESS", comment });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
+
 router.patch("/:id/block", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id))
