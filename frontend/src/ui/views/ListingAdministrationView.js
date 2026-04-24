@@ -2,7 +2,6 @@ import { createDiv } from "../builder/components/div.js";
 import {
   canGoBack,
   submitButton,
-  addActionButton,
 } from "../builder/components/button.js";
 import { createTitle } from "../builder/components/title.js";
 import { createText } from "../builder/components/text.js";
@@ -12,18 +11,12 @@ import { createElement } from "../builder/createElement.js";
 export function ListingAdministrationView({ viewState, handlers }) {
   const { listing, categories, capabilities } = viewState;
   const {
-    canUpdateCapacity,
     canUpdateListing,
-    canCancel,
-    canDelete,
     canBackToList,
     canUploadPicture,
   } = capabilities;
   const {
-    onUpdateCapacity,
     onUpdate,
-    onCancel,
-    onDelete,
     onBackToList,
     onUploadPicture,
     onDeletePicture,
@@ -42,25 +35,6 @@ export function ListingAdministrationView({ viewState, handlers }) {
   container.appendChild(
     createTitle(1, `Úprava: ${listing.Title ?? listing.ListingID}`),
   );
-
-  /*if (canUpdateCapacity && onUpdateCapacity)
-    {
-        let capacityInput = createInput('', {
-                type: 'number',
-                value: exam.capacity,
-                min: 0,
-                name: 'examCapacity',
-                id: 'examCapacityInput',
-            }
-        );
-        const formCapacity = createDiv('', [
-                capacityInput,
-                submitButton('Adjust capacity', () => onUpdateCapacity(Number(document.getElementById('examCapacityInput').value)))
-            ]
-        );
-
-        container.appendChild(formCapacity);
-    }*/
 
   if (canUpdateListing && onUpdate) {
     let titleInput = createInput("", {
@@ -118,18 +92,6 @@ export function ListingAdministrationView({ viewState, handlers }) {
   /**
    * Cancel
    */
-
-  /*if (canCancel && onCancel) {
-        const btn = document.createElement('button');
-        btn.textContent = 'Zrušit';
-        btn.addEventListener('click', onCancel);
-        container.appendChild(btn);
-    }
-
-    if (canDelete && onDelete)
-    {
-        container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
-    }*/
 
   root.appendChild(container);
 

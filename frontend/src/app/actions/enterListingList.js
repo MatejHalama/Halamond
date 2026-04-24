@@ -2,7 +2,7 @@ import * as UI_MODE from "../../constants/uiMode.js";
 import * as API_STATUS from "../../statuses/apiStatus.js";
 import * as UI_STATUS from "../../statuses/uiStatus.js";
 
-export async function enterListingList({ store, api }) {
+export async function enterListingList({ store, api, payload }) {
   store.setState(
     (state) => (
       {
@@ -59,7 +59,7 @@ export async function enterListingList({ store, api }) {
       selectedListing: null,
       selectedTicket: null,
       errorMessage: null,
-      notification: null,
+      notification: payload?.notification ?? null,
     },
   }));
 }

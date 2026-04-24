@@ -23,6 +23,21 @@ export async function unblockListing({ store, api, payload }) {
         },
       },
     }));
+  } else {
+    store.setState((state) => {
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          selectedTicket: null,
+          errorMessage: null,
+          notification: {
+            type: NOTIFICATION_TYPE.ERR,
+            message: result.reason,
+          },
+        },
+      };
+    });
   }
   return result;
 }

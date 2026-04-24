@@ -1,5 +1,4 @@
 import * as ROLE from "../../constants/role.js";
-import * as UI_MODE from "../../constants/uiMode.js";
 import * as UI_STATUS from "../../statuses/uiStatus.js";
 import * as API_STATUS from "../../statuses/apiStatus.js";
 import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js";
@@ -57,5 +56,13 @@ export async function submitLogin({ store, api, payload }) {
     },
   }));
 
-  await enterListingList({ store, api });
+  await enterListingList({
+    store,
+    api,
+    payload: {
+      notification: {
+        type: NOTIFICATION_TYPE.OK,
+        message: `Přihlášen jako ${auth.name}` }
+    }
+  });
 }

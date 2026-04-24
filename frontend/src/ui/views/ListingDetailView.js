@@ -4,9 +4,7 @@ import { createDiv } from "../builder/components/div.js";
 import {
   canGoBack,
   addActionButton,
-  addButton,
 } from "../builder/components/button.js";
-import { createCard } from "../builder/layout/cardSmall.js";
 import { createSection } from "../builder/components/section.js";
 import { createElement } from "../builder/createElement.js";
 
@@ -32,7 +30,6 @@ export function ListingDetailView({ viewState, handlers }) {
     onDelete,
     onEnterAdministration,
     onContactSeller,
-    onEnterTicketList,
     onEnterSellerProfile,
     onReportListing,
     onBlockListing,
@@ -95,10 +92,6 @@ export function ListingDetailView({ viewState, handlers }) {
     }
     container.appendChild(sellerDiv);
   }
-  /*container.appendChild(createText(`Datum: ${exam.date}`));
-  container.appendChild(createText(`State: ${exam.status}`));
-  container.appendChild(createText(`Capacity: ${exam.capacity}`));
-  container.appendChild(createText(`Number of students: ${exam.registeredCount}`));*/
 
   /**
    * User
@@ -154,27 +147,6 @@ export function ListingDetailView({ viewState, handlers }) {
   /**
    * Admin - stavové přechody
    */
-  // TODO
-  /*if (canUnpublish && onUnpublish)
-  {
-    container.appendChild(addActionButton(onUnpublish, 'Make not public', 'button--danger'));
-  }
-
-  if (canPublish && onPublish)
-  {
-    container.appendChild(addActionButton(onPublish, 'Make public', 'button--success'));
-  }
-
-  if (canCancel && onCancel)
-  {
-    container.appendChild(addActionButton(onCancel, 'Cancel', 'button--danger'));
-  }
-
-  if (canDelete && onDelete)
-  {
-    container.appendChild(addActionButton(onDelete, 'Delete', 'button--danger'));
-  }*/
-
   if (canReportListing && onReportListing) {
     container.appendChild(createReportForm((text) => onReportListing(text)));
   }
