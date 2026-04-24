@@ -30,6 +30,22 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
+router.patch("/read-all", requireAuth, async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    await prisma.notification.updateMany({
+      where: { recipient: userId, Read: false },
+      data: { Read: true },
+    });
+
+    return res.json({ status: "SUCCESS" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
+
 router.patch("/:id/read", requireAuth, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id))
@@ -58,22 +74,6 @@ router.patch("/:id/read", requireAuth, async (req, res) => {
     });
 
     return res.json({ status: "SUCCESS", notification: updated });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
-  }
-});
-
-router.patch("/read-all", requireAuth, async (req, res) => {
-  const userId = req.user.userId;
-
-  try {
-    await prisma.notification.updateMany({
-      where: { recipient: userId, Read: false },
-      data: { Read: true },
-    });
-
-    return res.json({ status: "SUCCESS" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
