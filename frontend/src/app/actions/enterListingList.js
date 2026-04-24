@@ -19,11 +19,14 @@ export async function enterListingList({ store, api }) {
   const state = store.getState();
   const isLoggedIn = !!state.auth.userId;
 
-  const [dataResult, myResult] = await Promise.all([
+  const [dataResult, myResult, notifResult] = await Promise.all([
     api.listings.getListings({}),
     isLoggedIn
       ? api.listings.getMyListings()
       : Promise.resolve({ status: "SUCCESS", listings: [] }),
+    isLoggedIn
+      ? api.notifications.getNotifications()
+      : Promise.resolve({ status: "SUCCESS", notifications: [] }),
   ]);
 
   if (dataResult.status !== API_STATUS.OK) {
@@ -46,6 +49,8 @@ export async function enterListingList({ store, api }) {
     listings: dataResult.listings,
     myListings:
       myResult.status === API_STATUS.OK ? (myResult.listings ?? []) : [],
+    notifications:
+      notifResult.status === API_STATUS.OK ? (notifResult.notifications ?? []) : [],
     ui: {
       ...s.ui,
       mode: UI_MODE.LISTING_LIST,
