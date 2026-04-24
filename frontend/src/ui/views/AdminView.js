@@ -4,12 +4,15 @@ import { createText } from "../builder/components/text.js";
 import { addActionButton } from "../builder/components/button.js";
 
 export function AdminView({ viewState, handlers }) {
-  const { reports, categories, capabilities } = viewState;
+  const { reports, categories, blockedListings, blockedUsers, capabilities } =
+    viewState;
   const {
     onBackToList,
     onDismissReport,
     onEnterDetail,
     onEnterUserProfile,
+    onUnblockListing,
+    onUnblockUser,
     onCreateCategory,
     onUpdateCategory,
     onDeleteCategory,
@@ -83,6 +86,17 @@ export function AdminView({ viewState, handlers }) {
 
   root.appendChild(reportsSection);
 
+  root.appendChild(
+    buildBlockedListingsSection(
+      blockedListings,
+      onEnterDetail,
+      onUnblockListing,
+    ),
+  );
+  root.appendChild(
+    buildBlockedUsersSection(blockedUsers, onEnterUserProfile, onUnblockUser),
+  );
+
   if (
     capabilities.canManageCategories &&
     onCreateCategory &&
@@ -100,6 +114,97 @@ export function AdminView({ viewState, handlers }) {
   }
 
   return root;
+}
+
+function buildBlockedListingsSection(
+  listings,
+  onEnterDetail,
+  onUnblockListing,
+) {
+  const section = createSection("admin-blocked-listings");
+  section.appendChild(
+    createTitle(2, `Blokované inzeráty (${listings.length})`),
+  );
+
+  if (listings.length === 0) {
+    section.appendChild(createText(["Žádné blokované inzeráty."]));
+    return section;
+  }
+
+  listings.forEach((listing) => {
+    const card = document.createElement("div");
+    card.className = "report-card";
+
+    const meta = document.createElement("div");
+    meta.className = "report-meta";
+
+    const titleBtn = document.createElement("button");
+    titleBtn.className = "button--link";
+    titleBtn.textContent = listing.Title;
+    titleBtn.addEventListener("click", () => onEnterDetail(listing.ListingID));
+    meta.appendChild(titleBtn);
+
+    const author = listing.user?.Username ?? `#${listing.author}`;
+    meta.appendChild(
+      document.createTextNode(
+        ` · ${author} · ${new Date(listing.Createdat).toLocaleDateString("cs-CZ")}`,
+      ),
+    );
+    card.appendChild(meta);
+
+    const unblockBtn = addActionButton(null, "Odblokovat", "button--success");
+    unblockBtn.addEventListener("click", async () => {
+      unblockBtn.disabled = true;
+      await onUnblockListing(listing.ListingID);
+    });
+    card.appendChild(unblockBtn);
+
+    section.appendChild(card);
+  });
+
+  return section;
+}
+
+function buildBlockedUsersSection(users, onEnterUserProfile, onUnblockUser) {
+  const section = createSection("admin-blocked-users");
+  section.appendChild(createTitle(2, `Blokovaní uživatelé (${users.length})`));
+
+  if (users.length === 0) {
+    section.appendChild(createText(["Žádní blokovaní uživatelé."]));
+    return section;
+  }
+
+  users.forEach((user) => {
+    const card = document.createElement("div");
+    card.className = "report-card";
+
+    const meta = document.createElement("div");
+    meta.className = "report-meta";
+
+    const nameBtn = document.createElement("button");
+    nameBtn.className = "button--link";
+    nameBtn.textContent = user.Username;
+    nameBtn.addEventListener("click", () => onEnterUserProfile(user.UserID));
+    meta.appendChild(nameBtn);
+
+    meta.appendChild(
+      document.createTextNode(
+        ` · ${user.Email} · člen od ${new Date(user.Createdat).toLocaleDateString("cs-CZ")}`,
+      ),
+    );
+    card.appendChild(meta);
+
+    const unblockBtn = addActionButton(null, "Odblokovat", "button--success");
+    unblockBtn.addEventListener("click", async () => {
+      unblockBtn.disabled = true;
+      await onUnblockUser(user.UserID);
+    });
+    card.appendChild(unblockBtn);
+
+    section.appendChild(card);
+  });
+
+  return section;
 }
 
 function buildTree(cats) {

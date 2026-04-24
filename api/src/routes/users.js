@@ -5,11 +5,14 @@ const { requireAuth, requireAdmin } = require("../middleware/auth");
 const router = express.Router();
 
 router.get("/", requireAdmin, async (req, res) => {
-  const { page = 1, limit = 50 } = req.query;
+  const { page = 1, limit = 50, state } = req.query;
+
+  const where = state ? { State: state } : {};
 
   try {
     const [users, total] = await Promise.all([
       prisma.user.findMany({
+        where,
         select: {
           UserID: true,
           Username: true,
@@ -22,7 +25,7 @@ router.get("/", requireAdmin, async (req, res) => {
         skip: (parseInt(page) - 1) * parseInt(limit),
         take: parseInt(limit),
       }),
-      prisma.user.count(),
+      prisma.user.count({ where }),
     ]);
 
     return res.json({ status: "SUCCESS", users, total });

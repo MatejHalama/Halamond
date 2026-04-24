@@ -98,6 +98,23 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/blocked", requireAdmin, async (req, res) => {
+  try {
+    const listings = await prisma.listing.findMany({
+      where: { State: "blocked" },
+      include: {
+        user: { select: { UserID: true, Username: true } },
+        pictures: { take: 1 },
+      },
+      orderBy: { Createdat: "desc" },
+    });
+    return res.json({ status: "SUCCESS", listings });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id))

@@ -201,6 +201,7 @@ export function selectListingDetailView(state) {
   const isAdmin = state.auth.role === ROLE.ADMIN;
   const canBlockListing =
     isAdmin && !!listing && !["blocked", "deleted"].includes(listing.State);
+  const canUnblockListing = isAdmin && !!listing && listing.State === "blocked";
 
   return {
     type: VIEW_STATE_TYPE.LISTING_DETAIL,
@@ -216,6 +217,7 @@ export function selectListingDetailView(state) {
       canViewSellerProfile,
       canReportListing,
       canBlockListing,
+      canUnblockListing,
     },
   };
 }
@@ -339,6 +341,8 @@ export function selectAdminView(state) {
     type: VIEW_STATE_TYPE.ADMIN,
     reports: state.reports ?? [],
     categories: state.adminCategories ?? [],
+    blockedListings: state.blockedListings ?? [],
+    blockedUsers: state.blockedUsers ?? [],
     capabilities: {
       canBackToList: true,
       canDismissReport: true,

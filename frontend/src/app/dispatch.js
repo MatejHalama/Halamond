@@ -28,6 +28,7 @@ import { submitReport } from "./actions/submitReport.js";
 import { blockUser } from "./actions/blockUser.js";
 import { unblockUser } from "./actions/unblockUser.js";
 import { blockListing } from "./actions/blockListing.js";
+import { unblockListing } from "./actions/unblockListing.js";
 import { enterCreateListing } from "./actions/enterCreateListing.js";
 import { enterAdmin } from "./actions/enterAdmin.js";
 import { dismissReport } from "./actions/dismissReport.js";
@@ -183,6 +184,10 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.BLOCK_LISTING:
         result = await blockListing({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UNBLOCK_LISTING:
+        result = await unblockListing({ store, api, payload });
         break;
 
       case ACTION_TYPE.ENTER_CREATE_LISTING:

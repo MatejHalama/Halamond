@@ -220,5 +220,16 @@ export function createListingsApi() {
         };
       }
     },
+
+    async getBlockedListings() {
+      try {
+        const response = await fetch(`${BASE}/api/listings/blocked`, {
+          credentials: "include",
+        });
+        return await response.json();
+      } catch {
+        return { status: "ERROR", reason: "Chyba spojení se serverem" };
+      }
+    },
   };
 }
