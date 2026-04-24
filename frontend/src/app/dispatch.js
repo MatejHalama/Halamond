@@ -159,7 +159,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.SET_FILTERS:
-        result = setFilters({ store, payload });
+        result = await setFilters({ store, api, payload });
         break;
 
       case ACTION_TYPE.SUBMIT_RATING:

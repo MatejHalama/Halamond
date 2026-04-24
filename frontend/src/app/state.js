@@ -32,7 +32,7 @@ export function createInitialState() {
       mode: UI_MODE.INIT,
       selectedListing: null,
       selectedTicket: null,
-      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null },
+      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null, allSubCategories: [] },
       status: UI_STATUS.LOAD,
       errorMessage: null,
       notification: null,

@@ -49,7 +49,7 @@ export async function enterListingList({ store, api }) {
     ui: {
       ...s.ui,
       mode: UI_MODE.LISTING_LIST,
-      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null },
+      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null, allSubCategories: [] },
       status: UI_STATUS.RDY,
       selectedListing: null,
       selectedTicket: null,

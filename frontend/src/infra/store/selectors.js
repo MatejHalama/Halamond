@@ -137,7 +137,7 @@ export function selectListings(state) {
 
 export function selectFilteredListings(state) {
   const listings = selectListings(state);
-  const { q, categoryId, minPrice, maxPrice } = state.ui.filters ?? {};
+  const { q, categoryId, minPrice, maxPrice, allSubCategories } = state.ui.filters ?? {};
 
   return listings.filter((l) => {
     if (q) {
@@ -146,7 +146,7 @@ export function selectFilteredListings(state) {
       const inDesc = l.Description?.toLowerCase().includes(needle);
       if (!inTitle && !inDesc) return false;
     }
-    if (categoryId != null && l.belongsTo !== categoryId) return false;
+    if (categoryId != null && !allSubCategories.map(item => item.CategoryID).includes(l.belongsTo)) return false;
     if (minPrice != null && Number(l.Price) < Number(minPrice)) return false;
     if (maxPrice != null && Number(l.Price) > Number(maxPrice)) return false;
     return true;
