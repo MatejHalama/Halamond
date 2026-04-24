@@ -43,6 +43,10 @@ export function parseUrl(path) {
     return { context: UI_MODE.LISTING_LIST };
   }
 
+  if (parts.length === 2 && parts[0] === URLS.LISTING_LIST && parts[1] === URLS.CREATE_LISTING) {
+    return { context: UI_MODE.CREATE_LISTING };
+  }
+
   if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
     return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
   }
@@ -65,6 +69,10 @@ export function parseUrl(path) {
 
   if (parts.length === 2 && parts[0] === URLS.TICKET_DETAIL) {
     return { context: UI_MODE.TICKET_DETAIL, ticketId: Number(parts[1]) };
+  }
+
+  if (parts.length === 1 && parts[0] === URLS.ADMIN) {
+    return { context: UI_MODE.ADMIN };
   }
 
   return { context: UNKNOWN };
@@ -93,6 +101,8 @@ export function routeToAction(route) {
         type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId: route.listingId },
       };
+    case UI_MODE.CREATE_LISTING:
+      return { type: ACTION_TYPE.ENTER_CREATE_LISTING };
     case UI_MODE.TICKET_LIST:
       return { type: ACTION_TYPE.ENTER_TICKET_LIST };
     case UI_MODE.TICKET_DETAIL:
@@ -100,6 +110,8 @@ export function routeToAction(route) {
         type: ACTION_TYPE.ENTER_TICKET_DETAIL,
         payload: { ticketId: route.ticketId },
       };
+    case UI_MODE.ADMIN:
+      return { type: ACTION_TYPE.ENTER_ADMIN };
     case UNKNOWN:
     default:
       return { type: ACTION_TYPE.ENTER_LISTING_LIST };
@@ -132,6 +144,8 @@ export function stateToPath(state) {
       return selectedListing
           ? `/${URLS.LISTING_ADMINISTRATION}/${selectedListing.ListingID}`
           : `/${URLS.LISTING_LIST}`;
+    case UI_MODE.CREATE_LISTING:
+      return `/${URLS.LISTING_LIST}/${URLS.CREATE_LISTING}`;
     case UI_MODE.TICKET_LIST:
       return `/${URLS.TICKET_LIST}`;
     case UI_MODE.TICKET_DETAIL: {
@@ -140,6 +154,8 @@ export function stateToPath(state) {
         ? `/${URLS.TICKET_DETAIL}/${selectedTicket.TicketID}`
         : `/${URLS.TICKET_DETAIL}`;
     }
+    case UI_MODE.ADMIN:
+      return `/${URLS.ADMIN}`;
     default:
       return `/${URLS.LISTING_LIST}`;
   }
