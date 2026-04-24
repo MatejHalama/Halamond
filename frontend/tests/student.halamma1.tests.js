@@ -29,6 +29,8 @@ import * as ROLE from "../src/constants/role.js";
 import * as UI_MODE from "../src/constants/uiMode.js";
 import * as UI_STATUS from "../src/statuses/uiStatus.js";
 import * as URLS from "../src/constants/urls.js";
+import {submitComment} from "../src/app/actions/submitComment.js";
+import {unblockListing} from "../src/app/actions/unblockListing.js";
 
 const api = await fakeApi();
 const errorApi = await fakeErrorApi();
@@ -229,8 +231,10 @@ async function listingActionTest(action, expected, uiMode = UI_MODE.LISTING_DETA
     await listingActionTest(ACTION_TYPE.ACTIVATE_LISTING, UI_MODE.LISTING_DETAIL);
     await listingActionTest(ACTION_TYPE.SELL_LISTING, UI_MODE.LISTING_DETAIL);
     await listingActionTest(ACTION_TYPE.BLOCK_LISTING, UI_MODE.LISTING_DETAIL);
+    await listingActionTest(ACTION_TYPE.UNBLOCK_LISTING, UI_MODE.LISTING_DETAIL);
     await listingActionTest(ACTION_TYPE.UPLOAD_PICTURE, UI_MODE.LISTING_ADMINISTRATION, UI_MODE.LISTING_ADMINISTRATION);
     await listingActionTest(ACTION_TYPE.DELETE_PICTURE, UI_MODE.LISTING_ADMINISTRATION, UI_MODE.LISTING_ADMINISTRATION);
+    await listingActionTest(ACTION_TYPE.SUBMIT_COMMENT, UI_MODE.LISTING_DETAIL);
 }
 
 console.log("\n── Doménové akce – ticket ──");
@@ -720,7 +724,7 @@ await navigationActionSuccessTest(enterRegister, {}, null, null, UI_MODE.PROFILE
 
 
 
-async function listingActionSuccessTest(action, payload, expectedListing, selectedListing, nextUi = undefined) {
+async function listingActionSuccessTest(action, payload, expectedListing, selectedListing, nextUi = undefined, comments = false) {
     const overrides = selectedListing ?
         {
             ui: {
@@ -757,12 +761,18 @@ async function listingActionSuccessTest(action, payload, expectedListing, select
                 state.ui.selectedListing?.belongsTo === expectedListing?.belongsTo,
                 `${action.name} SUCCESS: vybraný inzerát má categoryId ${expectedListing?.belongsTo}`,
             );
+            if (comments) {
+                assert(
+                    JSON.stringify(state.ui.selectedListing?.comments) === JSON.stringify(expectedListing?.comments),
+                    `${action.name} SUCCESS: vybraný inzerát má comments ${JSON.stringify(expectedListing?.comments)}`,
+                );
+            }
         },
         nextUi
     );
 }
 
-async function listingActionErrorTest(action, payload, expectedListing, selectedListing) {
+async function listingActionErrorTest(action, payload, expectedListing, selectedListing, comments = false) {
     const overrides = selectedListing ?
         {
             ui: {
@@ -800,6 +810,12 @@ async function listingActionErrorTest(action, payload, expectedListing, selected
                 state.ui.selectedListing?.belongsTo === expectedListing?.belongsTo,
                 `${action.name} ERROR: vybraný inzerát má categoryId ${expectedListing?.belongsTo}`,
             );
+            if (comments) {
+                assert(
+                    JSON.stringify(state.ui.selectedListing?.comments) === JSON.stringify(expectedListing?.comments),
+                    `${action.name} ERROR: vybraný inzerát má comments ${JSON.stringify(expectedListing?.comments)}`,
+                );
+            }
         }
     );
 }
@@ -865,6 +881,18 @@ await listingActionSuccessTest(sellListing, { listingId: 1 }, { ListingID: 1, St
 await listingActionErrorTest(sellListing, { listingId: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 });
 
 // --------------------------------------------------
+// submitComment
+// --------------------------------------------------
+
+console.log("\n── submitComment ──");
+
+// SUCCESS – stav vybraného inzerátu je změněn na prodaný
+await listingActionSuccessTest(submitComment, { parentId: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [] }, undefined, true);
+
+// ERROR – stav se nemění, notification je nastavena
+await listingActionErrorTest(submitComment, { parentId: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [] }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [] }, true);
+
+// --------------------------------------------------
 // blockListing
 // --------------------------------------------------
 
@@ -875,6 +903,18 @@ await listingActionSuccessTest(blockListing, { listingId: 1 }, { ListingID: 1, S
 
 // ERROR – stav se nemění, notification je nastavena
 await listingActionErrorTest(blockListing, { listingId: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 }, { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 });
+
+// --------------------------------------------------
+// unblockListing
+// --------------------------------------------------
+
+console.log("\n── unblockListing ──");
+
+// SUCCESS – stav vybraného inzerátu je změněn na zablokovaný
+await listingActionSuccessTest(unblockListing, { listingId: 1 }, { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1 }, { ListingID: 1, State: "blocked", Title: "chair", Price: 10, belongsTo: 1 });
+
+// ERROR – stav se nemění, notification je nastavena
+await listingActionErrorTest(unblockListing, { listingId: 1 }, { ListingID: 1, State: "blocked", Title: "chair", Price: 10, belongsTo: 1 }, { ListingID: 1, State: "blocked", Title: "chair", Price: 10, belongsTo: 1 });
 
 
 async function pictureActionSuccessTest(action, payload, expectedDiff) {

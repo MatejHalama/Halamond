@@ -36,7 +36,7 @@ export async function fakeApi() {
             }),
             getListingAuth: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             getBlockedListings: async () => ({
                 status: "SUCCESS",
@@ -44,23 +44,27 @@ export async function fakeApi() {
             }),
             createListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             updateListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             activateListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             sellListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "sold", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "sold", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             deleteListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "deleted", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "deleted", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
+            }),
+            commentListing: async () => ({
+                status: "SUCCESS",
+                comment: {},
             }),
             uploadPicture: async () => ({
                 status: "SUCCESS",
@@ -73,11 +77,11 @@ export async function fakeApi() {
             }),
             blockListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "blocked", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "blocked", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
             unblockListing: async () => ({
                 status: "SUCCESS",
-                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1 },
+                listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1, comments: [{ CommentID: 1 }] },
             }),
         },
         tickets: {
@@ -200,6 +204,9 @@ export async function fakeErrorApi() {
                 ...error
             }),
             deleteListing: async () => ({
+                ...error
+            }),
+            commentListing: async () => ({
                 ...error
             }),
             uploadPicture: async () => ({
