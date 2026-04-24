@@ -219,6 +219,7 @@ export function selectListingAdministrationView(state) {
   return {
     type: VIEW_STATE_TYPE.LISTING_ADMINISTRATION,
     listing: state.ui.selectedListing ?? null,
+    categories: state.categories ?? [],
     auth: state.auth,
     capabilities: {
       canBackToList: true,

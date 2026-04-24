@@ -807,7 +807,7 @@ select:focus {
   box-shadow: var(--shadow-sm);
 }
 
-.listing-admin-form input {
+.listing-admin-form input, .listing-admin-form select {
   display: block;
   width: 100%;
   padding: 0.6rem 0.8rem;
@@ -823,7 +823,7 @@ select:focus {
     box-shadow 0.15s;
 }
 
-.listing-admin-form input:focus {
+.listing-admin-form input:focus, .listing-admin-form select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
