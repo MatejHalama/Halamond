@@ -1,4 +1,5 @@
 import * as UI_MODE from "../../constants/uiMode.js";
+import * as UI_STATUS from "../../statuses/uiStatus.js";
 import * as ACTION_TYPE from "../../constants/actionType.js";
 import * as URLS from "../../constants/urls.js";
 
@@ -54,6 +55,10 @@ export function parseUrl(path) {
     return { context: UI_MODE.PROFILE };
   }
 
+  if (parts.length === 2 && parts[0] === URLS.PROFILE) {
+    return { context: UI_MODE.PROFILE, userId: parts[1] };
+  }
+
   if (parts.length === 1 && parts[0] === URLS.TICKET_LIST) {
     return { context: UI_MODE.TICKET_LIST };
   }
@@ -72,7 +77,10 @@ export function routeToAction(route) {
     case UI_MODE.REGISTER:
       return { type: ACTION_TYPE.ENTER_REGISTER };
     case UI_MODE.PROFILE:
-      return { type: ACTION_TYPE.ENTER_PROFILE };
+      return {
+        type: ACTION_TYPE.ENTER_PROFILE,
+        payload: route.userId ? { userId: route.userId } : {},
+      };
     case UI_MODE.LISTING_LIST:
       return { type: ACTION_TYPE.ENTER_LISTING_LIST };
     case UI_MODE.LISTING_DETAIL:
@@ -104,6 +112,7 @@ export function urlToAction(url) {
 }
 
 export function stateToPath(state) {
+  const { UserID: userId } = state.profileUser ?? {};
   const { mode, selectedListing } = state.ui ?? {};
 
   switch (mode) {
@@ -112,7 +121,7 @@ export function stateToPath(state) {
     case UI_MODE.REGISTER:
       return `/${URLS.REGISTER}`;
     case UI_MODE.PROFILE:
-      return `/${URLS.PROFILE}`;
+      return `/${URLS.PROFILE}` + (userId ? `/${userId}` : "");
     case UI_MODE.LISTING_LIST:
       return `/${URLS.LISTING_LIST}`;
     case UI_MODE.LISTING_DETAIL:
@@ -141,7 +150,7 @@ export function stateToUrl(state) {
 }
 
 export function syncUrlWithState(state, { replace = false } = {}) {
-  if (state.ui?.mode === UI_MODE.INIT)
+  if (state.ui?.status !== UI_STATUS.RDY || state.ui?.mode === UI_MODE.INIT)
     return;
 
   const nextUrl = stateToUrl(state);
@@ -150,6 +159,8 @@ export function syncUrlWithState(state, { replace = false } = {}) {
   if (currentUrl === nextUrl) {
     return;
   }
+
+  console.log(replace);
 
   const method = replace ? "replaceState" : "pushState";
   window.history[method]({ path: nextUrl }, "", nextUrl);
