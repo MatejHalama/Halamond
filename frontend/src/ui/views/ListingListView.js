@@ -86,11 +86,24 @@ export function ListingListView({ viewState, handlers }) {
       const stateLabel = stateLabels[listing.State] ?? listing.State;
       const price =
         listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
-      row.innerHTML = `<span class="my-listing-title">${listing.Title}</span>
-        <span class="my-listing-badge badge--${listing.State}">${stateLabel}</span>
-        ${price ? `<span class="my-listing-price">${price}</span>` : ""}`;
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "my-listing-title";
+      titleSpan.textContent = listing.Title;
+      row.appendChild(titleSpan);
+
+      const badgeSpan = document.createElement("span");
+      badgeSpan.className = `my-listing-badge badge--${listing.State}`;
+      badgeSpan.textContent = stateLabel;
+      row.appendChild(badgeSpan);
+
+      if (price) {
+        const priceSpan = document.createElement("span");
+        priceSpan.className = "my-listing-price";
+        priceSpan.textContent = price;
+        row.appendChild(priceSpan);
+      }
+
       if (onEnterDetail) {
-        row.style.cursor = "pointer";
         row.addEventListener("click", () => onEnterDetail(listing.ListingID));
       }
       mySection.appendChild(row);

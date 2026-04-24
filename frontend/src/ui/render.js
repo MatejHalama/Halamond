@@ -232,7 +232,7 @@ export function render(root, state, dispatch) {
           break;
       }
     }
-    state.ui.notification = null;
+    dispatch({ type: ACTION_TYPE.CLEAR_NOTIFICATION });
   }
   root.appendChild(messages);
 }

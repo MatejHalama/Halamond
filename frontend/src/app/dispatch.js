@@ -143,6 +143,13 @@ export function createDispatcher(store, api) {
         result = await submitComment({ store, api, payload });
         break;
 
+      case ACTION_TYPE.CLEAR_NOTIFICATION:
+        store.setState((state) => ({
+          ...state,
+          ui: { ...state.ui, notification: null },
+        }));
+        break;
+
       case ACTION_TYPE.ENTER_PROFILE:
         result = await enterUserProfile({ store, api, payload });
         break;
