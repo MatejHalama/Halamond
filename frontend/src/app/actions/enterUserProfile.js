@@ -16,7 +16,14 @@ export async function enterUserProfile({ store, api, payload = {} }) {
   if (result.status !== API_STATUS.OK) {
     store.setState((state) => ({
       ...state,
-      ui: { ...state.ui, status: UI_STATUS.ERR, errorMessage: result.reason },
+      ui: {
+        ...state.ui,
+        status: UI_STATUS.ERR,
+        errorMessage: result.reason,
+        selectedListing: null,
+        selectedTicket: null,
+        notification: null,
+      },
     }));
     return;
   }
@@ -28,7 +35,10 @@ export async function enterUserProfile({ store, api, payload = {} }) {
       ...state.ui,
       mode: UI_MODE.PROFILE,
       status: UI_STATUS.RDY,
+      selectedListing: null,
+      selectedTicket: null,
       errorMessage: null,
+      notification: null,
     },
   }));
 }

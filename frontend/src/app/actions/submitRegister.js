@@ -1,4 +1,3 @@
-import * as ROLE from '../../constants/role.js'
 import * as UI_MODE from '../../constants/uiMode.js';
 import * as UI_STATUS from '../../statuses/uiStatus.js';
 import * as API_STATUS from '../../statuses/apiStatus.js';
@@ -33,8 +32,10 @@ export async function submitRegister({ store, api, payload })
                     ...state,
                     ui: {
                         ...state.ui,
-                        mode: UI_MODE.REGISTER,
                         status: UI_STATUS.RDY,
+                        selectedListing: null,
+                        selectedTicket: null,
+                        errorMessage: null,
                         notification: {
                             type: NOTIFICATION_TYPE.ERR,
                             message: registerResult.reason
@@ -54,6 +55,9 @@ export async function submitRegister({ store, api, payload })
                     ...state.ui,
                     mode: UI_MODE.LOGIN,
                     status: UI_STATUS.RDY,
+                    selectedListing: null,
+                    selectedTicket: null,
+                    errorMessage: null,
                     notification: {
                         type: NOTIFICATION_TYPE.OK,
                         message: `Úspěšně zaregistrován. Nyní se můžete přihlásit!` },

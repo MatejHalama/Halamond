@@ -350,6 +350,12 @@ export function userProfileHandlers(dispatch, viewState) {
       });
   }
 
+  handlers.onEnterDetail = (listingId) =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId },
+      });
+
   return handlers;
 }
 
@@ -376,6 +382,6 @@ export function adminHandlers(dispatch) {
 
 export function errorHandlers(dispatch) {
   return {
-    onContinue: () => dispatch({ type: ACTION_TYPE.ENTER_PROFILE }),
+    onContinue: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
   };
 }

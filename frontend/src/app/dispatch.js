@@ -7,7 +7,6 @@ import { logout } from "./actions/logout.js";
 import { enterUserProfile } from "./actions/enterUserProfile.js";
 
 import * as ACTION_TYPE from "../constants/actionType.js";
-import { syncUrlWithState } from "../infra/router/router.js";
 import { enterListingList } from "./actions/enterListingList.js";
 import { enterListingDetail } from "./actions/enterListingDetail.js";
 import { createListing } from "./actions/createListing.js";
@@ -43,8 +42,11 @@ function isPublicAction(type) {
   return [
     ACTION_TYPE.ENTER_LOGIN,
     ACTION_TYPE.SUBMIT_LOGIN,
+    ACTION_TYPE.ENTER_REGISTER,
+    ACTION_TYPE.SUBMIT_REGISTER,
     ACTION_TYPE.ENTER_LISTING_LIST,
     ACTION_TYPE.ENTER_LISTING_DETAIL,
+    ACTION_TYPE.SET_FILTERS,
     ACTION_TYPE.INIT,
   ].includes(type);
 }
@@ -61,8 +63,6 @@ export function createDispatcher(store, api) {
     const currentState = store.getState();
 
     if (!isPublicAction(action.type) && !isAuthenticated(currentState)) {
-      window.history.replaceState({}, "", "#/login");
-
       return dispatch({
         type: ACTION_TYPE.ENTER_LOGIN,
         payload: {
@@ -159,7 +159,7 @@ export function createDispatcher(store, api) {
         break;
 
       case ACTION_TYPE.SET_FILTERS:
-        result = setFilters({ store, payload });
+        result = await setFilters({ store, api, payload });
         break;
 
       case ACTION_TYPE.SUBMIT_RATING:
@@ -205,10 +205,6 @@ export function createDispatcher(store, api) {
       default:
         console.warn(`Unknown action type: ${type}`);
         return;
-    }
-
-    if (action?.meta?.syncUrl !== false) {
-      syncUrlWithState(store.getState());
     }
 
     return result;

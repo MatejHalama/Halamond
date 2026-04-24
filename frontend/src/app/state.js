@@ -29,11 +29,10 @@ export function createInitialState() {
     },
 
     ui: {
-      mode: UI_MODE.LOGIN,
-      selectedExamId: null,
+      mode: UI_MODE.INIT,
       selectedListing: null,
       selectedTicket: null,
-      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null },
+      filters: { q: "", categoryId: null, minPrice: null, maxPrice: null, allSubCategories: [] },
       status: UI_STATUS.LOAD,
       errorMessage: null,
       notification: null,

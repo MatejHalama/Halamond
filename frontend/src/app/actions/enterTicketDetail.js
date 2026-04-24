@@ -19,6 +19,8 @@ export async function enterTicketDetail({ store, api, payload }) {
       ui: {
         ...state.ui,
         status: UI_STATUS.RDY,
+        selectedListing: null,
+        errorMessage: null,
         notification: { type: NOTIFICATION_TYPE.ERR, message: result.reason },
       },
     }));
@@ -32,7 +34,9 @@ export async function enterTicketDetail({ store, api, payload }) {
       mode: UI_MODE.TICKET_DETAIL,
       selectedTicket: result.ticket,
       status: UI_STATUS.RDY,
+      selectedListing: null,
       errorMessage: null,
+      notification: null,
     },
   }));
 

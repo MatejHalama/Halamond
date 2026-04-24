@@ -7,9 +7,10 @@ import {
 import { createTitle } from "../builder/components/title.js";
 import { createText } from "../builder/components/text.js";
 import { createInput } from "../builder/components/input.js";
+import {createElement} from "../builder/createElement.js";
 
 export function ListingAdministrationView({ viewState, handlers }) {
-  const { listing, capabilities } = viewState;
+  const { listing, categories, capabilities } = viewState;
   const {
     canUpdateCapacity,
     canUpdateListing,
@@ -65,34 +66,48 @@ export function ListingAdministrationView({ viewState, handlers }) {
     let titleInput = createInput("", {
       type: "text",
       value: listing.Title,
+      placeholder: "Název inzerátu",
       name: "listingTitle",
       id: "listingTitleInput",
     });
     let descriptionInput = createInput("", {
       type: "text",
       value: listing.Description ?? "",
+      placeholder: "Popis...",
       name: "listingDescription",
       id: "listingDescriptionInput",
     });
     let priceInput = createInput("", {
       type: "number",
       value: listing.Price,
+      placeholder: "Cena (Kč)",
       min: 0,
       name: "listingPrice",
       id: "listingPriceInput",
     });
-    // TODO: category select
+
+    const categorySelect = createElement("select", { id: "listingCategory" });
+    const emptyOpt = createElement("option", { value: "" });
+    emptyOpt.textContent = "Vyberte kategorii";
+    categorySelect.appendChild(emptyOpt);
+    (categories ?? []).forEach((cat) => {
+      const opt = createElement("option", { value: cat.CategoryID });
+      opt.textContent = cat.Name;
+      opt.selected = listing.belongsTo === cat.CategoryID;
+      categorySelect.appendChild(opt);
+    });
 
     const formData = createDiv("", [
       titleInput,
       descriptionInput,
       priceInput,
+      categorySelect,
       submitButton("Save", () =>
         onUpdate({
           title: document.getElementById("listingTitleInput").value,
           description: document.getElementById("listingDescriptionInput").value,
           price: document.getElementById("listingPriceInput").value,
-          //categoryId: document.getElementById('listingCategoryIdInput').value,
+          categoryId: document.getElementById("listingCategory").value,
         }),
       ),
     ]);

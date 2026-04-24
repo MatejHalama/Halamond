@@ -10,8 +10,11 @@ export async function createListing({ store, api, payload }) {
       ...state,
       ui: {
         ...state.ui,
+        selectedListing: null,
+        selectedTicket: null,
+        errorMessage: null,
         notification: {
-          type: NOTIFICATION_TYPE.WAR,
+          type: NOTIFICATION_TYPE.ERR,
           message: dataResult.reason ?? "Chyba při vytváření inzerátu",
         },
       },
@@ -25,6 +28,8 @@ export async function createListing({ store, api, payload }) {
       ...state.ui,
       mode: UI_MODE.LISTING_DETAIL,
       selectedListing: dataResult.listing,
+      selectedTicket: null,
+      errorMessage: null,
       notification: {
         type: NOTIFICATION_TYPE.OK,
         message: "Inzerát byl vytvořen",

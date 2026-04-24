@@ -72,6 +72,13 @@ router.get("/", async (req, res) => {
   const skip = !isNaN(page) ? (page - 1) * take : 0;
 
   try {
+    if (!isNaN(categoryId)) {
+      const subCategories = await prisma.getAllSubcategories(categoryId);
+      if (subCategories.length > 0) {
+        where.AND.push({ belongsTo: { in: subCategories.map(item => item.CategoryID) } });
+      }
+    }
+
     const [listings, total] = await Promise.all([
       prisma.activeListing.findMany({
         where: where,
@@ -123,6 +130,7 @@ router.get("/:id/auth", requireAuth, async (req, res) => {
     return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
 
   const userId = req.user.userId;
+  const role = req.user.role;
 
   try {
     const listing = await prisma.listingDetail.findUnique({
@@ -132,6 +140,7 @@ router.get("/:id/auth", requireAuth, async (req, res) => {
           { State: "active", user: { path: ["State"], equals: "active" } },
           { author: userId },
           { ...((await prisma.isBuyer(id, userId)) && { ListingID: id }) },
+          { ...((role === "admin") && { ListingID: id }) },
         ],
       },
     });
@@ -159,7 +168,12 @@ router.post("/", requireAuth, async (req, res) => {
   }
 
   try {
-    // TODO: check user status
+    if (await prisma.isBlocked(userId)) {
+      return res
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
     const listing = await prisma.listing.create({
       data: {
         Title: title,
@@ -186,6 +200,12 @@ router.patch("/:id", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    if (await prisma.isBlocked(userId)) {
+      return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
     const listing = await prisma.listing.findUnique({
       where: { ListingID: id },
     });
@@ -230,6 +250,12 @@ router.patch("/:id/activate", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    if (await prisma.isBlocked(userId)) {
+      return res
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
     const listing = await prisma.listing.findUnique({
       where: { ListingID: id },
     });
@@ -278,6 +304,12 @@ router.patch("/:id/sell", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    if (await prisma.isBlocked(userId)) {
+      return res
+        .status(403)
+        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
     const listing = await prisma.listing.findUnique({
       where: { ListingID: id },
     });
@@ -326,6 +358,12 @@ router.patch("/:id/delete", requireAuth, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    if (await prisma.isBlocked(userId)) {
+      return res
+          .status(403)
+          .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+    }
+
     const listing = await prisma.listing.findUnique({
       where: { ListingID: id },
     });

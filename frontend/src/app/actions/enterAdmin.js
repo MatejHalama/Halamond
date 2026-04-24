@@ -10,6 +10,10 @@ export async function enterAdmin({ store, api }) {
     ui: {
       ...state.ui,
       mode: UI_MODE.ADMIN,
+      selectedListing: null,
+      selectedTicket: null,
+      errorMessage: null,
+      notification: null,
     },
   }));
 }

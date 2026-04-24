@@ -18,13 +18,18 @@ export async function logout({ store, api })
 
             return {
                 ...state,
-                listings: [],
+                myListings: [],
+                tickets: [],
+                notifications: [],
+                reports: [],
+                profileUser: null,
                 auth: { role: ROLE.ANON, userId: null, name: null },
                 ui: {
                     ...state.ui,
                     mode: UI_MODE.LOGIN,
-                    selectedExamId: null,
                     status: UI_STATUS.RDY,
+                    selectedListing: null,
+                    selectedTicket: null,
                     errorMessage: null,
                     notification,
                 }

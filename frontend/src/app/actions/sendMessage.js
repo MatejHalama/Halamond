@@ -11,6 +11,8 @@ export async function sendMessage({ store, api, payload }) {
       ...state,
       ui: {
         ...state.ui,
+        selectedListing: null,
+        errorMessage: null,
         notification: { type: NOTIFICATION_TYPE.ERR, message: result.reason },
       },
     }));
@@ -33,6 +35,9 @@ export async function sendMessage({ store, api, payload }) {
             ],
           }
         : state.ui.selectedTicket,
+      selectedListing: null,
+      errorMessage: null,
+      notification: null,
     },
   }));
 }
