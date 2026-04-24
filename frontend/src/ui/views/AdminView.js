@@ -273,7 +273,7 @@ function buildCategorySection(
   list.className = "category-list";
 
   const renderList = (cats) => {
-    list.innerHTML = "";
+    list.replaceChildren();
     const items = flattenTree(buildTree(cats));
 
     items.forEach(({ cat, depth }) => {
@@ -283,19 +283,21 @@ function buildCategorySection(
 
       const nameSpan = document.createElement("span");
       nameSpan.className = "category-row__name";
-      if (depth > 0) nameSpan.style.paddingLeft = `${depth * 1.25}rem`;
+      if (depth > 0)
+        nameSpan.style.setProperty("--depth-indent", `${depth * 1.25}rem`);
       nameSpan.textContent = (depth > 0 ? "└─ " : "") + cat.Name;
 
       const editInput = document.createElement("input");
       editInput.type = "text";
       editInput.className = "category-row__input";
       editInput.value = cat.Name;
-      editInput.style.display = "none";
-      if (depth > 0) editInput.style.marginLeft = `${depth * 1.25}rem`;
+      editInput.classList.add("hidden");
+      if (depth > 0)
+        editInput.style.setProperty("--depth-indent", `${depth * 1.25}rem`);
 
       const editParentSelect = document.createElement("select");
       editParentSelect.className = "category-parent-select";
-      editParentSelect.style.display = "none";
+      editParentSelect.classList.add("hidden");
       const noneOptEdit = document.createElement("option");
       noneOptEdit.value = "";
       noneOptEdit.textContent = "- bez rodiče -";
@@ -314,7 +316,7 @@ function buildCategorySection(
       editBtn.className = "button button--secondary admin-action";
       editBtn.textContent = "Upravit";
       editBtn.addEventListener("click", () => {
-        const editing = editInput.style.display !== "none";
+        const editing = !editInput.classList.contains("hidden");
         if (editing) {
           const newName = editInput.value.trim();
           if (!newName) {
@@ -334,15 +336,15 @@ function buildCategorySection(
               editBtn.disabled = false;
             });
           }
-          editInput.style.display = "none";
-          editParentSelect.style.display = "none";
-          nameSpan.style.display = "";
+          editInput.classList.add("hidden");
+          editParentSelect.classList.add("hidden");
+          nameSpan.classList.remove("hidden");
           editBtn.textContent = "Upravit";
         } else {
           rowError.textContent = "";
-          editInput.style.display = "";
-          editParentSelect.style.display = "";
-          nameSpan.style.display = "none";
+          editInput.classList.remove("hidden");
+          editParentSelect.classList.remove("hidden");
+          nameSpan.classList.add("hidden");
           editBtn.textContent = "Uložit";
           editInput.focus();
         }

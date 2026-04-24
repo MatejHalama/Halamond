@@ -128,7 +128,7 @@ function createNotificationsPanel({ notifications, onOpenNotification }) {
     item.className = "notification-item";
     item.textContent = n.Text;
     if (n.ticket && onOpenNotification) {
-      item.style.cursor = "pointer";
+      item.classList.add("clickable");
       item.addEventListener("click", () => onOpenNotification(n.ticket));
     }
     panel.appendChild(item);

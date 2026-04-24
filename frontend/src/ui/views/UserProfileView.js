@@ -71,7 +71,7 @@ export function UserProfileView({ viewState, handlers }) {
         listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
       item.textContent = `${listing.Title}${price ? " - " + price : ""}`;
       if (listing.ListingID && onEnterDetail) {
-        item.style.cursor = "pointer";
+        item.classList.add("clickable");
         item.addEventListener("click", () => onEnterDetail(listing.ListingID));
       }
       listingsSection.appendChild(item);
@@ -112,8 +112,7 @@ export function UserProfileView({ viewState, handlers }) {
       btn.disabled = true;
       const result = await onReportUser(profileUser.UserID, text);
       if (result?.status === "SUCCESS") {
-        reportSection.innerHTML = "";
-        reportSection.appendChild(
+        reportSection.replaceChildren(
           createText(["Uživatel byl nahlášen. Děkujeme."]),
         );
       } else {

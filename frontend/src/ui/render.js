@@ -106,7 +106,9 @@ function buildNavbar(state, dispatch, viewState) {
     const profileBtn = document.createElement("button");
     profileBtn.className =
       "button button--secondary navbar-btn navbar-profile-btn";
-    profileBtn.innerHTML = '<i class="fa fa-user"></i>';
+    const userIcon = document.createElement("i");
+    userIcon.className = "fa fa-user";
+    profileBtn.appendChild(userIcon);
     profileBtn.addEventListener("click", () =>
       dispatch({ type: ACTION_TYPE.ENTER_PROFILE }),
     );

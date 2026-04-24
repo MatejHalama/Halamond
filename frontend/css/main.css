@@ -947,10 +947,12 @@ select:focus {
   flex: 1;
   font-size: 0.9375rem;
   color: var(--text);
+  padding-left: var(--depth-indent, 0);
 }
 
 .category-row__input {
   flex: 1;
+  margin-left: var(--depth-indent, 0);
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -1225,6 +1227,13 @@ select:focus {
     min-width: unset;
     max-width: unset;
   }
+}
+
+.hidden {
+  display: none;
+}
+.clickable {
+  cursor: pointer;
 }
 
 /* comments */
