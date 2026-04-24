@@ -8,6 +8,8 @@ export function AdminView({ viewState, handlers }) {
   const {
     onBackToList,
     onDismissReport,
+    onEnterDetail,
+    onEnterUserProfile,
     onCreateCategory,
     onUpdateCategory,
     onDeleteCategory,
@@ -37,13 +39,30 @@ export function AdminView({ viewState, handlers }) {
       const meta = document.createElement("div");
       meta.className = "report-meta";
 
-      const subject = report.reportedListingRel
-        ? `Inzerát: ${report.reportedListingRel.Title}`
-        : report.reportedUserRel
-          ? `Uživatel: ${report.reportedUserRel.Username}`
-          : "-";
+      const date = new Date(report.Createdat).toLocaleDateString("cs-CZ");
+      meta.appendChild(document.createTextNode(`${reporter} → `));
 
-      meta.textContent = `${reporter} → ${subject} · ${new Date(report.Createdat).toLocaleDateString("cs-CZ")}`;
+      if (report.reportedListingRel) {
+        const link = document.createElement("button");
+        link.className = "button--link";
+        link.textContent = `Inzerát: ${report.reportedListingRel.Title}`;
+        link.addEventListener("click", () =>
+          onEnterDetail(report.reportedListingRel.ListingID),
+        );
+        meta.appendChild(link);
+      } else if (report.reportedUserRel) {
+        const link = document.createElement("button");
+        link.className = "button--link";
+        link.textContent = `Uživatel: ${report.reportedUserRel.Username}`;
+        link.addEventListener("click", () =>
+          onEnterUserProfile(report.reportedUserRel.UserID),
+        );
+        meta.appendChild(link);
+      } else {
+        meta.appendChild(document.createTextNode("-"));
+      }
+
+      meta.appendChild(document.createTextNode(` · ${date}`));
       card.appendChild(meta);
 
       const text = document.createElement("p");

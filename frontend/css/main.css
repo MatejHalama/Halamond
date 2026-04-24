@@ -214,6 +214,18 @@ p {
   background: var(--danger-hover);
   box-shadow: var(--shadow);
 }
+.button--link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
+.button--link:hover {
+  color: var(--primary-hover, var(--primary));
+}
 
 .admin-action {
   font-size: 0.8125rem;

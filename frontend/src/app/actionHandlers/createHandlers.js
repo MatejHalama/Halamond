@@ -377,6 +377,13 @@ export function adminHandlers(dispatch) {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onDismissReport: (reportId) =>
       dispatch({ type: ACTION_TYPE.DISMISS_REPORT, payload: { reportId } }),
+    onEnterDetail: (listingId) =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId },
+      }),
+    onEnterUserProfile: (userId) =>
+      dispatch({ type: ACTION_TYPE.ENTER_PROFILE, payload: { userId } }),
     onCreateCategory: (name, parentId) =>
       dispatch({
         type: ACTION_TYPE.CREATE_CATEGORY,
