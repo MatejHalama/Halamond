@@ -9,18 +9,20 @@ export async function blockListing({ store, api, payload }) {
       ui: {
         ...state.ui,
         selectedListing: result.listing
-          ? result.listing
+          ? {
+              ...result.listing,
+              pictures: state.ui.selectedListing?.pictures ?? [],
+            }
           : null,
         selectedTicket: null,
         errorMessage: null,
         notification: {
           type: NOTIFICATION_TYPE.OK,
           message: "Stav změněn na ZABLOKOVANÝ",
-        }
+        },
       },
     }));
-  }
-  else {
+  } else {
     store.setState((state) => {
       return {
         ...state,
