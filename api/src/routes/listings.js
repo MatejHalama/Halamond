@@ -220,7 +220,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
         ...(title && { Title: title }),
         ...(price && { Price: parseInt(price) }),
         ...(description && { Description: description }),
-        ...(categoryId && { belongsTo: parseInt(price) }),
+        ...(categoryId && { belongsTo: parseInt(categoryId) }),
       },
     });
 
