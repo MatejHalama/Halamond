@@ -98,3 +98,33 @@ BEGIN
     SELECT * FROM CategoryTree;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_comments_with_replies(CommentID "Comment"."CommentID"%TYPE, ListingID "Listing"."ListingID"%TYPE)
+RETURNS jsonb AS $$
+DECLARE
+    result jsonb;
+BEGIN
+    SELECT jsonb_agg(
+        jsonb_build_object(
+            'Createdat', c."Createdat",
+            'Text', c."Text",
+            'Updatedat', c."Updatedat",
+            'CommentID', c."CommentID",
+            'author', c.author,
+            'parentComment', c."parentComment",
+            'listing', c.listing,
+            'authorUser', to_jsonb((SELECT _ FROM (SELECT author."UserID", author."Username", author."State") _)),
+            'replies', get_comments_with_replies(c."CommentID", ListingID)
+        )
+    )
+    FROM "Comment" c
+    LEFT JOIN "User" author ON c.author = author."UserID"
+    WHERE (c.listing = ListingID) AND (
+                (CommentID IS NULL AND c."parentComment" IS NULL) -- Kořenové komentáře
+                OR (c."parentComment" = CommentID)     -- Potomci
+        )
+    INTO result;
+
+    RETURN COALESCE(result, '[]'::jsonb);
+END;
+$$ LANGUAGE plpgsql;
