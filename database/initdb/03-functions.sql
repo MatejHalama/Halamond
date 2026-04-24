@@ -75,3 +75,26 @@ BEGIN
     RETURN v_avg;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_all_subcategories(CategoryID "Category"."CategoryID"%TYPE)
+RETURNS TABLE (
+    "CategoryID" integer,
+    "Name" varchar,
+    "parentCategory" integer
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH RECURSIVE CategoryTree AS (
+        SELECT c."CategoryID", c."Name", c."parentCategory"
+        FROM "Category" c
+        WHERE c."CategoryID" = CategoryID
+
+        UNION ALL
+
+        SELECT c."CategoryID", c."Name", c."parentCategory"
+        FROM "Category" c
+        JOIN CategoryTree ct ON c."parentCategory" = ct."CategoryID"
+    )
+    SELECT * FROM CategoryTree;
+END;
+$$ LANGUAGE plpgsql;
