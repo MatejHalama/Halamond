@@ -44,7 +44,8 @@ export function CreateListingView({ viewState, handlers }) {
   categorySelect.appendChild(emptyOpt);
   (categories ?? []).forEach((cat) => {
     const opt = createElement("option", { value: cat.CategoryID });
-    opt.textContent = cat.Name;
+    const indent = "  ".repeat(cat.depth ?? 0);
+    opt.textContent = indent + (cat.depth > 0 ? "└─ " : "") + cat.Name;
     categorySelect.appendChild(opt);
   });
 

@@ -23,6 +23,7 @@ export function ListingDetailView({ viewState, handlers }) {
     canViewSellerProfile,
     canReportListing,
     canBlockListing,
+    canUnblockListing,
   } = capabilities;
   const {
     onBackToList,
@@ -35,6 +36,7 @@ export function ListingDetailView({ viewState, handlers }) {
     onEnterSellerProfile,
     onReportListing,
     onBlockListing,
+    onUnblockListing,
     onSubmitComment,
     onReply,
   } = handlers;
@@ -177,19 +179,39 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(createReportForm((text) => onReportListing(text)));
   }
 
-  if (canBlockListing && onBlockListing) {
+  if (
+    (canBlockListing && onBlockListing) ||
+    (canUnblockListing && onUnblockListing)
+  ) {
     const adminSection = createSection("admin-zone");
     adminSection.appendChild(createTitle(3, "Administrace"));
-    const blockBtn = addActionButton(
-      null,
-      "Blokovat inzerát",
-      "button--danger admin-action",
-    );
-    blockBtn.addEventListener("click", async () => {
-      blockBtn.disabled = true;
-      await onBlockListing();
-    });
-    adminSection.appendChild(blockBtn);
+
+    if (canBlockListing && onBlockListing) {
+      const blockBtn = addActionButton(
+        null,
+        "Blokovat inzerát",
+        "button--danger admin-action",
+      );
+      blockBtn.addEventListener("click", async () => {
+        blockBtn.disabled = true;
+        await onBlockListing();
+      });
+      adminSection.appendChild(blockBtn);
+    }
+
+    if (canUnblockListing && onUnblockListing) {
+      const unblockBtn = addActionButton(
+        null,
+        "Odblokovat inzerát",
+        "button--success admin-action",
+      );
+      unblockBtn.addEventListener("click", async () => {
+        unblockBtn.disabled = true;
+        await onUnblockListing();
+      });
+      adminSection.appendChild(unblockBtn);
+    }
+
     container.appendChild(adminSection);
   }
 

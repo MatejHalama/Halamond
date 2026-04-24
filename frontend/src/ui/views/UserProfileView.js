@@ -12,8 +12,14 @@ export function UserProfileView({ viewState, handlers }) {
     canBlockUser,
     canUnblockUser,
   } = capabilities;
-  const { onBackToList, onLogout, onReportUser, onBlockUser, onUnblockUser, onEnterDetail } =
-    handlers;
+  const {
+    onBackToList,
+    onLogout,
+    onReportUser,
+    onBlockUser,
+    onUnblockUser,
+    onEnterDetail,
+  } = handlers;
 
   const container = createSection("");
 
@@ -99,7 +105,7 @@ export function UserProfileView({ viewState, handlers }) {
     reportSection.appendChild(input);
     const btn = document.createElement("button");
     btn.textContent = "Nahlásit";
-    btn.className = "button--danger";
+    btn.className = "button button--danger";
     btn.addEventListener("click", async () => {
       const text = input.value.trim();
       if (!text) return;
@@ -118,30 +124,37 @@ export function UserProfileView({ viewState, handlers }) {
     container.appendChild(reportSection);
   }
 
-  if (canBlockUser && onBlockUser && profileUser) {
-    const blockBtn = addActionButton(
-      null,
-      "Blokovat uživatele",
-      "button--danger admin-action",
-    );
-    blockBtn.addEventListener("click", async () => {
-      blockBtn.disabled = true;
-      await onBlockUser(profileUser.UserID);
-    });
-    container.appendChild(blockBtn);
-  }
+  if ((canBlockUser || canUnblockUser) && profileUser) {
+    const adminSection = createSection("admin-zone");
+    adminSection.appendChild(createTitle(3, "Administrace"));
 
-  if (canUnblockUser && onUnblockUser && profileUser) {
-    const unblockBtn = addActionButton(
-      null,
-      "Odblokovat uživatele",
-      "button--success admin-action",
-    );
-    unblockBtn.addEventListener("click", async () => {
-      unblockBtn.disabled = true;
-      await onUnblockUser(profileUser.UserID);
-    });
-    container.appendChild(unblockBtn);
+    if (canBlockUser && onBlockUser) {
+      const blockBtn = addActionButton(
+        null,
+        "Blokovat uživatele",
+        "button--danger admin-action",
+      );
+      blockBtn.addEventListener("click", async () => {
+        blockBtn.disabled = true;
+        await onBlockUser(profileUser.UserID);
+      });
+      adminSection.appendChild(blockBtn);
+    }
+
+    if (canUnblockUser && onUnblockUser) {
+      const unblockBtn = addActionButton(
+        null,
+        "Odblokovat uživatele",
+        "button--success admin-action",
+      );
+      unblockBtn.addEventListener("click", async () => {
+        unblockBtn.disabled = true;
+        await onUnblockUser(profileUser.UserID);
+      });
+      adminSection.appendChild(unblockBtn);
+    }
+
+    container.appendChild(adminSection);
   }
 
   if (canLogout && onLogout) {
