@@ -53,6 +53,7 @@ function isPublicAction(type) {
     ACTION_TYPE.ENTER_LISTING_DETAIL,
     ACTION_TYPE.SET_FILTERS,
     ACTION_TYPE.INIT,
+    ACTION_TYPE.CLEAR_NOTIFICATION,
   ].includes(type);
 }
 
