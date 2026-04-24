@@ -99,7 +99,7 @@ export function UserProfileView({ viewState, handlers }) {
     reportSection.appendChild(input);
     const btn = document.createElement("button");
     btn.textContent = "Nahlásit";
-    btn.className = "button--danger";
+    btn.className = "button button--danger";
     btn.addEventListener("click", async () => {
       const text = input.value.trim();
       if (!text) return;
