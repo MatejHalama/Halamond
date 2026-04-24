@@ -53,6 +53,7 @@ function isPublicAction(type) {
     ACTION_TYPE.ENTER_LISTING_DETAIL,
     ACTION_TYPE.SET_FILTERS,
     ACTION_TYPE.INIT,
+    ACTION_TYPE.CLEAR_NOTIFICATION,
   ].includes(type);
 }
 
@@ -141,6 +142,13 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.SUBMIT_COMMENT:
         result = await submitComment({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.CLEAR_NOTIFICATION:
+        store.setState((state) => ({
+          ...state,
+          ui: { ...state.ui, notification: null },
+        }));
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:

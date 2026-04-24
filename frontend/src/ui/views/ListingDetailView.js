@@ -187,7 +187,7 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(adminSection);
   }
 
-  container.appendChild(createCommentSection(listing.comments, canComment, onSubmitComment, onReply));
+  container.appendChild(createCommentSection(listing.comments ?? [], canComment, onSubmitComment, onReply));
 
   return container;
 }
