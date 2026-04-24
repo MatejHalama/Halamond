@@ -73,18 +73,17 @@ export function ListingListView({ viewState, handlers }) {
   root.appendChild(filterSection);
   root.appendChild(cards);
 
-  const nonActive = (myListings ?? []).filter(
-    (l) =>
-      l.State !== "active" && l.State !== "deleted" && l.State !== "blocked",
+  const myVisible = (myListings ?? []).filter(
+    (l) => l.State !== "deleted" && l.State !== "blocked",
   );
-  if (nonActive.length > 0) {
+  if (myVisible.length > 0) {
     const mySection = createSection("my-listings");
     mySection.appendChild(createTitle(2, "Moje inzeráty"));
-    nonActive.forEach((listing) => {
+    const stateLabels = { draft: "Návrh", active: "Aktivní", sold: "Prodáno" };
+    myVisible.forEach((listing) => {
       const row = document.createElement("div");
       row.className = "my-listing-row";
-      const stateLabel =
-        { draft: "Návrh", sold: "Prodáno" }[listing.State] ?? listing.State;
+      const stateLabel = stateLabels[listing.State] ?? listing.State;
       const price =
         listing.Price != null ? `${Number(listing.Price).toFixed(0)} Kč` : "";
       row.innerHTML = `<span class="my-listing-title">${listing.Title}</span>

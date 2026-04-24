@@ -105,6 +105,23 @@ router.delete("/:id", requireAdmin, async (req, res) => {
     return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
 
   try {
+    const [childCount, listingCount] = await Promise.all([
+      prisma.category.count({ where: { parentCategory: id } }),
+      prisma.listing.count({ where: { belongsTo: id } }),
+    ]);
+
+    if (childCount > 0)
+      return res.status(409).json({
+        status: "ERROR",
+        reason: `Kategorie má ${childCount} podkategori${childCount === 1 ? "i" : "í"} - nejdřív je smažte`,
+      });
+
+    if (listingCount > 0)
+      return res.status(409).json({
+        status: "ERROR",
+        reason: `Kategorie obsahuje ${listingCount} inzerát${listingCount === 1 ? "" : listingCount < 5 ? "y" : "ů"} - nelze smazat`,
+      });
+
     await prisma.category.delete({ where: { CategoryID: id } });
     return res.json({ status: "SUCCESS" });
   } catch (err) {

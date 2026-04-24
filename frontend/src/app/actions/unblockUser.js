@@ -5,7 +5,12 @@ export async function unblockUser({ store, api, payload }) {
   if (result.status === API_STATUS.OK) {
     store.setState((state) => ({
       ...state,
-      profileUser: state.profileUser ? { ...state.profileUser, State: "active" } : state.profileUser,
+      profileUser: state.profileUser
+        ? { ...state.profileUser, State: "active" }
+        : state.profileUser,
+      blockedUsers: (state.blockedUsers ?? []).filter(
+        (u) => u.UserID !== payload.userId,
+      ),
     }));
   }
   return result;

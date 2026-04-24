@@ -70,7 +70,28 @@ function buildNavbar(state, dispatch, viewState) {
   );
   nav.appendChild(brand);
 
-  if (isLoggedIn && !isAuthView) {
+  if (!isLoggedIn && !isAuthView) {
+    const right = document.createElement("div");
+    right.className = "navbar-right";
+
+    const loginBtn = document.createElement("button");
+    loginBtn.className = "button button--secondary navbar-btn";
+    loginBtn.textContent = "Přihlásit se";
+    loginBtn.addEventListener("click", () =>
+      dispatch({ type: ACTION_TYPE.ENTER_LOGIN }),
+    );
+    right.appendChild(loginBtn);
+
+    const registerBtn = document.createElement("button");
+    registerBtn.className = "button button--primary navbar-btn";
+    registerBtn.textContent = "Registrovat";
+    registerBtn.addEventListener("click", () =>
+      dispatch({ type: ACTION_TYPE.ENTER_REGISTER }),
+    );
+    right.appendChild(registerBtn);
+
+    nav.appendChild(right);
+  } else if (isLoggedIn && !isAuthView) {
     const right = document.createElement("div");
     right.className = "navbar-right";
 

@@ -155,6 +155,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canViewSellerProfile,
     canReportListing,
     canBlockListing,
+    canUnblockListing,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -229,6 +230,14 @@ export function listingDetailHandlers(dispatch, viewState) {
     handlers.onBlockListing = () =>
       dispatch({
         type: ACTION_TYPE.BLOCK_LISTING,
+        payload: { listingId },
+      });
+  }
+
+  if (canUnblockListing) {
+    handlers.onUnblockListing = () =>
+      dispatch({
+        type: ACTION_TYPE.UNBLOCK_LISTING,
         payload: { listingId },
       });
   }
@@ -351,10 +360,10 @@ export function userProfileHandlers(dispatch, viewState) {
   }
 
   handlers.onEnterDetail = (listingId) =>
-      dispatch({
-        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
-        payload: { listingId },
-      });
+    dispatch({
+      type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+      payload: { listingId },
+    });
 
   return handlers;
 }
@@ -377,6 +386,29 @@ export function adminHandlers(dispatch) {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onDismissReport: (reportId) =>
       dispatch({ type: ACTION_TYPE.DISMISS_REPORT, payload: { reportId } }),
+    onEnterDetail: (listingId) =>
+      dispatch({
+        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+        payload: { listingId },
+      }),
+    onEnterUserProfile: (userId) =>
+      dispatch({ type: ACTION_TYPE.ENTER_PROFILE, payload: { userId } }),
+    onUnblockListing: (listingId) =>
+      dispatch({ type: ACTION_TYPE.UNBLOCK_LISTING, payload: { listingId } }),
+    onUnblockUser: (userId) =>
+      dispatch({ type: ACTION_TYPE.UNBLOCK_USER, payload: { userId } }),
+    onCreateCategory: (name, parentId) =>
+      dispatch({
+        type: ACTION_TYPE.CREATE_CATEGORY,
+        payload: { name, parentId },
+      }),
+    onUpdateCategory: (categoryId, name, parentId) =>
+      dispatch({
+        type: ACTION_TYPE.UPDATE_CATEGORY,
+        payload: { categoryId, name, parentId },
+      }),
+    onDeleteCategory: (categoryId) =>
+      dispatch({ type: ACTION_TYPE.DELETE_CATEGORY, payload: { categoryId } }),
   };
 }
 
