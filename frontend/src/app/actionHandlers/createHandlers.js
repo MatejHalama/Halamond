@@ -145,7 +145,7 @@ export function listingListHandlers(dispatch, viewState) {
 }
 
 export function listingDetailHandlers(dispatch, viewState) {
-  const { capabilities } = viewState;
+  const { listing, capabilities } = viewState;
   const {
     canBackToList,
     canActivateListing,
@@ -156,6 +156,7 @@ export function listingDetailHandlers(dispatch, viewState) {
     canReportListing,
     canBlockListing,
     canUnblockListing,
+    canComment,
   } = capabilities;
   const handlers = {};
   const listingId = viewState.listing?.ListingID;
@@ -240,6 +241,15 @@ export function listingDetailHandlers(dispatch, viewState) {
         type: ACTION_TYPE.UNBLOCK_LISTING,
         payload: { listingId },
       });
+  }
+
+  if (canComment) {
+    handlers.onSubmitComment = (parentId, text) => {
+      dispatch({
+        type: ACTION_TYPE.SUBMIT_COMMENT,
+        payload: { parentId, text },
+      });
+    }
   }
 
   return handlers;

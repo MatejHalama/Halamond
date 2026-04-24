@@ -18,6 +18,7 @@ export function ListingDetailView({ viewState, handlers }) {
     canSellListing,
     canDeleteListing,
     canEnterAdministration,
+    canComment,
     canContactSeller,
     canViewSellerProfile,
     canReportListing,
@@ -36,6 +37,8 @@ export function ListingDetailView({ viewState, handlers }) {
     onReportListing,
     onBlockListing,
     onUnblockListing,
+    onSubmitComment,
+    onReply,
   } = handlers;
 
   const container = createDiv();
@@ -212,6 +215,8 @@ export function ListingDetailView({ viewState, handlers }) {
     container.appendChild(adminSection);
   }
 
+  container.appendChild(createCommentSection(listing.comments, canComment, onSubmitComment, onReply));
+
   return container;
 }
 
@@ -238,4 +243,84 @@ function createReportForm(onSubmit) {
   });
   section.appendChild(btn);
   return section;
+}
+
+function createCommentSection(comments, canComment, onSubmitComment, onReply) {
+  const commentSection = createSection("listing-comments");
+  commentSection.appendChild(createTitle(3, "Komentáře"));
+
+  if (canComment) {
+    const input = createElement("textarea", {
+      placeholder: "Komentář...",
+      rows: "3",
+    });
+    commentSection.appendChild(input);
+
+    commentSection.appendChild(
+        addActionButton(
+            () => {
+              const value = input.value.trim();
+              if (value) onSubmitComment(null, value);
+            },
+            "Odeslat komentář",
+            "button--primary",
+        ),
+    );
+  }
+
+  if (comments.length === 0) {
+    commentSection.appendChild(createText(["Žádné komentáře."]));
+  }
+  else {
+    comments.forEach((comment) => {
+      commentSection.appendChild(createCommentItem(comment, canComment, onSubmitComment, onReply));
+    });
+  }
+  return commentSection;
+}
+
+function createCommentItem(comment, canComment, onSubmitComment, onReply) {
+  const item = document.createElement("div");
+  item.className = "comment";
+
+  const nameText = document.createElement("p");
+  nameText.textContent = comment.authorUser.Username;
+  item.appendChild(nameText);
+
+  const commentText = document.createElement("p");
+  commentText.textContent = comment.Text;
+  item.appendChild(commentText);
+
+  if (canComment) {
+    const input = createElement("textarea", {
+      placeholder: "Odpověď...",
+      rows: "2",
+    });
+
+    const submit = addActionButton(
+        () => {
+          const value = input.value.trim();
+          if (value) onSubmitComment(comment.CommentID, value);
+        },
+        "Odeslat odpověď",
+        "button--primary",
+    );
+
+    item.appendChild(
+        addActionButton(
+            (e) => {
+              item.removeChild(e.target);
+              item.appendChild(input);
+              item.appendChild(submit);
+            },
+            "Odpovědět",
+            "button--secondary",
+        ),
+    );
+  }
+
+  comment.replies.forEach((reply) => {
+    item.appendChild(createCommentItem(reply, canComment, onSubmitComment, onReply));
+  });
+  return item;
 }

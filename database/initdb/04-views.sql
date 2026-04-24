@@ -60,10 +60,11 @@ SELECT
         jsonb_agg(p.*) FILTER ( WHERE p."PictureID" IS NOT NULL ),
         '[]'
     ) as "pictures",
-    COALESCE(
-        jsonb_agg(co.*) FILTER ( WHERE co."CommentID" IS NOT NULL ),
-        '[]'
-    ) as "comments"
+    --COALESCE(
+    --    jsonb_agg(co.*) FILTER ( WHERE co."CommentID" IS NOT NULL ),
+    --    '[]'
+    --) as "comments"
+    (SELECT fn_result FROM get_comments_with_replies(null, l."ListingID") fn_result) as "comments"
 FROM
     "Listing" l
 LEFT JOIN
@@ -72,7 +73,5 @@ LEFT JOIN
     "User" u ON l.author = u."UserID"
 LEFT JOIN
     "Picture" p ON l."ListingID" = p.listing
-LEFT JOIN
-    "Comment" co ON l."ListingID" = co.listing
 GROUP BY
     l."ListingID", ca."CategoryID", u."UserID";
