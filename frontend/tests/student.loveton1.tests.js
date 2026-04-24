@@ -3,6 +3,11 @@ import { fakeApi, fakeErrorApi } from "./support/fake.js";
 import { createStore } from "../src/infra/store/createStore.js";
 import { sendMessage } from "../src/app/actions/sendMessage.js";
 import { closeTicket } from "../src/app/actions/closeTicket.js";
+import { contactSeller } from "../src/app/actions/contactSeller.js";
+import { enterTicketDetail } from "../src/app/actions/enterTicketDetail.js";
+import { enterTicketList } from "../src/app/actions/enterTicketList.js";
+import { enterListingDetail } from "../src/app/actions/enterListingDetail.js";
+import { enterListingList } from "../src/app/actions/enterListingList.js";
 import { createCategory } from "../src/app/actions/createCategory.js";
 import { updateCategory } from "../src/app/actions/updateCategory.js";
 import { deleteCategory } from "../src/app/actions/deleteCategory.js";
@@ -28,8 +33,10 @@ import {
 import {
     listingDetailHandlers,
     ticketDetailHandlers,
+    adminHandlers,
 } from "../src/app/actionHandlers/createHandlers.js";
 
+import * as ACTION_TYPE from "../src/constants/actionType.js";
 import * as ROLE from "../src/constants/role.js";
 import * as UI_MODE from "../src/constants/uiMode.js";
 import * as UI_STATUS from "../src/statuses/uiStatus.js";
@@ -664,6 +671,41 @@ console.log("\n── listingDetailHandlers ──");
     );
 }
 
+console.log("\n── listingDetailHandlers – payload dispatch ──");
+
+{
+    const dispatchCalls = [];
+    const dispatch = (action) => dispatchCalls.push(action);
+    const handlers = listingDetailHandlers(dispatch, {
+        listing: { ListingID: 7 },
+        capabilities: {
+            canComment: true, canContactSeller: true, canBackToList: false,
+            canActivateListing: false, canSellListing: false, canDeleteListing: false,
+            canEnterAdministration: false, canViewSellerProfile: false,
+            canReportListing: false, canBlockListing: true, canUnblockListing: false,
+        },
+    });
+
+    handlers.onSubmitComment(null, "test komentář");
+    assert(dispatchCalls.length === 1, "onSubmitComment: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.SUBMIT_COMMENT, "onSubmitComment: type je SUBMIT_COMMENT");
+    assert(dispatchCalls[0].payload.text === "test komentář", "onSubmitComment: payload.text je správný");
+    assert(dispatchCalls[0].payload.parentId === null, "onSubmitComment: payload.parentId je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onContactSeller(7, "mám zájem");
+    assert(dispatchCalls.length === 1, "onContactSeller: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.CONTACT_SELLER, "onContactSeller: type je CONTACT_SELLER");
+    assert(dispatchCalls[0].payload.listingId === 7, "onContactSeller: payload.listingId je správný");
+    assert(dispatchCalls[0].payload.message === "mám zájem", "onContactSeller: payload.message je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onBlockListing();
+    assert(dispatchCalls.length === 1, "onBlockListing: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.BLOCK_LISTING, "onBlockListing: type je BLOCK_LISTING");
+    assert(dispatchCalls[0].payload.listingId === 7, "onBlockListing: payload.listingId je správný");
+}
+
 console.log("\n── ticketDetailHandlers ──");
 
 {
@@ -683,6 +725,40 @@ console.log("\n── ticketDetailHandlers ──");
     assert(withNone.onCloseTicket === undefined, "ticketDetailHandlers: onCloseTicket není definován když canCloseTicket=false");
     assert(withNone.onRateSeller === undefined, "ticketDetailHandlers: onRateSeller není definován když canRateSeller=false");
     assert(typeof withNone.onBackToTickets === "function", "ticketDetailHandlers: onBackToTickets je vždy definován");
+}
+
+console.log("\n── ticketDetailHandlers – payload dispatch ──");
+
+{
+    const dispatchCalls = [];
+    const dispatch = (action) => dispatchCalls.push(action);
+    const handlers = ticketDetailHandlers(dispatch, {
+        capabilities: { canSendMessage: true, canCloseTicket: true, canRateSeller: true },
+    });
+
+    handlers.onSendMessage(42, "ahoj");
+    assert(dispatchCalls.length === 1, "onSendMessage: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.SEND_MESSAGE, "onSendMessage: type je SEND_MESSAGE");
+    assert(dispatchCalls[0].payload.ticketId === 42, "onSendMessage: payload.ticketId je správný");
+    assert(dispatchCalls[0].payload.message === "ahoj", "onSendMessage: payload.message je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onCloseTicket(42);
+    assert(dispatchCalls.length === 1, "onCloseTicket: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.CLOSE_TICKET, "onCloseTicket: type je CLOSE_TICKET");
+    assert(dispatchCalls[0].payload.ticketId === 42, "onCloseTicket: payload.ticketId je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onRateSeller(99, 5);
+    assert(dispatchCalls.length === 1, "onRateSeller: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.SUBMIT_RATING, "onRateSeller: type je SUBMIT_RATING");
+    assert(dispatchCalls[0].payload.reviewedId === 99, "onRateSeller: payload.reviewedId je správný");
+    assert(dispatchCalls[0].payload.rating === 5, "onRateSeller: payload.rating je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onBackToTickets();
+    assert(dispatchCalls.length === 1, "onBackToTickets: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.ENTER_TICKET_LIST, "onBackToTickets: type je ENTER_TICKET_LIST");
 }
 
 // --------------------------------------------------
@@ -766,6 +842,186 @@ console.log("\n── dismissReport ──");
     const store = makeStore({ reports: [{ ReportID: 1, text: "spam" }] });
     await dismissReport({ store, api: errorApi, payload: { reportId: 1 } });
     assert(store.getState().reports.length === 1, "dismissReport ERROR: reports se nezmění");
+}
+
+// --------------------------------------------------
+// adminHandlers – payload dispatch (IR07)
+// --------------------------------------------------
+
+console.log("\n── adminHandlers – payload dispatch ──");
+
+{
+    const dispatchCalls = [];
+    const dispatch = (action) => dispatchCalls.push(action);
+    const handlers = adminHandlers(dispatch);
+
+    handlers.onCreateCategory("Technika", null);
+    assert(dispatchCalls.length === 1, "adminHandlers onCreateCategory: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.CREATE_CATEGORY, "adminHandlers onCreateCategory: type je CREATE_CATEGORY");
+    assert(dispatchCalls[0].payload.name === "Technika", "adminHandlers onCreateCategory: payload.name je správný");
+    assert(dispatchCalls[0].payload.parentId === null, "adminHandlers onCreateCategory: payload.parentId je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onUpdateCategory(1, "Nový Název", 5);
+    assert(dispatchCalls.length === 1, "adminHandlers onUpdateCategory: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.UPDATE_CATEGORY, "adminHandlers onUpdateCategory: type je UPDATE_CATEGORY");
+    assert(dispatchCalls[0].payload.categoryId === 1, "adminHandlers onUpdateCategory: payload.categoryId je správný");
+    assert(dispatchCalls[0].payload.name === "Nový Název", "adminHandlers onUpdateCategory: payload.name je správný");
+    assert(dispatchCalls[0].payload.parentId === 5, "adminHandlers onUpdateCategory: payload.parentId je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onDeleteCategory(3);
+    assert(dispatchCalls.length === 1, "adminHandlers onDeleteCategory: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.DELETE_CATEGORY, "adminHandlers onDeleteCategory: type je DELETE_CATEGORY");
+    assert(dispatchCalls[0].payload.categoryId === 3, "adminHandlers onDeleteCategory: payload.categoryId je správný");
+
+    dispatchCalls.length = 0;
+    handlers.onDismissReport(7);
+    assert(dispatchCalls.length === 1, "adminHandlers onDismissReport: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.DISMISS_REPORT, "adminHandlers onDismissReport: type je DISMISS_REPORT");
+    assert(dispatchCalls[0].payload.reportId === 7, "adminHandlers onDismissReport: payload.reportId je správný");
+}
+
+// --------------------------------------------------
+// enterTicketDetail (IR03 + Ticket entita)
+// --------------------------------------------------
+
+console.log("\n── enterTicketDetail ──");
+
+{
+    const store = makeStore({
+        ui: {
+            status: UI_STATUS.RDY,
+            mode: UI_MODE.LISTING_LIST,
+            selectedListing: null,
+            selectedTicket: null,
+            filters: { q: "", categoryId: null, minPrice: null, maxPrice: null, allSubCategories: [] },
+            errorMessage: null,
+            notification: null,
+        },
+    });
+
+    await enterTicketDetail({ store, api, payload: { ticketId: 1 } });
+
+    const state = store.getState();
+    assert(state.ui.mode === UI_MODE.TICKET_DETAIL, "enterTicketDetail SUCCESS: ui.mode je TICKET_DETAIL");
+    assert(state.ui.status === UI_STATUS.RDY, "enterTicketDetail SUCCESS: ui.status je RDY");
+    assert(state.ui.selectedTicket !== null, "enterTicketDetail SUCCESS: selectedTicket je nastaven");
+}
+
+{
+    const store = makeStore();
+    await enterTicketDetail({ store, api: errorApi, payload: { ticketId: 1 } });
+    const state = store.getState();
+    assert(state.ui.notification !== null, "enterTicketDetail ERROR: notifikace je nastavena");
+    assert(state.ui.notification.type === "ERROR", "enterTicketDetail ERROR: notifikace je typu ERROR");
+}
+
+// --------------------------------------------------
+// enterTicketList (IR03 + Ticket entita)
+// --------------------------------------------------
+
+console.log("\n── enterTicketList ──");
+
+{
+    const store = makeStore({
+        tickets: [{ TicketID: 99 }],
+        ui: {
+            status: UI_STATUS.RDY,
+            mode: UI_MODE.LISTING_LIST,
+            selectedListing: null,
+            selectedTicket: null,
+            filters: { q: "", categoryId: null, minPrice: null, maxPrice: null, allSubCategories: [] },
+            errorMessage: null,
+            notification: null,
+        },
+    });
+
+    await enterTicketList({ store, api, payload: {} });
+
+    const state = store.getState();
+    assert(state.ui.mode === UI_MODE.TICKET_LIST, "enterTicketList SUCCESS: ui.mode je TICKET_LIST");
+    assert(state.ui.status === UI_STATUS.RDY, "enterTicketList SUCCESS: ui.status je RDY");
+    assert(Array.isArray(state.tickets), "enterTicketList SUCCESS: tickets je pole");
+}
+
+{
+    const store = makeStore({ tickets: [{ TicketID: 99 }] });
+    await enterTicketList({ store, api: errorApi, payload: {} });
+    const state = store.getState();
+    assert(state.ui.mode === UI_MODE.TICKET_LIST, "enterTicketList ERROR: naviguje na TICKET_LIST i při chybě");
+    assert(state.tickets.length === 1, "enterTicketList ERROR: tickets se nezmění při chybě API");
+}
+
+// --------------------------------------------------
+// contactSeller (IR03 + Ticket entita)
+// --------------------------------------------------
+
+console.log("\n── contactSeller ──");
+
+{
+    const dispatchCalls = [];
+    const mockDispatch = async (action) => dispatchCalls.push(action);
+    const store = makeStore();
+
+    await contactSeller({ store, api, dispatch: mockDispatch, payload: { listingId: 1, message: "mám zájem" } });
+
+    assert(dispatchCalls.length === 1, "contactSeller SUCCESS: dispatch byl zavolán");
+    assert(dispatchCalls[0].type === ACTION_TYPE.ENTER_TICKET_DETAIL, "contactSeller SUCCESS: type je ENTER_TICKET_DETAIL");
+    assert(dispatchCalls[0].payload.ticketId !== undefined, "contactSeller SUCCESS: payload obsahuje ticketId");
+}
+
+{
+    const dispatchCalls = [];
+    const mockDispatch = async (action) => dispatchCalls.push(action);
+    const store = makeStore();
+
+    await contactSeller({ store, api: errorApi, dispatch: mockDispatch, payload: { listingId: 1, message: "mám zájem" } });
+
+    const state = store.getState();
+    assert(dispatchCalls.length === 0, "contactSeller ERROR: dispatch nebyl zavolán");
+    assert(state.ui.notification !== null, "contactSeller ERROR: notifikace je nastavena");
+    assert(state.ui.notification.type === "ERROR", "contactSeller ERROR: notifikace je typu ERROR");
+}
+
+// --------------------------------------------------
+// enterListingDetail – chybový stav (IR03, Blok 7)
+// --------------------------------------------------
+
+console.log("\n── enterListingDetail – chybový stav ──");
+
+{
+    const store = makeStore();
+    await enterListingDetail({ store, api: errorApi, payload: { listingId: 1 } });
+    const state = store.getState();
+    assert(
+        state.ui.status === UI_STATUS.ERR,
+        "enterListingDetail ERROR: ui.status je ERR",
+    );
+    assert(
+        state.ui.errorMessage !== null,
+        "enterListingDetail ERROR: ui.errorMessage je nastaven",
+    );
+}
+
+// --------------------------------------------------
+// enterListingList – chybový stav (IR03, Blok 7)
+// --------------------------------------------------
+
+console.log("\n── enterListingList – chybový stav ──");
+
+{
+    const store = makeStore();
+    await enterListingList({ store, api: errorApi, payload: {} });
+    const state = store.getState();
+    assert(
+        state.ui.status === UI_STATUS.ERR,
+        "enterListingList ERROR: ui.status je ERR",
+    );
+    assert(
+        state.ui.errorMessage !== null,
+        "enterListingList ERROR: ui.errorMessage je nastaven",
+    );
 }
 
 total();
