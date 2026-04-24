@@ -38,6 +38,10 @@ export async function fakeApi() {
                 status: "SUCCESS",
                 listing: { ListingID: 1, State: "active", Title: "chair", Price: 10, belongsTo: 1 },
             }),
+            getBlockedListings: async () => ({
+                status: "SUCCESS",
+                listings: [],
+            }),
             createListing: async () => ({
                 status: "SUCCESS",
                 listing: { ListingID: 1, State: "draft", Title: "chair", Price: 10, belongsTo: 1 },
@@ -102,6 +106,10 @@ export async function fakeApi() {
                 status: "SUCCESS",
                 categories: [],
             }),
+            getCategoriesFlat: async () => ({
+                status: "SUCCESS",
+                categories: [],
+            }),
             getAllSubCategories: async () => ({
                 status: "SUCCESS",
                 categories: [{ CategoryID: 1 }],
@@ -123,6 +131,10 @@ export async function fakeApi() {
             getUser: async () => ({
                 status: "SUCCESS",
                 user: {}
+            }),
+            getBlockedUsers: async () => ({
+                status: "SUCCESS",
+                users: []
             }),
         },
         reports: {
@@ -172,6 +184,9 @@ export async function fakeErrorApi() {
             getListingAuth: async () => ({
                 ...error
             }),
+            getBlockedListings: async () => ({
+                ...error
+            }),
             createListing: async () => ({
                 ...error
             }),
@@ -218,6 +233,9 @@ export async function fakeErrorApi() {
             getCategories: async () => ({
                 ...error
             }),
+            getCategoriesFlat: async () => ({
+                ...error
+            }),
             getAllSubCategories: async () => ({
                 ...error
             }),
@@ -235,6 +253,9 @@ export async function fakeErrorApi() {
         },
         users: {
             getUser: async () => ({
+                ...error
+            }),
+            getBlockedUsers: async () => ({
                 ...error
             }),
         },
