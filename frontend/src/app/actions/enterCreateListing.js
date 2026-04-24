@@ -6,6 +6,10 @@ export function enterCreateListing({ store }) {
     ui: {
       ...state.ui,
       mode: UI_MODE.CREATE_LISTING,
+      selectedListing: null,
+      selectedTicket: null,
+      errorMessage: null,
+      notification: null,
     },
   }));
 }

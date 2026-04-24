@@ -1,4 +1,3 @@
-import * as UI_MODE from "../../constants/uiMode.js";
 import * as API_STATUS from "../../statuses/apiStatus.js";
 import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js";
 
@@ -11,13 +10,16 @@ export async function deleteListing({ store, api, payload }) {
         ...state,
         ui: {
           ...state.ui,
+          selectedTicket: null,
+          errorMessage: null,
           notification: {
-            type: NOTIFICATION_TYPE.WAR,
+            type: NOTIFICATION_TYPE.ERR,
             message: dataResult.reason,
           },
         },
       };
     });
+    return;
   }
 
   store.setState((state) => {
@@ -25,11 +27,12 @@ export async function deleteListing({ store, api, payload }) {
       ...state,
       ui: {
         ...state.ui,
-        mode: UI_MODE.LISTING_DETAIL,
         selectedListing: {
           ...dataResult.listing,
           pictures: state.ui.selectedListing?.pictures ?? [],
         },
+        selectedTicket: null,
+        errorMessage: null,
         notification: {
           type: NOTIFICATION_TYPE.OK,
           message: "Stav změněn na SMAZÁNO",

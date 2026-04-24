@@ -32,8 +32,9 @@ export async function appInit({ store, api, dispatch }) {
 
   const skip = Promise.resolve({ status: "SKIP" });
 
-  const [categoriesResult, ticketsResult, notificationsResult] =
+  const [listingsResult, categoriesResult, ticketsResult, notificationsResult] =
     await Promise.all([
+      api.listings.getListings({}),
       api.categories.getCategories(),
       isLoggedIn ? api.tickets.getTickets() : skip,
       isLoggedIn ? api.notifications.getNotifications() : skip,
@@ -42,6 +43,10 @@ export async function appInit({ store, api, dispatch }) {
   store.setState((state) => ({
     ...state,
     auth,
+    listings:
+        listingsResult.status === API_STATUS.OK
+        ? listingsResult.listings
+        : [],
     categories:
       categoriesResult.status === API_STATUS.OK
         ? categoriesResult.categories

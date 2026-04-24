@@ -2,7 +2,6 @@ import * as UI_MODE from '../../constants/uiMode.js';
 import * as UI_STATUS from '../../statuses/uiStatus.js';
 import * as NOTIFICATION_TYPE from "../../statuses/notificationType.js";
 import * as API_STATUS from "../../statuses/apiStatus.js";
-import * as ROLE from "../../constants/role.js";
 
 export async function enterLogin({ store, api, payload = {}  })
 {
@@ -36,8 +35,9 @@ export async function enterLogin({ store, api, payload = {}  })
                         ui: {
                             ...state.ui,
                             mode: UI_MODE.PROFILE,
-                            selectedExamId: null,
                             status: UI_STATUS.RDY,
+                            selectedListing: null,
+                            selectedTicket: null,
                             errorMessage: null,
                             notification: {
                                 type: NOTIFICATION_TYPE.WAR,
@@ -67,8 +67,9 @@ export async function enterLogin({ store, api, payload = {}  })
                 ui: {
                     ...state.ui,
                     mode: UI_MODE.LOGIN,
-                    selectedExamId: null,
                     status: UI_STATUS.RDY,
+                    selectedListing: null,
+                    selectedTicket: null,
                     errorMessage: null,
                     notification: notification,
                 }

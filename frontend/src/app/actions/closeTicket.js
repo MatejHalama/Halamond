@@ -11,6 +11,8 @@ export async function closeTicket({ store, api, payload }) {
       ...state,
       ui: {
         ...state.ui,
+        selectedListing: null,
+        errorMessage: null,
         notification: { type: NOTIFICATION_TYPE.ERR, message: result.reason },
       },
     }));
@@ -27,6 +29,9 @@ export async function closeTicket({ store, api, payload }) {
       selectedTicket: state.ui.selectedTicket
         ? { ...state.ui.selectedTicket, State: "closed" }
         : null,
+      selectedListing: null,
+      errorMessage: null,
+      notification: null,
     },
   }));
 }

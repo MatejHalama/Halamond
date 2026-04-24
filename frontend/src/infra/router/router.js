@@ -1,4 +1,5 @@
 import * as UI_MODE from "../../constants/uiMode.js";
+import * as UI_STATUS from "../../statuses/uiStatus.js";
 import * as ACTION_TYPE from "../../constants/actionType.js";
 import * as URLS from "../../constants/urls.js";
 
@@ -42,6 +43,10 @@ export function parseUrl(path) {
     return { context: UI_MODE.LISTING_LIST };
   }
 
+  if (parts.length === 2 && parts[0] === URLS.LISTING_LIST && parts[1] === URLS.CREATE_LISTING) {
+    return { context: UI_MODE.CREATE_LISTING };
+  }
+
   if (parts.length === 2 && parts[0] === URLS.LISTING_DETAIL) {
     return { context: UI_MODE.LISTING_DETAIL, listingId: parts[1] };
   }
@@ -54,12 +59,20 @@ export function parseUrl(path) {
     return { context: UI_MODE.PROFILE };
   }
 
+  if (parts.length === 2 && parts[0] === URLS.PROFILE) {
+    return { context: UI_MODE.PROFILE, userId: parts[1] };
+  }
+
   if (parts.length === 1 && parts[0] === URLS.TICKET_LIST) {
     return { context: UI_MODE.TICKET_LIST };
   }
 
-  if (parts.length === 2 && parts[0] === URLS.TICKET_LIST) {
+  if (parts.length === 2 && parts[0] === URLS.TICKET_DETAIL) {
     return { context: UI_MODE.TICKET_DETAIL, ticketId: Number(parts[1]) };
+  }
+
+  if (parts.length === 1 && parts[0] === URLS.ADMIN) {
+    return { context: UI_MODE.ADMIN };
   }
 
   return { context: UNKNOWN };
@@ -72,7 +85,10 @@ export function routeToAction(route) {
     case UI_MODE.REGISTER:
       return { type: ACTION_TYPE.ENTER_REGISTER };
     case UI_MODE.PROFILE:
-      return { type: ACTION_TYPE.ENTER_PROFILE };
+      return {
+        type: ACTION_TYPE.ENTER_PROFILE,
+        payload: route.userId ? { userId: route.userId } : {},
+      };
     case UI_MODE.LISTING_LIST:
       return { type: ACTION_TYPE.ENTER_LISTING_LIST };
     case UI_MODE.LISTING_DETAIL:
@@ -85,6 +101,8 @@ export function routeToAction(route) {
         type: ACTION_TYPE.ENTER_LISTING_ADMINISTRATION,
         payload: { listingId: route.listingId },
       };
+    case UI_MODE.CREATE_LISTING:
+      return { type: ACTION_TYPE.ENTER_CREATE_LISTING };
     case UI_MODE.TICKET_LIST:
       return { type: ACTION_TYPE.ENTER_TICKET_LIST };
     case UI_MODE.TICKET_DETAIL:
@@ -92,6 +110,8 @@ export function routeToAction(route) {
         type: ACTION_TYPE.ENTER_TICKET_DETAIL,
         payload: { ticketId: route.ticketId },
       };
+    case UI_MODE.ADMIN:
+      return { type: ACTION_TYPE.ENTER_ADMIN };
     case UNKNOWN:
     default:
       return { type: ACTION_TYPE.ENTER_LISTING_LIST };
@@ -104,6 +124,7 @@ export function urlToAction(url) {
 }
 
 export function stateToPath(state) {
+  const { UserID: userId } = state.profileUser ?? {};
   const { mode, selectedListing } = state.ui ?? {};
 
   switch (mode) {
@@ -112,7 +133,7 @@ export function stateToPath(state) {
     case UI_MODE.REGISTER:
       return `/${URLS.REGISTER}`;
     case UI_MODE.PROFILE:
-      return `/${URLS.PROFILE}`;
+      return `/${URLS.PROFILE}` + (userId ? `/${userId}` : "");
     case UI_MODE.LISTING_LIST:
       return `/${URLS.LISTING_LIST}`;
     case UI_MODE.LISTING_DETAIL:
@@ -123,14 +144,18 @@ export function stateToPath(state) {
       return selectedListing
           ? `/${URLS.LISTING_ADMINISTRATION}/${selectedListing.ListingID}`
           : `/${URLS.LISTING_LIST}`;
+    case UI_MODE.CREATE_LISTING:
+      return `/${URLS.LISTING_LIST}/${URLS.CREATE_LISTING}`;
     case UI_MODE.TICKET_LIST:
       return `/${URLS.TICKET_LIST}`;
     case UI_MODE.TICKET_DETAIL: {
       const { selectedTicket } = state.ui ?? {};
       return selectedTicket
-        ? `/${URLS.TICKET_LIST}/${selectedTicket.TicketID}`
-        : `/${URLS.TICKET_LIST}`;
+        ? `/${URLS.TICKET_DETAIL}/${selectedTicket.TicketID}`
+        : `/${URLS.TICKET_DETAIL}`;
     }
+    case UI_MODE.ADMIN:
+      return `/${URLS.ADMIN}`;
     default:
       return `/${URLS.LISTING_LIST}`;
   }
@@ -141,6 +166,9 @@ export function stateToUrl(state) {
 }
 
 export function syncUrlWithState(state, { replace = false } = {}) {
+  if (state.ui?.status !== UI_STATUS.RDY || state.ui?.mode === UI_MODE.INIT)
+    return;
+
   const nextUrl = stateToUrl(state);
   const currentUrl = window.location.hash || "#";
 

@@ -19,6 +19,8 @@ export async function contactSeller({ store, api, dispatch, payload }) {
       ...state,
       ui: {
         ...state.ui,
+        selectedTicket: null,
+        errorMessage: null,
         notification: { type: NOTIFICATION_TYPE.ERR, message: result.reason },
       },
     }));

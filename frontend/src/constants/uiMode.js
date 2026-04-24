@@ -1,3 +1,5 @@
+export const INIT = "INIT";
+
 export const LOGIN = "LOGIN_VIEW";
 export const REGISTER = "REGISTER_VIEW";
 export const PROFILE = "USER_PROFILE";

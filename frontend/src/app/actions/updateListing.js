@@ -13,13 +13,16 @@ export async function updateListing({ store, api, payload }) {
         ...state,
         ui: {
           ...state.ui,
+          selectedTicket: null,
+          errorMessage: null,
           notification: {
-            type: NOTIFICATION_TYPE.WAR,
+            type: NOTIFICATION_TYPE.ERR,
             message: dataResult.reason,
           },
         },
       };
     });
+    return;
   }
 
   store.setState((state) => {
@@ -31,6 +34,8 @@ export async function updateListing({ store, api, payload }) {
           ...dataResult.listing,
           pictures: state.ui.selectedListing?.pictures ?? [],
         },
+        selectedTicket: null,
+        errorMessage: null,
         notification: {
           type: NOTIFICATION_TYPE.OK,
           message: "Úspešně uloženo",

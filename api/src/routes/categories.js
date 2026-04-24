@@ -35,6 +35,21 @@ router.get("/flat", async (_req, res) => {
   }
 });
 
+router.get("/allSubCategories/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id))
+    return res.status(400).json({ status: "ERROR", reason: "Neplatné ID" });
+
+  try {
+    const categories = await prisma.getAllSubcategories(id);
+
+    return res.json({ status: "SUCCESS", categories });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: "ERROR", reason: "Chyba serveru" });
+  }
+});
+
 router.post("/", requireAdmin, async (req, res) => {
   const { name, parentId } = req.body;
   if (!name)

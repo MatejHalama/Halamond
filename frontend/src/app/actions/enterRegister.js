@@ -35,8 +35,9 @@ export async function enterRegister({ store, api, payload = {}  })
                         ui: {
                             ...state.ui,
                             mode: UI_MODE.PROFILE,
-                            selectedExamId: null,
                             status: UI_STATUS.RDY,
+                            selectedListing: null,
+                            selectedTicket: null,
                             errorMessage: null,
                             notification: {
                                 type: NOTIFICATION_TYPE.WAR,
@@ -66,8 +67,9 @@ export async function enterRegister({ store, api, payload = {}  })
                 ui: {
                     ...state.ui,
                     mode: UI_MODE.REGISTER,
-                    selectedExamId: null,
                     status: UI_STATUS.RDY,
+                    selectedListing: null,
+                    selectedTicket: null,
                     errorMessage: null,
                     notification: notification,
                 }
