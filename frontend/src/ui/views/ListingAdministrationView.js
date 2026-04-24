@@ -7,7 +7,7 @@ import {
 import { createTitle } from "../builder/components/title.js";
 import { createText } from "../builder/components/text.js";
 import { createInput } from "../builder/components/input.js";
-import {createElement} from "../builder/createElement.js";
+import { createElement } from "../builder/createElement.js";
 
 export function ListingAdministrationView({ viewState, handlers }) {
   const { listing, categories, capabilities } = viewState;
@@ -92,7 +92,8 @@ export function ListingAdministrationView({ viewState, handlers }) {
     categorySelect.appendChild(emptyOpt);
     (categories ?? []).forEach((cat) => {
       const opt = createElement("option", { value: cat.CategoryID });
-      opt.textContent = cat.Name;
+      const indent = "  ".repeat(cat.depth ?? 0);
+      opt.textContent = indent + (cat.depth > 0 ? "└─ " : "") + cat.Name;
       opt.selected = listing.belongsTo === cat.CategoryID;
       categorySelect.appendChild(opt);
     });

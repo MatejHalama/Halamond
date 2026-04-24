@@ -351,10 +351,10 @@ export function userProfileHandlers(dispatch, viewState) {
   }
 
   handlers.onEnterDetail = (listingId) =>
-      dispatch({
-        type: ACTION_TYPE.ENTER_LISTING_DETAIL,
-        payload: { listingId },
-      });
+    dispatch({
+      type: ACTION_TYPE.ENTER_LISTING_DETAIL,
+      payload: { listingId },
+    });
 
   return handlers;
 }
@@ -377,6 +377,18 @@ export function adminHandlers(dispatch) {
     onBackToList: () => dispatch({ type: ACTION_TYPE.ENTER_LISTING_LIST }),
     onDismissReport: (reportId) =>
       dispatch({ type: ACTION_TYPE.DISMISS_REPORT, payload: { reportId } }),
+    onCreateCategory: (name, parentId) =>
+      dispatch({
+        type: ACTION_TYPE.CREATE_CATEGORY,
+        payload: { name, parentId },
+      }),
+    onUpdateCategory: (categoryId, name, parentId) =>
+      dispatch({
+        type: ACTION_TYPE.UPDATE_CATEGORY,
+        payload: { categoryId, name, parentId },
+      }),
+    onDeleteCategory: (categoryId) =>
+      dispatch({ type: ACTION_TYPE.DELETE_CATEGORY, payload: { categoryId } }),
   };
 }
 

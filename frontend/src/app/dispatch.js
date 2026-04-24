@@ -33,6 +33,9 @@ import { enterAdmin } from "./actions/enterAdmin.js";
 import { dismissReport } from "./actions/dismissReport.js";
 import { uploadPicture } from "./actions/uploadPicture.js";
 import { deletePicture } from "./actions/deletePicture.js";
+import { createCategory } from "./actions/createCategory.js";
+import { updateCategory } from "./actions/updateCategory.js";
+import { deleteCategory } from "./actions/deleteCategory.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -200,6 +203,18 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.DELETE_PICTURE:
         result = await deletePicture({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.CREATE_CATEGORY:
+        result = await createCategory({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.UPDATE_CATEGORY:
+        result = await updateCategory({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.DELETE_CATEGORY:
+        result = await deleteCategory({ store, api, payload });
         break;
 
       default:

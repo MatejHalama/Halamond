@@ -137,7 +137,8 @@ export function selectListings(state) {
 
 export function selectFilteredListings(state) {
   const listings = selectListings(state);
-  const { q, categoryId, minPrice, maxPrice, allSubCategories } = state.ui.filters ?? {};
+  const { q, categoryId, minPrice, maxPrice, allSubCategories } =
+    state.ui.filters ?? {};
 
   return listings.filter((l) => {
     if (q) {
@@ -146,7 +147,11 @@ export function selectFilteredListings(state) {
       const inDesc = l.Description?.toLowerCase().includes(needle);
       if (!inTitle && !inDesc) return false;
     }
-    if (categoryId != null && !allSubCategories.map(item => item.CategoryID).includes(l.belongsTo)) return false;
+    if (
+      categoryId != null &&
+      !allSubCategories.map((item) => item.CategoryID).includes(l.belongsTo)
+    )
+      return false;
     if (minPrice != null && Number(l.Price) < Number(minPrice)) return false;
     if (maxPrice != null && Number(l.Price) > Number(maxPrice)) return false;
     return true;
@@ -215,11 +220,24 @@ export function selectListingDetailView(state) {
   };
 }
 
+function flattenNestedCategories(cats, depth = 0) {
+  const items = [];
+  (cats ?? []).forEach((cat) => {
+    items.push({ CategoryID: cat.CategoryID, Name: cat.Name, depth });
+    if (cat.subcategories?.length) {
+      flattenNestedCategories(cat.subcategories, depth + 1).forEach((i) =>
+        items.push(i),
+      );
+    }
+  });
+  return items;
+}
+
 export function selectListingAdministrationView(state) {
   return {
     type: VIEW_STATE_TYPE.LISTING_ADMINISTRATION,
     listing: state.ui.selectedListing ?? null,
-    categories: state.categories ?? [],
+    categories: flattenNestedCategories(state.categories),
     auth: state.auth,
     capabilities: {
       canBackToList: true,
@@ -309,7 +327,7 @@ export function selectProfileView(state) {
 export function selectCreateListingView(state) {
   return {
     type: VIEW_STATE_TYPE.CREATE_LISTING,
-    categories: state.categories ?? [],
+    categories: flattenNestedCategories(state.categories),
     capabilities: {
       canBackToList: true,
     },
@@ -320,9 +338,11 @@ export function selectAdminView(state) {
   return {
     type: VIEW_STATE_TYPE.ADMIN,
     reports: state.reports ?? [],
+    categories: state.adminCategories ?? [],
     capabilities: {
       canBackToList: true,
       canDismissReport: true,
+      canManageCategories: state.auth.role === ROLE.ADMIN,
     },
   };
 }

@@ -18,6 +18,8 @@ VALUES
     (14, 10, 'ZMI')
 ;
 
+SELECT setval(pg_get_serial_sequence('"Category"', 'CategoryID'), MAX("CategoryID")) FROM "Category";
+
 INSERT INTO "User" ("Email", "Password", "Role", "Username")
 VALUES
     -- password is already encrypted

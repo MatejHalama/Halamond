@@ -62,8 +62,6 @@ router.get("/", async (req, res) => {
       OR: [{ Title: { contains: q } }, { Description: { contains: q } }],
     });
 
-  if (!isNaN(categoryId)) where.AND.push({ belongsTo: categoryId });
-
   if (!isNaN(minPrice)) where.AND.push({ Price: { gte: minPrice } });
 
   if (!isNaN(maxPrice)) where.AND.push({ Price: { lte: maxPrice } });
@@ -74,9 +72,11 @@ router.get("/", async (req, res) => {
   try {
     if (!isNaN(categoryId)) {
       const subCategories = await prisma.getAllSubcategories(categoryId);
-      if (subCategories.length > 0) {
-        where.AND.push({ belongsTo: { in: subCategories.map(item => item.CategoryID) } });
-      }
+      const categoryIds = [
+        categoryId,
+        ...subCategories.map((item) => item.CategoryID),
+      ];
+      where.AND.push({ belongsTo: { in: categoryIds } });
     }
 
     const [listings, total] = await Promise.all([
@@ -140,7 +140,7 @@ router.get("/:id/auth", requireAuth, async (req, res) => {
           { State: "active", user: { path: ["State"], equals: "active" } },
           { author: userId },
           { ...((await prisma.isBuyer(id, userId)) && { ListingID: id }) },
-          { ...((role === "admin") && { ListingID: id }) },
+          { ...(role === "admin" && { ListingID: id }) },
         ],
       },
     });
@@ -169,9 +169,10 @@ router.post("/", requireAuth, async (req, res) => {
 
   try {
     if (await prisma.isBlocked(userId)) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Přístup odepřen, uživatel je zablokován",
+      });
     }
 
     const listing = await prisma.listing.create({
@@ -201,9 +202,10 @@ router.patch("/:id", requireAuth, async (req, res) => {
 
   try {
     if (await prisma.isBlocked(userId)) {
-      return res
-          .status(403)
-          .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Přístup odepřen, uživatel je zablokován",
+      });
     }
 
     const listing = await prisma.listing.findUnique({
@@ -251,9 +253,10 @@ router.patch("/:id/activate", requireAuth, async (req, res) => {
 
   try {
     if (await prisma.isBlocked(userId)) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Přístup odepřen, uživatel je zablokován",
+      });
     }
 
     const listing = await prisma.listing.findUnique({
@@ -305,9 +308,10 @@ router.patch("/:id/sell", requireAuth, async (req, res) => {
 
   try {
     if (await prisma.isBlocked(userId)) {
-      return res
-        .status(403)
-        .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Přístup odepřen, uživatel je zablokován",
+      });
     }
 
     const listing = await prisma.listing.findUnique({
@@ -359,9 +363,10 @@ router.patch("/:id/delete", requireAuth, async (req, res) => {
 
   try {
     if (await prisma.isBlocked(userId)) {
-      return res
-          .status(403)
-          .json({ status: "ERROR", reason: "Přístup odepřen, uživatel je zablokován" });
+      return res.status(403).json({
+        status: "ERROR",
+        reason: "Přístup odepřen, uživatel je zablokován",
+      });
     }
 
     const listing = await prisma.listing.findUnique({

@@ -807,7 +807,8 @@ select:focus {
   box-shadow: var(--shadow-sm);
 }
 
-.listing-admin-form input, .listing-admin-form select {
+.listing-admin-form input,
+.listing-admin-form select {
   display: block;
   width: 100%;
   padding: 0.6rem 0.8rem;
@@ -823,7 +824,8 @@ select:focus {
     box-shadow 0.15s;
 }
 
-.listing-admin-form input:focus, .listing-admin-form select:focus {
+.listing-admin-form input:focus,
+.listing-admin-form select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
@@ -903,6 +905,101 @@ select:focus {
   text-align: center;
   padding: 3rem;
   color: var(--muted);
+}
+
+/* Admin categories */
+
+.admin-categories {
+  margin-top: 2rem;
+}
+
+.category-list {
+  margin-bottom: 1rem;
+}
+
+.category-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-row:last-child {
+  border-bottom: none;
+}
+
+.category-row__name {
+  flex: 1;
+  font-size: 0.9375rem;
+  color: var(--text);
+}
+
+.category-row__input {
+  flex: 1;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.category-row__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
+}
+
+.category-new-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+}
+
+.category-new-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.category-new-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
+}
+
+.category-row__error {
+  font-size: 0.8125rem;
+  color: var(--danger);
+  margin-left: 0.25rem;
+}
+
+.input--error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.12) !important;
+}
+
+.category-parent-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg);
+  margin-bottom: 0;
 }
 
 /* Card image */
@@ -994,6 +1091,11 @@ select:focus {
 .badge--draft {
   background: #fef3c7;
   color: #92400e;
+}
+
+.badge--active {
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 .badge--sold {
