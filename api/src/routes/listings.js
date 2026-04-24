@@ -459,7 +459,7 @@ router.patch("/:id/unblock", requireAdmin, async (req, res) => {
         .status(404)
         .json({ status: "ERROR", reason: "Inzerát nenalezen" });
 
-    if (listing.State !== "block") {
+    if (listing.State !== "blocked") {
       return res.status(403).json({
         status: "ERROR",
         reason: "Inzerát nelze označit jako aktivní",
