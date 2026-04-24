@@ -40,3 +40,5 @@ export const DELETE_PICTURE = "DELETE_PICTURE";
 
 export const ENTER_ADMIN = "ENTER_ADMIN";
 export const DISMISS_REPORT = "DISMISS_REPORT";
+
+export const SUBMIT_COMMENT = "SUBMIT_COMMENT";

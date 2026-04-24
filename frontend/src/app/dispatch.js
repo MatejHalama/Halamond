@@ -33,6 +33,7 @@ import { enterAdmin } from "./actions/enterAdmin.js";
 import { dismissReport } from "./actions/dismissReport.js";
 import { uploadPicture } from "./actions/uploadPicture.js";
 import { deletePicture } from "./actions/deletePicture.js";
+import {submitComment} from "./actions/submitComment.js";
 
 function isAuthenticated(state) {
   return !!state.auth?.userId;
@@ -132,6 +133,10 @@ export function createDispatcher(store, api) {
 
       case ACTION_TYPE.DELETE_LISTING:
         result = await deleteListing({ store, api, payload });
+        break;
+
+      case ACTION_TYPE.SUBMIT_COMMENT:
+        result = await submitComment({ store, api, payload });
         break;
 
       case ACTION_TYPE.ENTER_PROFILE:

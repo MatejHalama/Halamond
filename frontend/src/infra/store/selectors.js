@@ -78,6 +78,17 @@ export function canEnterAdministration(state) {
 
 /**/
 
+export function canComment(state) {
+  const { role, userId } = state.auth;
+  if (role === ROLE.ANON) return false;
+
+  const listing = state.ui.selectedListing ?? null;
+  if (!listing) return false;
+  if (listing.State !== "active") return false;
+
+  return true;
+}
+
 export function canContactSeller(state) {
   const { role, userId } = state.auth;
   if (role === ROLE.ANON) return false;
@@ -203,6 +214,7 @@ export function selectListingDetailView(state) {
     auth: state.auth,
     capabilities: {
       canBackToList: true,
+      canComment: canComment(state),
       canContactSeller: canContactSeller(state),
       canActivateListing: canActivateListing(state),
       canSellListing: canSellListing(state),

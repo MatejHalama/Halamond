@@ -147,6 +147,30 @@ export function createListingsApi() {
       }
     },
 
+    async commentListing(id, payload) {
+      const { parentId, text } = payload;
+
+      try {
+        const response = await fetch(`${BASE}/api/listings/${id}/comment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ...((parentId === null || parentId) && { parentId: parentId }),
+            ...(text && { text: text }),
+          }),
+        });
+        return await response.json();
+      } catch (error) {
+        return {
+          status: "ERROR",
+          reason: "Chyba spojení se serverem",
+        };
+      }
+    },
+
     async getMyListings() {
       try {
         const response = await fetch(`${BASE}/api/listings/my`, {
