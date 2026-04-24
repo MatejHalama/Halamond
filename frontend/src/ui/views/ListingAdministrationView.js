@@ -1,8 +1,5 @@
 import { createDiv } from "../builder/components/div.js";
-import {
-  canGoBack,
-  submitButton,
-} from "../builder/components/button.js";
+import { canGoBack, submitButton } from "../builder/components/button.js";
 import { createTitle } from "../builder/components/title.js";
 import { createText } from "../builder/components/text.js";
 import { createInput } from "../builder/components/input.js";
@@ -10,17 +7,8 @@ import { createElement } from "../builder/createElement.js";
 
 export function ListingAdministrationView({ viewState, handlers }) {
   const { listing, categories, capabilities } = viewState;
-  const {
-    canUpdateListing,
-    canBackToList,
-    canUploadPicture,
-  } = capabilities;
-  const {
-    onUpdate,
-    onBackToList,
-    onUploadPicture,
-    onDeletePicture,
-  } = handlers;
+  const { canUpdateListing, canBackToList, canUploadPicture } = capabilities;
+  const { onUpdate, onBackToList, onUploadPicture, onDeletePicture } = handlers;
 
   const root = createDiv();
   root.appendChild(canGoBack(canBackToList, onBackToList));
@@ -138,7 +126,7 @@ export function ListingAdministrationView({ viewState, handlers }) {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
-    fileInput.style.display = "none";
+    fileInput.classList.add("hidden");
 
     const uploadBtn = document.createElement("button");
     uploadBtn.className = "button button--secondary mt-15";

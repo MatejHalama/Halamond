@@ -99,7 +99,7 @@ export async function fakeApi() {
             }),
             createTicket: async () => ({
                 status: "SUCCESS",
-                ticket: {}
+                ticket: { TicketID: 1 }
             }),
             closeTicket: async () => ({
                 status: "SUCCESS",
